@@ -21,15 +21,20 @@ export default function FridgeStep({ items, onItemsChange: setItems, onNext }: P
   const [error, setError] = useState<string | null>(null);
   const [testMode, setTestMode] = useState(false);
   const [testInfo, setTestInfo] = useState<TestInfo | null>(null);
-  const fileInput = useRef<HTMLInputElement>(null);
+  const cameraInput = useRef<HTMLInputElement>(null);
+  const savedPhotoInput = useRef<HTMLInputElement>(null);
 
   // Add ?test to the address to see what each scan cost.
   useEffect(() => {
     setTestMode(new URLSearchParams(window.location.search).has("test"));
   }, []);
 
-  function choosePhoto() {
-    fileInput.current?.click();
+  function takePhoto() {
+    cameraInput.current?.click();
+  }
+
+  function chooseSavedPhoto() {
+    savedPhotoInput.current?.click();
   }
 
   async function onPhotoChosen(event: ChangeEvent<HTMLInputElement>) {
@@ -109,8 +114,11 @@ export default function FridgeStep({ items, onItemsChange: setItems, onNext }: P
               Take one photo of your open fridge. We&apos;ll list what&apos;s inside, and you can
               fix anything we get wrong.
             </p>
-            <button className="primary" onClick={choosePhoto}>
+            <button className="primary" onClick={takePhoto}>
               Take a photo
+            </button>
+            <button className="link" onClick={chooseSavedPhoto}>
+              Choose a saved photo
             </button>
             <button className="link" onClick={startTyping}>
               Or type what you have
@@ -165,7 +173,7 @@ export default function FridgeStep({ items, onItemsChange: setItems, onNext }: P
               <button type="submit">Add</button>
             </form>
 
-            <button className="secondary" onClick={choosePhoto}>
+            <button className="secondary" onClick={takePhoto}>
               {photoUrl ? "Take another photo" : "Take a photo instead"}
             </button>
             <button className="primary next-step" onClick={onNext}>
@@ -180,7 +188,16 @@ export default function FridgeStep({ items, onItemsChange: setItems, onNext }: P
           </p>
         )}
 
-        <input ref={fileInput} type="file" accept="image/*" hidden onChange={onPhotoChosen} />
+        {/* capture opens the phone's camera straight away instead of the file browser. */}
+        <input
+          ref={cameraInput}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          hidden
+          onChange={onPhotoChosen}
+        />
+        <input ref={savedPhotoInput} type="file" accept="image/*" hidden onChange={onPhotoChosen} />
       </section>
 
       {testMode && testInfo && (
