@@ -5,7 +5,7 @@
 
 ## What to build: a simple web app
 
-Build one page with a short form. She answers a few questions on Sunday and gets the week's plan at a link. She can send that link to her husband and nanny, open it on any phone, and screenshot it for the fridge. Nobody needs to download anything. A web link also skips App Store fees and review until there's proof parents want it, which is what your Business Model Canvas already plans.
+Build one page with a short form. She answers a few questions on Sunday and gets the week's plan at a link. She can send that link to her husband and nanny, open it on any phone, and screenshot it for the fridge. Nobody needs to download anything, and she can still take the fridge photo with her phone's camera from the web page. A web link also skips App Store fees and review until there's proof parents want it, which is what your Business Model Canvas already plans.
 
 ## 1. The one core job
 
@@ -22,12 +22,17 @@ Everything else (the grocery list and the prep list) is there to make that plan 
 | Any allergies? | Peanuts |
 | Who's eating, and what does each kid refuse? | 2 adults. Maya (7): mushrooms, fish. Leo (3): anything spicy |
 | What's the longest you'll cook on a weeknight? | 30 minutes |
-| Anything in the fridge to use up? *(optional)* | Chicken, rice, half a bag of spinach |
+| Snap a photo of your fridge *(optional)* | One photo taken with her phone's camera |
 | Add lunches too? *(checkbox, off unless she ticks it)* | No |
+
+**How the fridge photo works:**
+- The app reads the photo and shows what it found as a short list, such as "chicken, rice, spinach, milk."
+- She can remove anything it got wrong or add something it missed.
+- If she skips the photo, or the photo doesn't work, she can type a few items instead, or skip this step completely. The plan still works.
 
 ### She gets back (one link she can share)
 
-- **Dinners for Monday to Friday.** Each one is a single meal the whole family can eat. Nothing is on any kid's refuse list, and nothing takes longer than her time limit. Each dinner has a cook time and short steps.
+- **Dinners for Monday to Friday.** Each one is a single meal the whole family can eat. Nothing is on any kid's refuse list, and nothing takes longer than her time limit. The plan uses what's already in her fridge first. Each dinner has a cook time and short steps.
 - **Lunches,** only if she ticked the box.
 - **One grocery list** for a single trip. It's grouped by store section and leaves out what she already has.
 - **A Sunday prep list** of what to chop, marinate, or cook ahead that day so weeknights go fast.
@@ -36,7 +41,8 @@ Everything else (the grocery list and the prep list) is there to make that plan 
 
 | Leave out | Why it can wait |
 |---|---|
-| Fridge photo scan | Typing what's in the fridge does the same job while you test. The scan is the hardest and most expensive part to build. |
+| Scanning the pantry, the freezer, or more than one photo | One fridge photo is enough to test whether the scan saves her time. |
+| Keeping track of what's in the fridge from week to week | She takes a new photo each Sunday. |
 | Thumbs up or down, and learning the family's tastes | This only helps after weeks of use. Until then, she can retype her answers in a minute. |
 | Accounts and logins | A link is enough to share the plan, and testers don't have to make a password. |
 | Payments and subscription | First find out whether she uses it. Ask about price in conversation instead. |
@@ -57,6 +63,7 @@ Everything else (the grocery list and the prep list) is there to make that plan 
 
 **While you test, write down:**
 - Where she gets stuck or has to ask you something
+- Whether she uses the fridge photo, and what the scan missed or got wrong
 - Any planned dinner she skipped, and why
 - Any night she ordered takeout even though there was a plan
 
@@ -70,4 +77,8 @@ So treat her week as a practice run. Fix whatever confused her. Then run the sam
 
 ## Note for your Business Model Canvas
 
-Your canvas's next step is about 20 test scans to find your cost per scan. This MVP has no scan, so measure your cost per weekly plan instead and use that to check the $6.99 price.
+Your canvas's next step still applies: run about 20 test scans of real fridges before your mom tries the app. They tell you two things:
+- **Accuracy:** how many items each scan gets right.
+- **Cost:** what one scan costs you, plus what one weekly plan costs you.
+
+Use both costs to check the $6.99 price and to make sure your $200 budget covers each tester's free week.
