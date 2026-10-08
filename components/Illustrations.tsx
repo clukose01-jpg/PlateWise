@@ -22,7 +22,7 @@ export function FridgeDrawing() {
       <rect x="78" y="14" width="4" height="12" rx="2" fill="var(--accent)" />
       <rect x="78" y="42" width="4" height="18" rx="2" fill="var(--accent)" />
       <circle cx="46" cy="70" r="7" fill="var(--tomato)" />
-      <rect x="57" y="62" width="9" height="16" rx="3" fill="var(--wed-fg)" />
+      <rect x="57" y="62" width="9" height="16" rx="3" fill="var(--tue-fg)" />
       <ellipse cx="45" cy="52" rx="7" ry="5" fill="var(--card)" stroke="var(--muted)" strokeWidth="1.5" />
     </svg>
   );

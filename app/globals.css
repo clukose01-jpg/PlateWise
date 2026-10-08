@@ -1,30 +1,30 @@
 :root {
-  --bg: #fdf6f3;
+  --bg: #fbf5ee;
   --card: #ffffff;
-  --text: #2d2326;
-  --muted: #74666a;
-  --border: #f0e2dd;
-  --accent: #c2335a;
-  --accent-pressed: #a3264a;
+  --text: #2e2620;
+  --muted: #75685e;
+  --border: #ede1d3;
+  --accent: #a84e22;
+  --accent-pressed: #8c3f1a;
   --accent-text: #ffffff;
-  --accent-soft: #fbe4ea;
+  --accent-soft: #f8e6d6;
   --tomato: #e2603e;
-  --tomato-soft: #fce7df;
+  --tomato-soft: #f5ead3;
   --error: #b3261e;
   --notice: #8a5a00;
   --shadow: 0 1px 2px rgba(70, 45, 20, 0.05), 0 6px 20px rgba(70, 45, 20, 0.07);
 
   /* One color per weekday, Monday to Friday. */
-  --mon-bg: #fbe4ea;
-  --mon-fg: #b02a50;
-  --tue-bg: #fce7df;
-  --tue-fg: #b4472a;
-  --wed-bg: #fdf0cf;
-  --wed-fg: #8a6410;
-  --thu-bg: #e4f1e9;
-  --thu-fg: #2e6a4f;
-  --fri-bg: #e1ecf8;
-  --fri-fg: #2f5e8c;
+  --mon-bg: #f8e6d6;
+  --mon-fg: #a84e22;
+  --tue-bg: #fdf0cf;
+  --tue-fg: #8a6410;
+  --wed-bg: #e4f1e9;
+  --wed-fg: #2e6a4f;
+  --thu-bg: #e1ecf8;
+  --thu-fg: #2f5e8c;
+  --fri-bg: #efe4dc;
+  --fri-fg: #6b4a3a;
 
   --heading: "Fraunces Variable", Georgia, serif;
   color-scheme: light;
@@ -32,31 +32,31 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #1a1517;
-    --card: #241d20;
-    --text: #f1e9ec;
-    --muted: #b3a5aa;
-    --border: #3a2f33;
-    --accent: #f27a9b;
-    --accent-pressed: #f598b1;
-    --accent-text: #2a0f18;
-    --accent-soft: #3a2129;
+    --bg: #1a1613;
+    --card: #241f1b;
+    --text: #f0e9e3;
+    --muted: #b0a399;
+    --border: #3a322b;
+    --accent: #e8915a;
+    --accent-pressed: #efa676;
+    --accent-text: #2a160a;
+    --accent-soft: #3a2a1f;
     --tomato: #f08a6b;
-    --tomato-soft: #3a2620;
+    --tomato-soft: #352b1d;
     --error: #ff8a80;
     --notice: #f2c46d;
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 
-    --mon-bg: #3a2129;
-    --mon-fg: #f59ab3;
-    --tue-bg: #3a2620;
-    --tue-fg: #f2a285;
-    --wed-bg: #3a3220;
-    --wed-fg: #e9c46a;
-    --thu-bg: #24352c;
-    --thu-fg: #8fd6b1;
-    --fri-bg: #20303f;
-    --fri-fg: #8db8e6;
+    --mon-bg: #3a2a1f;
+    --mon-fg: #f0a877;
+    --tue-bg: #3a3220;
+    --tue-fg: #e9c46a;
+    --wed-bg: #24352c;
+    --wed-fg: #8fd6b1;
+    --thu-bg: #20303f;
+    --thu-fg: #8db8e6;
+    --fri-bg: #2f2723;
+    --fri-fg: #d0b4a3;
     color-scheme: dark;
   }
 }
@@ -216,7 +216,7 @@ button {
   background: var(--accent);
   color: var(--accent-text);
   border: none;
-  box-shadow: 0 2px 8px rgba(194, 51, 90, 0.25);
+  box-shadow: 0 2px 8px rgba(168, 78, 34, 0.25);
 }
 
 .primary:active,
@@ -754,7 +754,7 @@ legend.question {
   font-family: inherit;
   font-size: 13px;
   font-weight: 700;
-  color: var(--tue-fg);
+  color: var(--accent);
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
