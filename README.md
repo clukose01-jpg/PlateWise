@@ -2,7 +2,10 @@
 
 PlateWise plans a family's week of dinners on Sunday. See [plan.md](plan.md) for the MVP plan.
 
-**Built so far:** step 1, the fridge scan. She takes a photo of her fridge, PlateWise lists the food it sees, and she can fix the list or type it herself.
+**Built so far:**
+1. **Fridge scan.** She takes a photo of her fridge, PlateWise lists the food it sees, and she can fix the list or type it herself.
+2. **Family questions.** Allergies, what each kid won't eat, the longest she'll cook on a weeknight, and whether to plan lunches. Her phone remembers the answers for next week.
+3. **The plan.** Monday–Friday dinners, a Sunday prep list and one grocery list, saved at a private link she can share.
 
 ## Put it online
 
@@ -17,6 +20,9 @@ You need two accounts: one to pay for the AI, and one to host the app.
    - Choose **Add New → Project** and pick the PlateWise repository.
    - Under **Environment Variables**, add `ANTHROPIC_API_KEY` and paste your key as the value.
    - Click **Deploy**. Vercel gives you a link you can open on your phone.
+3. **Turn on plan saving.**
+   - In your Vercel project, open **Storage**, create a **Blob** store, and connect it to PlateWise. Choose **Private** if it asks.
+   - Vercel adds the storage key for you. Redeploy once so the app picks it up.
 
 ## Run your 20 test scans
 
@@ -28,7 +34,9 @@ You need two accounts: one to pay for the AI, and one to host the app.
    - What it missed
    - What it cost
 
-The average cost tells you whether $6.99 a month works. The misses tell you whether the scan is good enough to show your mom.
+Plans work the same way: make a plan from a `?test` link, and the bottom of the plan page shows what that plan cost. (People you share the plan with won't see this.)
+
+The average cost of a scan plus a plan tells you whether $6.99 a month works. The misses tell you whether the scan is good enough to show your mom.
 
 ## Run it on your own computer (optional)
 
