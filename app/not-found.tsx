@@ -1,10 +1,11 @@
 import Link from "next/link";
+import { Logo } from "@/components/Illustrations";
 
 export default function NotFound() {
   return (
     <main>
       <header>
-        <h1>PlateWise</h1>
+        <Logo />
       </header>
       <section className="card">
         <h2>We couldn&apos;t find that plan</h2>

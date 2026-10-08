@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import Checklist from "@/components/Checklist";
+import { ClockIcon, Logo } from "@/components/Illustrations";
 import ShareButton from "@/components/ShareButton";
 import { loadPlan } from "@/lib/plans";
 
@@ -33,18 +35,20 @@ export default async function PlanPage({ params, searchParams }: Props) {
   return (
     <main>
       <header>
-        <Link href="/" className="brand">
-          PlateWise
+        <Link href="/" aria-label="PlateWise home">
+          <Logo />
         </Link>
-        <h1 className="plan-title">Dinners for the week</h1>
+        <h1 className="plan-title">Your week of dinners</h1>
         {family.madeOn && <p className="tagline">Made on {family.madeOn}</p>}
       </header>
 
       <ShareButton />
 
       {plannedAround.length > 0 && (
-        <section className="card planned-around">
-          <h2>Planned around</h2>
+        <section className="planned-around">
+          <h2 className="section-title">
+            <span aria-hidden="true">📝</span> Planned around
+          </h2>
           <ul>
             {plannedAround.map((line) => (
               <li key={line}>{line}</li>
@@ -54,32 +58,46 @@ export default async function PlanPage({ params, searchParams }: Props) {
       )}
 
       <section>
-        <h2 className="section-title">Dinners</h2>
-        {plan.dinners.map((dinner) => (
+        <h2 className="section-title">
+          <span aria-hidden="true">🍽️</span> Dinners
+        </h2>
+        {plan.dinners.map((dinner, i) => (
           <details className="card dinner" key={dinner.day}>
             <summary>
-              <span className="day">{dinner.day}</span>
-              <span className="dish">{dinner.name}</span>
-              <span className="minutes">{dinner.minutes} min</span>
+              <span className={`day-badge day-${i}`}>{dinner.day.slice(0, 3)}</span>
+              <span className="dish-info">
+                <span className="dish">{dinner.name}</span>
+                <span className="minutes">
+                  <ClockIcon /> {dinner.minutes} min
+                </span>
+              </span>
+              <span className="chevron" aria-hidden="true" />
             </summary>
-            {dinner.tip && <p className="tip">Tip: {dinner.tip}</p>}
-            <ol>
-              {dinner.steps.map((step, i) => (
-                <li key={i}>{step}</li>
+            {dinner.tip && (
+              <p className="tip">
+                <strong>Tip:</strong> {dinner.tip}
+              </p>
+            )}
+            <ol className="steps">
+              {dinner.steps.map((step, j) => (
+                <li key={j}>{step}</li>
               ))}
             </ol>
           </details>
         ))}
-        <p className="hint">Tap a dinner to see the steps.</p>
+        <p className="hint">Tap a dinner to see how to make it.</p>
       </section>
 
       {plan.lunches.length > 0 && (
         <section className="card">
-          <h2>Lunches</h2>
+          <h2 className="section-title">
+            <span aria-hidden="true">🥪</span> Lunches
+          </h2>
           <ul className="lunches">
-            {plan.lunches.map((lunch) => (
+            {plan.lunches.map((lunch, i) => (
               <li key={lunch.day}>
-                <span className="day">{lunch.day}</span> {lunch.name}
+                <span className={`day-badge small day-${i}`}>{lunch.day.slice(0, 3)}</span>
+                {lunch.name}
               </li>
             ))}
           </ul>
@@ -87,29 +105,26 @@ export default async function PlanPage({ params, searchParams }: Props) {
       )}
 
       <section className="card">
-        <h2>Sunday prep</h2>
-        <ul className="checklist">
-          {plan.prepList.map((task, i) => (
-            <li key={i}>{task}</li>
-          ))}
-        </ul>
+        <h2 className="section-title">
+          <span aria-hidden="true">🔪</span> Sunday prep
+        </h2>
+        <Checklist items={plan.prepList} storageKey={`platewise.${id}.prep`} />
       </section>
 
       <section className="card">
-        <h2>Grocery list</h2>
+        <h2 className="section-title">
+          <span aria-hidden="true">🛒</span> Grocery list
+        </h2>
+        <p className="hint">Tap items as they go in your cart.</p>
         {plan.groceryList.map((group) => (
           <div className="grocery-section" key={group.section}>
             <h3>{group.section}</h3>
-            <ul className="checklist">
-              {group.items.map((item, i) => (
-                <li key={i}>{item}</li>
-              ))}
-            </ul>
+            <Checklist items={group.items} storageKey={`platewise.${id}.grocery.${group.section}`} />
           </div>
         ))}
       </section>
 
-      <p className="hint">Always check food labels for allergens.</p>
+      <p className="hint center">Always check food labels for allergens.</p>
 
       <Link href="/" className="secondary">
         Make a new plan

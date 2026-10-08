@@ -2,6 +2,7 @@
 
 import { type ChangeEvent, type FormEvent, useEffect, useRef, useState } from "react";
 import type { TestInfo } from "@/lib/plan-schema";
+import { FridgeDrawing } from "./Illustrations";
 import { resizePhoto } from "@/lib/resize-photo";
 
 type Step = "start" | "scanning" | "list";
@@ -110,6 +111,7 @@ export default function FridgeStep({ items, onItemsChange: setItems, onNext }: P
 
         {step === "start" && (
           <>
+            <FridgeDrawing />
             <p>
               Take one photo of your open fridge. We&apos;ll list what&apos;s inside, and you can
               fix anything we get wrong.

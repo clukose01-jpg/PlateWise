@@ -74,6 +74,7 @@ export default function FamilyStep({ error, onBack, onSubmit }: Props) {
       <p>Three quick questions. This phone will remember your answers for next week.</p>
 
       <label className="question" htmlFor="allergies">
+        <span className="number">1</span>
         Any food allergies?
       </label>
       <input
@@ -84,7 +85,10 @@ export default function FamilyStep({ error, onBack, onSubmit }: Props) {
       />
 
       <fieldset>
-        <legend className="question">Who&apos;s eating?</legend>
+        <legend className="question">
+          <span className="number">2</span>
+          Who&apos;s eating?
+        </legend>
         <label className="inline">
           Adults
           <select value={adults} onChange={(event) => setAdults(Number(event.target.value))}>
@@ -123,7 +127,10 @@ export default function FamilyStep({ error, onBack, onSubmit }: Props) {
       </fieldset>
 
       <fieldset>
-        <legend className="question">Longest you&apos;ll cook on a weeknight?</legend>
+        <legend className="question">
+          <span className="number">3</span>
+          Longest you&apos;ll cook on a weeknight?
+        </legend>
         <div className="pills">
           {COOK_TIMES.map((minutes) => (
             <label key={minutes} className={maxMinutes === minutes ? "pill selected" : "pill"}>

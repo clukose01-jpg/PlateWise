@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ShareIcon } from "./Illustrations";
 
 export default function ShareButton() {
   const [copied, setCopied] = useState(false);
@@ -28,7 +29,8 @@ export default function ShareButton() {
   }
 
   return (
-    <button className="primary" onClick={share}>
+    <button className="primary share" onClick={share}>
+      <ShareIcon />
       {copied ? "Link copied" : "Share this plan"}
     </button>
   );

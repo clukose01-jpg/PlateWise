@@ -4,6 +4,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import FamilyStep, { type FamilyAnswers } from "@/components/FamilyStep";
 import FridgeStep from "@/components/FridgeStep";
+import { Logo } from "@/components/Illustrations";
+import PlanningWait from "@/components/PlanningWait";
+import StepBar from "@/components/StepBar";
 
 type Stage = "fridge" | "family" | "planning";
 
@@ -46,9 +49,16 @@ export default function Home() {
   return (
     <main>
       <header>
-        <h1>PlateWise</h1>
-        <p className="tagline">Plan the week&apos;s dinners in a few minutes.</p>
+        <Logo />
+        {stage === "fridge" && (
+          <>
+            <h1 className="hero">Dinner, decided.</h1>
+            <p className="tagline">Plan the whole week of dinners in a few minutes.</p>
+          </>
+        )}
       </header>
+
+      <StepBar step={stage === "fridge" ? 1 : stage === "family" ? 2 : 3} />
 
       {/* Steps are hidden instead of removed, so going back keeps what she entered. */}
       <div hidden={stage !== "fridge"}>
@@ -66,12 +76,7 @@ export default function Home() {
         <FamilyStep error={error} onBack={() => setStage("fridge")} onSubmit={makePlan} />
       </div>
 
-      {stage === "planning" && (
-        <section className="card planning" role="status">
-          <h2>Planning your week…</h2>
-          <p>This usually takes a minute or two. Keep this page open.</p>
-        </section>
-      )}
+      {stage === "planning" && <PlanningWait />}
     </main>
   );
 }
