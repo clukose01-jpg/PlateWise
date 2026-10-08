@@ -6,7 +6,7 @@ export function Logo() {
       <svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true">
         <circle cx="16" cy="16" r="15" fill="var(--accent)" />
         <circle cx="16" cy="16" r="11" fill="var(--card)" />
-        <path d="M11 21c0-6 3.5-10 10-10 0 6.5-4 10-10 10Z" fill="var(--accent)" />
+        <path d="M11 21c0-6 3.5-10 10-10 0 6.5-4 10-10 10Z" fill="var(--green)" />
         <path d="M11 21l6.5-6.5" stroke="var(--card)" strokeWidth="1.4" strokeLinecap="round" />
       </svg>
       <span className="wordmark">PlateWise</span>
@@ -22,7 +22,7 @@ export function FridgeDrawing() {
       <rect x="78" y="14" width="4" height="12" rx="2" fill="var(--accent)" />
       <rect x="78" y="42" width="4" height="18" rx="2" fill="var(--accent)" />
       <circle cx="46" cy="70" r="7" fill="var(--tomato)" />
-      <rect x="57" y="62" width="9" height="16" rx="3" fill="var(--tue-fg)" />
+      <rect x="57" y="62" width="9" height="16" rx="3" fill="var(--green)" />
       <ellipse cx="45" cy="52" rx="7" ry="5" fill="var(--card)" stroke="var(--muted)" strokeWidth="1.5" />
     </svg>
   );
@@ -34,8 +34,8 @@ export function PotDrawing() {
       <path className="steam s1" d="M44 34c-6-7 6-11 0-18" />
       <path className="steam s2" d="M60 32c-6-7 6-11 0-18" />
       <path className="steam s3" d="M76 34c-6-7 6-11 0-18" />
-      <rect x="22" y="44" width="76" height="10" rx="5" fill="var(--accent)" />
-      <rect x="54" y="38" width="12" height="7" rx="3" fill="var(--accent)" />
+      <rect x="22" y="44" width="76" height="10" rx="5" fill="var(--green)" />
+      <rect x="54" y="38" width="12" height="7" rx="3" fill="var(--green)" />
       <path d="M28 54h64v22a14 14 0 0 1-14 14H42a14 14 0 0 1-14-14Z" fill="var(--tomato)" />
       <rect x="14" y="58" width="14" height="6" rx="3" fill="var(--tomato)" />
       <rect x="92" y="58" width="14" height="6" rx="3" fill="var(--tomato)" />

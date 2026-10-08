@@ -10,6 +10,8 @@
   --accent-soft: #f8e6d6;
   --tomato: #e2603e;
   --tomato-soft: #f5ead3;
+  --green: #4f7a4a;
+  --green-soft: #e6efdf;
   --error: #b3261e;
   --notice: #8a5a00;
   --shadow: 0 1px 2px rgba(70, 45, 20, 0.05), 0 6px 20px rgba(70, 45, 20, 0.07);
@@ -19,8 +21,8 @@
   --mon-fg: #a84e22;
   --tue-bg: #fdf0cf;
   --tue-fg: #8a6410;
-  --wed-bg: #e4f1e9;
-  --wed-fg: #2e6a4f;
+  --wed-bg: #e6efdf;
+  --wed-fg: #3f6a3a;
   --thu-bg: #e1ecf8;
   --thu-fg: #2f5e8c;
   --fri-bg: #efe4dc;
@@ -43,6 +45,8 @@
     --accent-soft: #3a2a1f;
     --tomato: #f08a6b;
     --tomato-soft: #352b1d;
+    --green: #9cc48f;
+    --green-soft: #26301f;
     --error: #ff8a80;
     --notice: #f2c46d;
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
@@ -51,8 +55,8 @@
     --mon-fg: #f0a877;
     --tue-bg: #3a3220;
     --tue-fg: #e9c46a;
-    --wed-bg: #24352c;
-    --wed-fg: #8fd6b1;
+    --wed-bg: #26301f;
+    --wed-fg: #9cc48f;
     --thu-bg: #20303f;
     --thu-fg: #8db8e6;
     --fri-bg: #2f2723;
@@ -300,7 +304,7 @@ button {
   display: flex;
   align-items: center;
   gap: 2px;
-  background: var(--accent-soft);
+  background: var(--green-soft);
   color: var(--text);
   border-radius: 999px;
   padding: 4px 4px 4px 14px;
@@ -490,7 +494,7 @@ legend.question {
 .checkbox input {
   width: 22px;
   height: 22px;
-  accent-color: var(--accent);
+  accent-color: var(--green);
 }
 
 /* Waiting for the plan */
@@ -678,7 +682,7 @@ legend.question {
 .tip {
   margin: 16px 16px 0;
   padding: 10px 14px;
-  background: var(--accent-soft);
+  background: var(--green-soft);
   border-radius: 12px;
 }
 
@@ -740,7 +744,7 @@ legend.question {
   width: 22px;
   height: 22px;
   margin: 1px 0 0;
-  accent-color: var(--accent);
+  accent-color: var(--green);
   flex-shrink: 0;
 }
 
