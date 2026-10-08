@@ -12,7 +12,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#fbf5ee" },
-    { media: "(prefers-color-scheme: dark)", color: "#1a1613" },
+    { media: "(prefers-color-scheme: dark)", color: "#1f1b18" },
   ],
 };
 
