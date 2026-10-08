@@ -1,13 +1,13 @@
 :root {
-  --bg: #fbf6ee;
+  --bg: #fdf6f3;
   --card: #ffffff;
-  --text: #22302a;
-  --muted: #66736c;
-  --border: #ebe3d7;
-  --accent: #2e6a4f;
-  --accent-pressed: #24553f;
+  --text: #2d2326;
+  --muted: #74666a;
+  --border: #f0e2dd;
+  --accent: #c2335a;
+  --accent-pressed: #a3264a;
   --accent-text: #ffffff;
-  --accent-soft: #e4f1e9;
+  --accent-soft: #fbe4ea;
   --tomato: #e2603e;
   --tomato-soft: #fce7df;
   --error: #b3261e;
@@ -15,16 +15,16 @@
   --shadow: 0 1px 2px rgba(70, 45, 20, 0.05), 0 6px 20px rgba(70, 45, 20, 0.07);
 
   /* One color per weekday, Monday to Friday. */
-  --mon-bg: #e4f1e9;
-  --mon-fg: #2e6a4f;
+  --mon-bg: #fbe4ea;
+  --mon-fg: #b02a50;
   --tue-bg: #fce7df;
   --tue-fg: #b4472a;
   --wed-bg: #fdf0cf;
   --wed-fg: #8a6410;
-  --thu-bg: #e1ecf8;
-  --thu-fg: #2f5e8c;
-  --fri-bg: #f3e4f1;
-  --fri-fg: #7e3f74;
+  --thu-bg: #e4f1e9;
+  --thu-fg: #2e6a4f;
+  --fri-bg: #e1ecf8;
+  --fri-fg: #2f5e8c;
 
   --heading: "Fraunces Variable", Georgia, serif;
   color-scheme: light;
@@ -32,31 +32,31 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #151a17;
-    --card: #1e2521;
-    --text: #e9eeea;
-    --muted: #a3aea7;
-    --border: #2e3832;
-    --accent: #6cc59a;
-    --accent-pressed: #84d3ac;
-    --accent-text: #0f1a14;
-    --accent-soft: #24352c;
+    --bg: #1a1517;
+    --card: #241d20;
+    --text: #f1e9ec;
+    --muted: #b3a5aa;
+    --border: #3a2f33;
+    --accent: #f27a9b;
+    --accent-pressed: #f598b1;
+    --accent-text: #2a0f18;
+    --accent-soft: #3a2129;
     --tomato: #f08a6b;
     --tomato-soft: #3a2620;
     --error: #ff8a80;
     --notice: #f2c46d;
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 
-    --mon-bg: #24352c;
-    --mon-fg: #8fd6b1;
+    --mon-bg: #3a2129;
+    --mon-fg: #f59ab3;
     --tue-bg: #3a2620;
     --tue-fg: #f2a285;
     --wed-bg: #3a3220;
     --wed-fg: #e9c46a;
-    --thu-bg: #20303f;
-    --thu-fg: #8db8e6;
-    --fri-bg: #35243a;
-    --fri-fg: #d9a2cf;
+    --thu-bg: #24352c;
+    --thu-fg: #8fd6b1;
+    --fri-bg: #20303f;
+    --fri-fg: #8db8e6;
     color-scheme: dark;
   }
 }
@@ -216,7 +216,7 @@ button {
   background: var(--accent);
   color: var(--accent-text);
   border: none;
-  box-shadow: 0 2px 8px rgba(46, 106, 79, 0.25);
+  box-shadow: 0 2px 8px rgba(194, 51, 90, 0.25);
 }
 
 .primary:active,
