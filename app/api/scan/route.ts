@@ -1,7 +1,14 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import { z } from "zod";
-import { estimateCostUsd, FALLBACK_BETA, MODEL } from "@/lib/claude";
+import {
+  apiKeyProblem,
+  createClient,
+  estimateCostUsd,
+  FALLBACK_BETA,
+  KEY_REJECTED,
+  MODEL,
+} from "@/lib/claude";
 
 export const maxDuration = 60;
 
@@ -33,8 +40,9 @@ function errorResponse(message: string, status: number) {
 }
 
 export async function POST(request: Request) {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return errorResponse("The app isn't set up yet: ANTHROPIC_API_KEY is missing.", 500);
+  const keyProblem = apiKeyProblem();
+  if (keyProblem) {
+    return errorResponse(keyProblem, 500);
   }
 
   const form = await request.formData();
@@ -50,7 +58,7 @@ export async function POST(request: Request) {
   }
 
   const data = Buffer.from(await photo.arrayBuffer()).toString("base64");
-  const client = new Anthropic();
+  const client = createClient();
   const started = Date.now();
 
   try {
@@ -96,7 +104,8 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     if (error instanceof Anthropic.AuthenticationError) {
-      return errorResponse("The app's ANTHROPIC_API_KEY isn't working. Check it in your settings.", 500);
+      console.error("Scan failed: Claude rejected the API key:", error.message);
+      return errorResponse(KEY_REJECTED, 500);
     }
     if (error instanceof Anthropic.RateLimitError) {
       return errorResponse("Too many scans at once. Wait a minute and try again.", 429);
