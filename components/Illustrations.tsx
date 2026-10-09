@@ -1,13 +1,20 @@
 // Small drawings used around the app. Colors come from the theme, so they work in dark mode too.
 
+// A fork beside a plate, in the app's green.
 export function Logo() {
   return (
     <span className="logo">
-      <svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true">
-        <circle cx="16" cy="16" r="15" fill="var(--accent)" />
-        <circle cx="16" cy="16" r="11" fill="var(--card)" />
-        <path d="M11 21c0-6 3.5-10 10-10 0 6.5-4 10-10 10Z" fill="var(--green)" />
-        <path d="M11 21l6.5-6.5" stroke="var(--card)" strokeWidth="1.4" strokeLinecap="round" />
+      <svg viewBox="0 0 44 32" width="41" height="30" aria-hidden="true">
+        <g fill="var(--accent)">
+          <rect x="2.6" y="3" width="2" height="9" rx="1" />
+          <rect x="6" y="3" width="2" height="9" rx="1" />
+          <rect x="9.4" y="3" width="2" height="9" rx="1" />
+          <path d="M2.6 10.5h8.8v1.3a4.4 4.4 0 0 1-8.8 0Z" />
+          <rect x="5.5" y="14" width="3" height="16" rx="1.5" />
+        </g>
+        <circle cx="28.5" cy="16" r="14.5" fill="var(--accent)" />
+        <circle cx="28.5" cy="16" r="10.5" fill="var(--card)" />
+        <circle cx="28.5" cy="16" r="6.5" fill="none" stroke="var(--accent-soft)" strokeWidth="1.6" />
       </svg>
       <span className="wordmark">PlateWise</span>
     </span>
