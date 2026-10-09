@@ -1,4 +1,4 @@
-const STEPS = ["Your fridge", "Your family", "Your plan"];
+const STEPS = ["Your kitchen", "Your family", "Your plan"];
 
 export default function StepBar({ step }: { step: 1 | 2 | 3 }) {
   return (

@@ -14,6 +14,8 @@ export const FamilySchema = z.object({
   maxMinutes: z.number().int().min(10).max(120),
   lunches: z.boolean(),
   fridgeItems: z.array(z.string().max(100)).max(80),
+  // Long-lasting staples she keeps stocked. Older versions of the app didn't send this.
+  pantryItems: z.array(z.string().max(100)).max(80).default([]),
   madeOn: z.string().max(60),
 });
 

@@ -30,7 +30,8 @@ function describeFamily(family: Family) {
     ...(kidLines.length ? ["- Kids:", ...kidLines] : []),
     `- Allergies: ${family.allergies.trim() || "none"}`,
     `- Longest she'll cook on a weeknight: ${family.maxMinutes} minutes`,
-    `- Already in the fridge: ${family.fridgeItems.join(", ") || "nothing listed"}`,
+    `- Fresh food already in the fridge or freezer: ${family.fridgeItems.join(", ") || "nothing listed"}`,
+    `- Already in the pantry: ${family.pantryItems.join(", ") || "nothing listed"}`,
   ].join("\n");
 }
 
@@ -46,7 +47,7 @@ Make this plan:
    - Never use an allergen, including hidden sources such as oils, sauces and packaged foods that often contain it.
    - Never use a food any kid won't eat.
    - Each dinner takes no more than ${family.maxMinutes} minutes on the night, counting the Sunday prep as already done. "minutes" is that time.
-   - Use what's already in the fridge first, and use fresh food early in the week.
+   - Use the fresh food she already has first, using it early in the week, and build on what's in her pantry.
    - Keep it varied: don't serve the same main ingredient on back-to-back nights.
    - Stick to meals kids usually like, made from ingredients any ordinary supermarket sells.
    - Give 3 to 6 short steps in plain words, and say when a step uses Sunday's prep.
@@ -63,7 +64,7 @@ Make this plan:
    - Write each step as one short action of a few words, like "Chop 1 onion" or "Marinate the chicken". Put each action in its own step instead of joining several in one sentence.
    - Only prep ahead what stays safe and fresh until the day it's eaten. For later in the week, add a step to freeze it, or leave it for that day.
 
-4. One grocery list for a single trip: everything the plan needs that isn't already in the fridge, with amounts for this household. Group it by store section: Produce, Meat and fish, Dairy and eggs, Bakery, Pantry, Frozen. Leave out empty sections. Assume she already has salt, pepper and cooking oil.`;
+4. One grocery list for a single trip: everything the plan needs that isn't already in her fridge, freezer or pantry, with amounts for this household. Group it by store section: Produce, Meat and fish, Dairy and eggs, Bakery, Pantry, Frozen. Leave out empty sections. Assume she already has salt, pepper and cooking oil.`;
 }
 
 function errorResponse(message: string, status: number) {

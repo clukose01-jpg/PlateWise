@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import FamilyStep, { type FamilyAnswers } from "@/components/FamilyStep";
 import FridgeStep from "@/components/FridgeStep";
 import { Logo } from "@/components/Illustrations";
@@ -10,11 +10,37 @@ import StepBar from "@/components/StepBar";
 
 type Stage = "fridge" | "family" | "planning";
 
+// Pantry staples are remembered on this phone, so next week she only photographs the fridge.
+const PANTRY_KEY = "platewise.pantry";
+
 export default function Home() {
   const router = useRouter();
   const [stage, setStage] = useState<Stage>("fridge");
   const [fridgeItems, setFridgeItems] = useState<string[]>([]);
+  const [pantryItems, setPantryItems] = useState<string[]>([]);
+  const pantryLoaded = useRef(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(PANTRY_KEY) ?? "[]");
+      if (Array.isArray(saved)) {
+        setPantryItems(saved.filter((item): item is string => typeof item === "string"));
+      }
+    } catch {
+      // Nothing saved, or this browser blocks storage.
+    }
+    pantryLoaded.current = true;
+  }, []);
+
+  useEffect(() => {
+    if (!pantryLoaded.current) return;
+    try {
+      localStorage.setItem(PANTRY_KEY, JSON.stringify(pantryItems));
+    } catch {
+      // The pantry just won't be remembered.
+    }
+  }, [pantryItems]);
 
   async function makePlan(answers: FamilyAnswers) {
     setError(null);
@@ -31,7 +57,7 @@ export default function Home() {
       const response = await fetch("/api/plan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...answers, fridgeItems, madeOn }),
+        body: JSON.stringify({ ...answers, fridgeItems, pantryItems, madeOn }),
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error);
@@ -65,6 +91,8 @@ export default function Home() {
         <FridgeStep
           items={fridgeItems}
           onItemsChange={setFridgeItems}
+          pantry={pantryItems}
+          onPantryChange={setPantryItems}
           onNext={() => {
             setStage("family");
             window.scrollTo(0, 0);

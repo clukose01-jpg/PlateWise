@@ -18,18 +18,19 @@ const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
 const PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"] as const;
 type PhotoType = (typeof PHOTO_TYPES)[number];
 
-const FridgeItems = z.object({
-  items: z.array(z.string()),
+// "pantry" foods are remembered on her phone for next week; "fresh" ones are for this week only.
+const KitchenItems = z.object({
+  items: z.array(z.object({ name: z.string(), kind: z.enum(["fresh", "pantry"]) })),
 });
 
-// Foods already on her list, so a new photo only adds what's new.
-const KnownItems = z.array(z.string().max(100)).max(80);
+// Foods already on her lists, so a new photo only adds what's new.
+const KnownItems = z.array(z.string().max(100)).max(160);
 
 function buildPrompt(photoCount: number, known: string[]) {
   const intro =
     photoCount === 1
-      ? "This is a photo of part of a family's fridge, freezer or pantry."
-      : `These are ${photoCount} photos of a family's fridge, freezer or pantry, showing different shelves or areas.`;
+      ? "This is a photo of part of a family's kitchen: a fridge shelf, the freezer or the pantry."
+      : `These are ${photoCount} photos of a family's kitchen, showing different fridge shelves, the freezer or the pantry.`;
 
   return `${intro} List the foods you can clearly see that could go into a family lunch or dinner.
 
@@ -39,6 +40,9 @@ function buildPrompt(photoCount: number, known: string[]) {
 - Include sauces and condiments only when they're useful for cooking a meal, like "soy sauce" or "salsa".
 - Skip drinks, except milk.
 - If you can't tell what something is, leave it out. The parent will add anything you miss.
+- Mark each food as "pantry" or "fresh":
+  - "pantry" is for long-lasting staples a family keeps stocked for weeks, like dry pasta, rice, flour, canned and jarred food, spices, oils, sauces and condiments, and frozen vegetables.
+  - "fresh" is for food that gets used up within a week or two, like fruit, vegetables, meat, fish, dairy, eggs, bread, leftovers and frozen meat.
 - If the photos don't show food, return an empty list.${
     known.length
       ? `\n- These foods are already on her list, so leave them out, along with close variants of them: ${known.join(", ")}.`
@@ -107,7 +111,7 @@ export async function POST(request: Request) {
       max_tokens: 16000,
       betas: [FALLBACK_BETA],
       fallbacks: "default",
-      output_config: { effort: "medium", format: betaZodOutputFormat(FridgeItems) },
+      output_config: { effort: "medium", format: betaZodOutputFormat(KitchenItems) },
       messages: [
         {
           role: "user",
@@ -120,20 +124,22 @@ export async function POST(request: Request) {
       return errorResponse(COULD_NOT_READ, 422);
     }
 
-    // Leave out anything already on her list, and repeats within this scan.
+    // Leave out anything already on her lists, and repeats within this scan.
     const seen = known.map((item) => item.toLowerCase());
-    const items: string[] = [];
-    for (const raw of response.parsed_output.items) {
-      const item = raw.trim();
+    const fresh: string[] = [];
+    const pantry: string[] = [];
+    for (const { name, kind } of response.parsed_output.items) {
+      const item = name.trim();
       if (item && !seen.includes(item.toLowerCase())) {
         seen.push(item.toLowerCase());
-        items.push(item);
+        (kind === "pantry" ? pantry : fresh).push(item);
       }
     }
     const { input_tokens, output_tokens } = response.usage;
 
     return Response.json({
-      items,
+      fresh,
+      pantry,
       test: {
         model: response.model,
         inputTokens: input_tokens,

@@ -11,12 +11,19 @@ type Step = "start" | "scanning" | "list";
 type Props = {
   items: string[];
   onItemsChange: (items: string[]) => void;
+  pantry: string[];
+  onPantryChange: (items: string[]) => void;
   onNext: () => void;
 };
 
-export default function FridgeStep({ items, onItemsChange: setItems, onNext }: Props) {
+export default function FridgeStep({
+  items,
+  onItemsChange: setItems,
+  pantry,
+  onPantryChange: setPantry,
+  onNext,
+}: Props) {
   const [step, setStep] = useState<Step>("start");
-  const [newItem, setNewItem] = useState("");
   const [photoUrls, setPhotoUrls] = useState<string[]>([]); // photos already scanned
   const [scanningUrls, setScanningUrls] = useState<string[]>([]);
   const [notice, setNotice] = useState<string | null>(null);
@@ -28,6 +35,7 @@ export default function FridgeStep({ items, onItemsChange: setItems, onNext }: P
   const savedPhotoInput = useRef<HTMLInputElement>(null);
 
   const photosLeft = MAX_PHOTOS_TOTAL - photoUrls.length;
+  const everything = [...items, ...pantry];
 
   // Add ?test to the address to see what each scan cost.
   useEffect(() => {
@@ -49,8 +57,8 @@ export default function FridgeStep({ items, onItemsChange: setItems, onNext }: P
 
     const files = chosen.slice(0, Math.min(MAX_PHOTOS_PER_SCAN, photosLeft));
     const stepBefore = step;
-    setError(null);
     const used = `${files.length} photo${files.length === 1 ? "" : "s"}`;
+    setError(null);
     setNotice(
       chosen.length <= files.length
         ? null
@@ -71,9 +79,9 @@ export default function FridgeStep({ items, onItemsChange: setItems, onNext }: P
       } catch {
         // Send the original photo; the server will say if it can't use it.
       }
-      body.append("photo", photo, "fridge.jpg");
+      body.append("photo", photo, "kitchen.jpg");
     }
-    body.append("known", JSON.stringify(items));
+    body.append("known", JSON.stringify(everything));
 
     try {
       const response = await fetch("/api/scan", { method: "POST", body });
@@ -81,14 +89,15 @@ export default function FridgeStep({ items, onItemsChange: setItems, onNext }: P
       if (!response.ok) throw new Error(result.error);
 
       setPhotoUrls([...photoUrls, ...urls]);
-      setItems([...items, ...result.items]);
+      setItems([...items, ...result.fresh]);
+      setPantry([...pantry, ...result.pantry]);
       setTestInfo(result.test);
       setTotalCostUsd((total) => total + (result.test.costUsd ?? 0));
-      if (result.items.length === 0) {
+      if (result.fresh.length + result.pantry.length === 0) {
         setNotice(
-          items.length === 0
+          everything.length === 0
             ? "We couldn't spot any food there. Try another photo, or type what you have."
-            : "Nothing new in that photo. Everything we saw is already on your list.",
+            : "Nothing new in that photo. Everything we saw is already on your lists.",
         );
       }
       setStep("list");
@@ -103,45 +112,39 @@ export default function FridgeStep({ items, onItemsChange: setItems, onNext }: P
     }
   }
 
-  function startTyping() {
+  function showLists() {
     setError(null);
     setStep("list");
-  }
-
-  function removeItem(item: string) {
-    setItems(items.filter((existing) => existing !== item));
-  }
-
-  function addItem(event: FormEvent) {
-    event.preventDefault();
-    const item = newItem.trim();
-    if (!item) return;
-    if (!items.some((existing) => existing.toLowerCase() === item.toLowerCase())) {
-      setItems([...items, item]);
-    }
-    setNewItem("");
   }
 
   return (
     <>
       <section className="card">
-        <h2>What&apos;s in your fridge?</h2>
+        <h2>What&apos;s in your kitchen?</h2>
 
         {step === "start" && (
           <>
             <FridgeDrawing />
-            <p>
-              Take a photo of each shelf, the door and the freezer. We&apos;ll list what&apos;s
-              inside, and you can fix anything we get wrong.
-            </p>
+            {pantry.length === 0 ? (
+              <p>
+                Take a photo of each fridge shelf, the freezer and your pantry. We&apos;ll list
+                what&apos;s inside, and you can fix anything we get wrong.
+              </p>
+            ) : (
+              <p>
+                Take a photo of each fridge shelf and the freezer. Your pantry from last time is
+                saved ({pantry.length} item{pantry.length === 1 ? "" : "s"}), so only photograph it
+                again if it&apos;s changed.
+              </p>
+            )}
             <button className="primary" onClick={takePhoto}>
               Take a photo
             </button>
             <button className="link" onClick={chooseSavedPhotos}>
               Choose saved photos
             </button>
-            <button className="link" onClick={startTyping}>
-              Or type what you have
+            <button className="link" onClick={showLists}>
+              {pantry.length === 0 ? "Or type what you have" : "Check my pantry or type what I have"}
             </button>
             <button className="link" onClick={onNext}>
               Skip this step
@@ -156,7 +159,7 @@ export default function FridgeStep({ items, onItemsChange: setItems, onNext }: P
                 <img key={url} src={url} alt={`Photo ${i + 1} being read`} />
               ))}
             </div>
-            <p>Looking in your fridge…</p>
+            <p>Looking in your kitchen…</p>
           </div>
         )}
 
@@ -165,40 +168,36 @@ export default function FridgeStep({ items, onItemsChange: setItems, onNext }: P
             {photoUrls.length > 0 && (
               <div className="thumbs">
                 {photoUrls.map((url, i) => (
-                  <img key={url} src={url} alt={`Fridge photo ${i + 1}`} />
+                  <img key={url} src={url} alt={`Kitchen photo ${i + 1}`} />
                 ))}
               </div>
             )}
             {notice && <p className="notice">{notice}</p>}
             <p>
               {photoUrls.length > 0
-                ? "Here's what we found. Remove anything that's wrong and add anything we missed."
-                : "Type a few things you'd like to use up this week."}
+                ? "Here's what we found. Remove anything that's wrong or used up, and add anything we missed."
+                : "Add the food you have, and remove anything you've used up."}
             </p>
 
-            {items.length > 0 && (
-              <ul className="items">
-                {items.map((item) => (
-                  <li key={item}>
-                    <span>{item}</span>
-                    <button aria-label={`Remove ${item}`} onClick={() => removeItem(item)}>
-                      ×
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-
-            <form className="add" onSubmit={addItem}>
-              <input
-                value={newItem}
-                onChange={(event) => setNewItem(event.target.value)}
-                placeholder="Add an item, like rice"
-                aria-label="Add an item"
-                autoFocus={photoUrls.length === 0}
-              />
-              <button type="submit">Add</button>
-            </form>
+            <FoodList
+              title="🥬 Fresh this week"
+              hint="Fridge and freezer"
+              items={items}
+              allItems={everything}
+              onChange={setItems}
+              placeholder="Add fresh food"
+              label="Add fresh food"
+            />
+            <FoodList
+              title="🥫 Pantry"
+              hint="Saved for next week"
+              className="pantry"
+              items={pantry}
+              allItems={everything}
+              onChange={setPantry}
+              placeholder="Add pantry food"
+              label="Add a pantry item"
+            />
 
             {photosLeft > 0 && (
               <>
@@ -252,5 +251,62 @@ export default function FridgeStep({ items, onItemsChange: setItems, onNext }: P
         </p>
       )}
     </>
+  );
+}
+
+type FoodListProps = {
+  title: string;
+  hint: string;
+  className?: string;
+  items: string[];
+  allItems: string[];
+  onChange: (items: string[]) => void;
+  placeholder: string;
+  label: string;
+};
+
+function FoodList({ title, hint, className, items, allItems, onChange, placeholder, label }: FoodListProps) {
+  const [typing, setTyping] = useState("");
+
+  function add(event: FormEvent) {
+    event.preventDefault();
+    const item = typing.trim();
+    if (!item) return;
+    if (!allItems.some((existing) => existing.toLowerCase() === item.toLowerCase())) {
+      onChange([...items, item]);
+    }
+    setTyping("");
+  }
+
+  return (
+    <div className="food-list">
+      <h3>
+        {title} <span className="hint">· {hint}</span>
+      </h3>
+      {items.length > 0 && (
+        <ul className={className ? `items ${className}` : "items"}>
+          {items.map((item) => (
+            <li key={item}>
+              <span>{item}</span>
+              <button
+                aria-label={`Remove ${item}`}
+                onClick={() => onChange(items.filter((existing) => existing !== item))}
+              >
+                ×
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <form className="add" onSubmit={add}>
+        <input
+          value={typing}
+          onChange={(event) => setTyping(event.target.value)}
+          placeholder={placeholder}
+          aria-label={label}
+        />
+        <button type="submit">Add</button>
+      </form>
+    </div>
   );
 }

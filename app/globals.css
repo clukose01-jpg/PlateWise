@@ -467,8 +467,29 @@ legend.question {
   margin: 0;
 }
 
-.items.refuses li {
+.items.refuses li,
+.items.pantry li {
   background: var(--tomato-soft);
+}
+
+.food-list {
+  margin-bottom: 22px;
+}
+
+.food-list h3 {
+  margin: 0 0 10px;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.food-list h3 .hint {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.food-list .items {
+  margin-bottom: 10px;
 }
 
 .kid .remove-kid {
