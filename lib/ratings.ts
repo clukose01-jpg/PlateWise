@@ -1,4 +1,4 @@
-// What the family thought of past dinners, saved on this phone.
+// What the family thought of past dinners, saved on this device.
 // The next plan uses these to pick more meals they like.
 
 const RATINGS_KEY = "platewise.ratings";

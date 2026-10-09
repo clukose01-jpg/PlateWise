@@ -63,7 +63,7 @@ These started out on the leave-out list, or weren't in the plan at all. Each was
 | Swap a dinner | Fix one night without remaking the whole week. | How often people swap. Lots of swaps means the first plan isn't fitting the family. |
 | Tomorrow heads-up | Night-before steps, like moving chicken to the fridge, keep tomorrow fast. | Whether those steps get done. |
 | Add to home screen | It opens like an app, and iPhones need it for reminders. | How many testers add it. |
-| Daily reminder around 3pm Eastern | Reminds her of tonight's dinner before she gets home, instead of you texting each tester. | Whether people find it helpful or turn it off. |
+| Daily reminder around 3pm in each person's own time zone | Reminds her of tonight's dinner before she gets home, instead of you texting each tester. | Whether people find it helpful or turn it off. |
 | Big-screen layout for computers and tablets | Your mom likes a big screen when cooking. Tonight's recipe gets big text she can read from across the kitchen. | Whether people cook from a computer or tablet, and whether they get stuck because their plan is saved on a different device. |
 
 ## Next up: save info with an email

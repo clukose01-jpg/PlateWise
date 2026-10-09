@@ -1,4 +1,4 @@
-// Turning the daily reminder on and off from the phone.
+// Turning the daily reminder on and off from a phone or computer.
 
 const REMINDERS_ON_KEY = "platewise.remindersOn";
 
@@ -29,6 +29,11 @@ function keyBytes(base64url: string) {
   return Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
 }
 
+// Like "America/Chicago". Reminders come at 3pm wherever the device is.
+function deviceTimeZone() {
+  return Intl.DateTimeFormat().resolvedOptions().timeZone;
+}
+
 async function currentSubscription() {
   const registration = await navigator.serviceWorker.ready;
   return registration.pushManager.getSubscription();
@@ -44,7 +49,7 @@ async function postJson(url: string, method: string, body: unknown) {
 export async function turnOnReminders(planId: string) {
   const permission = await Notification.requestPermission();
   if (permission !== "granted") {
-    throw new Error("Notifications are blocked. Allow them for PlateWise in your phone's settings, then try again.");
+    throw new Error("Notifications are blocked. Allow them for PlateWise in your device's settings, then try again.");
   }
   const { publicKey } = await fetch("/api/reminders").then((r) => r.json());
   if (!publicKey) throw new Error("Reminders aren't set up on this app yet.");
@@ -56,10 +61,14 @@ export async function turnOnReminders(planId: string) {
       (await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: keyBytes(publicKey) }));
   } catch {
     throw new Error(
-      "Your phone didn't let PlateWise send reminders. Check that notifications are allowed for this browser or app, then try again.",
+      "Your device didn't let PlateWise send reminders. Check that notifications are allowed for this browser or app, then try again.",
     );
   }
-  await postJson("/api/reminders", "POST", { subscription: subscription.toJSON(), planId });
+  await postJson("/api/reminders", "POST", {
+    subscription: subscription.toJSON(),
+    planId,
+    timeZone: deviceTimeZone(),
+  });
   setRemindersOn(true);
 }
 
@@ -78,11 +87,15 @@ export async function sendTestReminder() {
   await postJson("/api/reminders/test", "POST", { endpoint: subscription.endpoint });
 }
 
-// When she opens a different plan, reminders follow it.
+// When she opens a different plan, or travels to another time zone, reminders follow.
 export async function updateReminderPlan(planId: string) {
   if (!pushSupported() || !remindersOn()) return;
   const subscription = await currentSubscription();
   if (subscription) {
-    await postJson("/api/reminders", "POST", { subscription: subscription.toJSON(), planId }).catch(() => {});
+    await postJson("/api/reminders", "POST", {
+      subscription: subscription.toJSON(),
+      planId,
+      timeZone: deviceTimeZone(),
+    }).catch(() => {});
   }
 }

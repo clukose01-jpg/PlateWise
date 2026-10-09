@@ -1,4 +1,4 @@
-// Things remembered on this phone only: the current plan, the pantry and the family answers.
+// Things remembered on this device only (phone or computer): the current plan, the pantry and the family answers.
 
 const CURRENT_PLAN_KEY = "platewise.currentPlan";
 const PANTRY_KEY = "platewise.pantry";
@@ -20,7 +20,7 @@ function write(key: string, value: unknown) {
   }
 }
 
-// The plan this phone opens to. Opening a shared plan link makes it this phone's plan too.
+// The plan this device opens to. Opening a shared plan link makes it this device's plan too.
 export function getCurrentPlanId(): string | null {
   const id = read(CURRENT_PLAN_KEY);
   return typeof id === "string" ? id : null;

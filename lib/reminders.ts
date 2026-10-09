@@ -6,10 +6,25 @@ import webpush from "web-push";
 import { z } from "zod";
 import { prepGroups, type StoredPlan, StorageNotSetUpError, useBlob } from "./plans";
 
-// Reminders go out around 3pm Eastern. Vercel's free plan runs scheduled jobs once a day within
-// an hour, so two daily jobs an hour apart call us, and only the one in the 3pm hour sends.
-export const REMINDER_TIME_ZONE = "America/New_York";
+// Reminders go out around 3pm in each phone's own time zone. Vercel's free plan runs each scheduled
+// job once a day within an hour, so there's one job for every hour of the day (see vercel.json).
+// Each run sends to the phones where it's between 3pm and 6pm and today's reminder hasn't gone yet,
+// so a late or skipped run is caught by the next one.
 export const REMINDER_HOUR = 15;
+const LAST_REMINDER_HOUR = 17;
+// Sign-ups from before time zones were saved were all in Eastern time.
+export const DEFAULT_TIME_ZONE = "America/New_York";
+
+export function isTimeZone(value: string) {
+  try {
+    new Intl.DateTimeFormat("en-US", { timeZone: value });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export const TimeZoneSchema = z.string().max(64).refine(isTimeZone);
 
 export const SubscriptionSchema = z.object({
   endpoint: z.string().url().max(1000),
@@ -18,7 +33,14 @@ export const SubscriptionSchema = z.object({
 });
 
 export type Subscription = z.infer<typeof SubscriptionSchema>;
-export type SavedReminder = { subscription: Subscription; planId: string; savedAt: string };
+export type SavedReminder = {
+  subscription: Subscription;
+  planId: string;
+  savedAt: string;
+  timeZone?: string;
+  // The phone's local date (like 2026-10-14) of the last reminder sent, so it only gets one a day.
+  lastSentOn?: string;
+};
 export type ReminderMessage = { title: string; body: string; url: string };
 
 // Online, each phone's sign-up is a private file in Vercel Blob storage; on your own computer, in .data.
@@ -28,9 +50,9 @@ function fileName(endpoint: string) {
   return `${createHash("sha256").update(endpoint).digest("hex").slice(0, 32)}.json`;
 }
 
-export async function saveReminder(subscription: Subscription, planId: string) {
-  const json = JSON.stringify({ subscription, planId, savedAt: new Date().toISOString() });
-  const name = fileName(subscription.endpoint);
+async function writeReminder(reminder: SavedReminder) {
+  const json = JSON.stringify(reminder);
+  const name = fileName(reminder.subscription.endpoint);
   if (useBlob()) {
     await put(`reminders/${name}`, json, { access: "private", contentType: "application/json", allowOverwrite: true });
   } else if (process.env.VERCEL) {
@@ -39,6 +61,24 @@ export async function saveReminder(subscription: Subscription, planId: string) {
     await mkdir(LOCAL_DIR, { recursive: true });
     await writeFile(path.join(LOCAL_DIR, name), json);
   }
+}
+
+// Turns reminders on, or updates which plan and time zone they follow. The app calls this each time
+// a plan opens, so it only writes when something changed.
+export async function saveReminder(subscription: Subscription, planId: string, timeZone: string) {
+  const existing = await loadReminder(subscription.endpoint);
+  if (existing && existing.planId === planId && existing.timeZone === timeZone) return;
+  await writeReminder({
+    subscription,
+    planId,
+    timeZone,
+    savedAt: new Date().toISOString(),
+    lastSentOn: existing?.lastSentOn,
+  });
+}
+
+export async function markReminderSent(reminder: SavedReminder, localDate: string) {
+  await writeReminder({ ...reminder, lastSentOn: localDate });
 }
 
 export async function deleteReminder(endpoint: string) {
@@ -82,18 +122,27 @@ export async function allReminders(): Promise<SavedReminder[]> {
   return reminders.filter((reminder): reminder is SavedReminder => reminder !== null);
 }
 
-// The weekday and hour in Eastern time, whatever the server's own clock is set to.
-export function easternNow(date = new Date()) {
+// The weekday, hour and date where the phone is, whatever the server's own clock is set to.
+export function localNow(timeZone: string, date = new Date()) {
   const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone: REMINDER_TIME_ZONE,
+    timeZone,
     weekday: "long",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
     hour: "numeric",
     hourCycle: "h23",
   }).formatToParts(date);
+  const part = (type: string) => parts.find((p) => p.type === type)?.value ?? "";
   return {
-    weekday: parts.find((part) => part.type === "weekday")?.value ?? "",
-    hour: Number(parts.find((part) => part.type === "hour")?.value),
+    weekday: part("weekday"),
+    hour: Number(part("hour")),
+    date: `${part("year")}-${part("month")}-${part("day")}`,
   };
+}
+
+export function isReminderTime(hour: number) {
+  return hour >= REMINDER_HOUR && hour <= LAST_REMINDER_HOUR;
 }
 
 const NEXT_DAY: Record<string, string> = {
@@ -104,8 +153,12 @@ const NEXT_DAY: Record<string, string> = {
 };
 
 // What today's reminder says, or nothing if there's nothing to remind her of.
-export function reminderMessage(stored: StoredPlan, date = new Date()): ReminderMessage | null {
-  const { weekday } = easternNow(date);
+export function reminderMessage(
+  stored: StoredPlan,
+  timeZone: string,
+  date = new Date(),
+): ReminderMessage | null {
+  const { weekday } = localNow(timeZone, date);
   const ageDays = stored.createdAt ? (date.getTime() - Date.parse(stored.createdAt)) / 86_400_000 : 0;
   const today = `/plan/${stored.id}?tab=today`;
 

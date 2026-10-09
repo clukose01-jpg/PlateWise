@@ -47,7 +47,7 @@ export default function FamilyStep({ error, onBack, onSubmit }: Props) {
 
   useEffect(() => {
     setRatingCount(countRatings());
-    // Answers are remembered on this phone, so next Sunday she doesn't retype them.
+    // Answers are remembered on this device, so next Sunday she doesn't retype them.
     const saved = loadFamily();
     if (!saved) return;
     setAllergies(saved.allergies);
@@ -102,7 +102,7 @@ export default function FamilyStep({ error, onBack, onSubmit }: Props) {
   return (
     <form className="card family" onSubmit={submit}>
       <h2>About your family</h2>
-      <p>Three quick questions. This phone will remember your answers for next week.</p>
+      <p>Three quick questions. This device will remember your answers for next week.</p>
 
       <label className="question" htmlFor="allergies">
         <span className="number">1</span>

@@ -54,7 +54,7 @@ export default function ReminderSettings() {
     <section className="card">
       <h2 className="section-title">Daily reminder</h2>
       <p>
-        Weeknights around 3pm Eastern, tonight&apos;s dinner. On Sundays, prep day or a nudge to plan the
+        Weeknights around 3pm your time, tonight&apos;s dinner. On Sundays, prep day or a nudge to plan the
         week.
       </p>
 
@@ -72,7 +72,7 @@ export default function ReminderSettings() {
       {setup === "ready" &&
         (on ? (
           <>
-            <p className="reminder-on">Reminders are on for this phone.</p>
+            <p className="reminder-on">Reminders are on for this device.</p>
             <button
               className="secondary"
               disabled={busy}

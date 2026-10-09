@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { loadPlan } from "@/lib/plans";
-import { loadReminder, pushIsSetUp, reminderMessage, sendReminder } from "@/lib/reminders";
+import { DEFAULT_TIME_ZONE, loadReminder, pushIsSetUp, reminderMessage, sendReminder } from "@/lib/reminders";
 
 const TestRequest = z.object({ endpoint: z.string().max(1000) });
 
@@ -15,7 +15,7 @@ export async function POST(request: Request) {
     return Response.json({ error: "Turn reminders on first." }, { status: 404 });
   }
   const plan = await loadPlan(reminder.planId);
-  const message = (plan && reminderMessage(plan)) ?? {
+  const message = (plan && reminderMessage(plan, reminder.timeZone ?? DEFAULT_TIME_ZONE)) ?? {
     title: "PlateWise reminders are on",
     body: "On weeknights around 3pm, you'll get tonight's dinner here.",
     url: plan ? `/plan/${plan.id}?tab=today` : "/",

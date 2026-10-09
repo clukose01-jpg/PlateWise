@@ -20,7 +20,7 @@ export default function NewPlan() {
   const [pantryItems, setPantryItems] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  // Pantry staples are remembered on this phone, so next week she only photographs the fridge.
+  // Pantry staples are remembered on this device, so next week she only photographs the fridge.
   useEffect(() => {
     setPantryItems(loadPantry());
   }, []);

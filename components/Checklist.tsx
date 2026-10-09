@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
-// A list she can tick off at the store. Ticks are remembered on this phone only.
+// A list she can tick off at the store. Ticks are remembered on this device only.
 export default function Checklist({ items, storageKey }: { items: string[]; storageKey: string }) {
   const [checked, setChecked] = useState<number[]>([]);
   // The latest ticks, so quick taps in a row each build on the one before.

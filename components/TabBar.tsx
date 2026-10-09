@@ -9,7 +9,7 @@ export type Tab = "today" | "week" | "groceries" | "new" | "more";
 
 type Props = {
   active: Tab;
-  // On a plan page, the tabs show that plan. Elsewhere, they show this phone's latest plan.
+  // On a plan page, the tabs show that plan. Elsewhere, they show this device's latest plan.
   planId?: string;
 };
 

@@ -56,7 +56,7 @@ export default function MorePage() {
 
         <section className="card">
           <h2 className="section-title">Your pantry</h2>
-          <p className="hint">Saved on this phone and used in every plan. Remove anything you run out of.</p>
+          <p className="hint">Saved on this device and used in every plan. Remove anything you run out of.</p>
           <FoodList
             className="pantry"
             items={pantry}

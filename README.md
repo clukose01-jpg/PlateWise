@@ -9,7 +9,7 @@ PlateWise plans a family's week of dinners on Sunday. See [plan.md](plan.md) for
 4. **Tabs.** The app opens to **Today**: tonight's dinner, tonight's "for tomorrow" steps, the grocery list on Saturday and prep on Sunday. **Week** shows the whole plan, **Groceries** the shopping and prep lists, **New plan** makes the next one, and **More** has favorites, the pantry, family answers and how to add PlateWise to the home screen.
 5. **Swap a dinner.** "Swap for a different dinner" gets a new dinner that follows the same rules, keeps the rest of the week, and updates the grocery list and prep.
 6. **Ratings.** After a dinner, she taps "Liked it" or "Not for us" and can add a comment. Her phone remembers the ratings, and each new plan brings back favorites, avoids misses, and gets less experimental as favorites build up.
-7. **Daily reminder.** Turned on from the **More** tab. Weeknights around 3pm Eastern, her phone shows tonight's dinner and anything to do for tomorrow. Sundays it shows prep day, or a nudge to plan the week. On iPhone, PlateWise has to be added to the home screen first.
+7. **Daily reminder.** Turned on from the **More** tab. Weeknights around 3pm in her own time zone, her phone shows tonight's dinner and anything to do for tomorrow. Sundays it shows prep day, or a nudge to plan the week. On iPhone, PlateWise has to be added to the home screen first.
 8. **Big screens.** On a computer or a tablet turned sideways, the tabs move to a sidebar and pages fill the screen. Tonight's recipe gets big text that's easy to read from across the kitchen. Phones look exactly the same as before.
 
 ## Put it online
@@ -30,7 +30,7 @@ You need two accounts: one to pay for the AI, and one to host the app.
    - Vercel adds the storage key for you. Redeploy once so the app picks it up.
 4. **Turn on daily reminders.**
    - Add three more environment variables: `VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY` (make a pair with `npx web-push generate-vapid-keys`), and `CRON_SECRET` (any long random text).
-   - The `vercel.json` file tells Vercel to check twice each afternoon. The app sends only when it's 3pm in New York, so it stays right when the clocks change.
+   - The `vercel.json` file tells Vercel to check once an hour. Each phone saves its own time zone, and the app sends its reminder once a day, in the first check after 3pm there. That keeps it right in every time zone and when the clocks change.
 
 ## Run your 20 test scans
 
