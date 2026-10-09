@@ -1,5 +1,6 @@
 import { createHash, createHmac, randomInt, timingSafeEqual } from "node:crypto";
 import { z } from "zod";
+import { loadPlan } from "./plans";
 import { sessionSecret } from "./session";
 import { readJson, writeJson } from "./store";
 
@@ -111,12 +112,35 @@ export function mergeData(account: AccountData, device: AccountData): AccountDat
   });
 }
 
+// Makes sure the plan the app opens to still exists. A device can remember a plan that was
+// deleted elsewhere; then the newest plan that still exists is used instead, and missing ones are
+// dropped from her list.
+const PLANS_TO_TRY = 5;
+
+export async function withLivePlan(data: AccountData): Promise<{ data: AccountData; changed: boolean }> {
+  if (data.currentPlanId && (await loadPlan(data.currentPlanId))) return { data, changed: false };
+  const missing = new Set(data.currentPlanId ? [data.currentPlanId] : []);
+  let currentPlanId: string | null = null;
+  for (const plan of data.plans.filter((p) => !missing.has(p.id)).slice(0, PLANS_TO_TRY)) {
+    if (await loadPlan(plan.id)) {
+      currentPlanId = plan.id;
+      break;
+    }
+    missing.add(plan.id);
+  }
+  return {
+    data: { ...data, currentPlanId, plans: data.plans.filter((p) => !missing.has(p.id)) },
+    changed: true,
+  };
+}
+
 export async function logIn(email: string, device: AccountData) {
   const id = accountIdFor(email);
   const existing = await loadAccount(id);
   const now = new Date().toISOString();
   const account: Account = existing ?? { id, email: normalizeEmail(email), createdAt: now, updatedAt: now, data: EMPTY_DATA };
-  return saveAccountData(account, existing ? mergeData(existing.data, device) : device);
+  const { data } = await withLivePlan(existing ? mergeData(existing.data, device) : device);
+  return saveAccountData(account, data);
 }
 
 // Login codes: 6 digits, good for 10 minutes and 5 tries. Only a fingerprint of the code is saved.

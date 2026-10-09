@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import DeletePlan from "@/components/DeletePlan";
 import DinnerCard from "@/components/DinnerCard";
 import LoginNudge from "@/components/LoginNudge";
+import MissingPlan from "@/components/MissingPlan";
 import { Logo } from "@/components/Illustrations";
 import { GroceryList, PrepList } from "@/components/PlanSections";
 import RememberPlan from "@/components/RememberPlan";
@@ -28,7 +28,7 @@ export default async function PlanPage({ params, searchParams }: Props) {
   const { id } = await params;
   const query = await searchParams;
   const saved = await loadPlan(id);
-  if (!saved) notFound();
+  if (!saved) return <MissingPlan id={id} />;
 
   const { family, plan, test, createdAt, safetyChecked } = saved;
   const tab: PlanTab = query.tab === "week" || query.tab === "groceries" ? query.tab : "today";

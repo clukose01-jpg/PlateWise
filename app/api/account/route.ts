@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { AccountDataSchema, loadAccount, saveAccountData } from "@/lib/accounts";
+import { AccountDataSchema, loadAccount, saveAccountData, withLivePlan } from "@/lib/accounts";
 import { errorResponse } from "@/lib/auth-routes";
 import { sessionAccountId } from "@/lib/session";
 
@@ -14,7 +14,10 @@ async function currentAccount(request: Request) {
 export async function GET(request: Request) {
   const account = await currentAccount(request);
   if (!account) return errorResponse("Not logged in.", 401);
-  return Response.json({ email: account.email, data: account.data });
+  // If her current plan was deleted on another device, open to her newest plan that still exists.
+  const { data, changed } = await withLivePlan(account.data);
+  if (changed) await saveAccountData(account, data);
+  return Response.json({ email: account.email, data });
 }
 
 // Saves this device's copy after a change, like a new rating or pantry item.
