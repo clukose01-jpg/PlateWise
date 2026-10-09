@@ -4,7 +4,8 @@ import { notFound } from "next/navigation";
 import Checklist from "@/components/Checklist";
 import { ClockIcon, Logo } from "@/components/Illustrations";
 import ShareButton from "@/components/ShareButton";
-import { loadPlan } from "@/lib/plans";
+import { WEEKDAYS } from "@/lib/plan-schema";
+import { loadPlan, prepGroups } from "@/lib/plans";
 
 export const metadata: Metadata = {
   title: "This week's dinners · PlateWise",
@@ -108,7 +109,24 @@ export default async function PlanPage({ params, searchParams }: Props) {
         <h2 className="section-title">
           <span aria-hidden="true">🔪</span> Sunday prep
         </h2>
-        <Checklist items={plan.prepList} storageKey={`platewise.${id}.prep`} />
+        {prepGroups(plan).map((group) => (
+          <div className="prep-day" key={group.day || "all"}>
+            {group.day && (
+              <h3>
+                <span
+                  className={`day-badge small day-${WEEKDAYS.indexOf(group.day as (typeof WEEKDAYS)[number])}`}
+                >
+                  {group.day.slice(0, 3)}
+                </span>
+                For {group.day}
+              </h3>
+            )}
+            <Checklist
+              items={group.steps}
+              storageKey={group.day ? `platewise.${id}.prep.${group.day}` : `platewise.${id}.prep`}
+            />
+          </div>
+        ))}
       </section>
 
       <section className="card">

@@ -22,11 +22,11 @@ Everything else (the grocery list and the prep list) is there to make that plan 
 | Any allergies? | Peanuts |
 | Who's eating, and what does each kid refuse? | 2 adults. Maya (7): mushrooms, fish. Leo (3): anything spicy |
 | What's the longest you'll cook on a weeknight? | 30 minutes |
-| Snap a photo of your fridge *(optional)* | One photo taken with her phone's camera |
+| Snap photos of your fridge *(optional)* | One photo per shelf, the door and the freezer (up to 8) |
 | Add lunches too? *(checkbox, off unless she ticks it)* | No |
 
 **How the fridge photo works:**
-- The app reads the photo and shows what it found as a short list, such as "chicken, rice, spinach, milk."
+- The app reads the photos and shows what it found as one short list, such as "chicken, rice, spinach, milk." Each new photo adds to the list without repeating foods.
 - She can remove anything it got wrong or add something it missed.
 - If she skips the photo, or the photo doesn't work, she can type a few items instead, or skip this step completely. The plan still works.
 
@@ -41,7 +41,7 @@ Everything else (the grocery list and the prep list) is there to make that plan 
 
 | Leave out | Why it can wait |
 |---|---|
-| Scanning the pantry, the freezer, or more than one photo | One fridge photo is enough to test whether the scan saves her time. |
+| Scanning a video | Claude reads photos, not video. A video would be cut into many frames, which is slower and costs more. One photo per shelf covers the same ground. *(Multiple photos were added after the first test runs showed one photo missed too much.)* |
 | Keeping track of what's in the fridge from week to week | She takes a new photo each Sunday. |
 | Thumbs up or down, and learning the family's tastes | This only helps after weeks of use. Until then, she can retype her answers in a minute. |
 | Accounts and logins | A link is enough to share the plan, and testers don't have to make a password. |

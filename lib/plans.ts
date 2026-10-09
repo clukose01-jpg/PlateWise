@@ -11,6 +11,21 @@ export type SavedPlan = {
   test: TestInfo;
 };
 
+// Plans made before prep was grouped by day stored it as one flat list.
+type StoredPlan = Omit<SavedPlan, "plan"> & {
+  plan: Omit<Plan, "prepList"> & { prepList: Plan["prepList"] | string[] };
+};
+
+export type PrepGroup = { day: string; steps: string[] };
+
+export function prepGroups(plan: StoredPlan["plan"]): PrepGroup[] {
+  const list = plan.prepList;
+  if (list.length > 0 && typeof list[0] === "string") {
+    return [{ day: "", steps: list as string[] }];
+  }
+  return list as PrepGroup[];
+}
+
 // Online, plans are saved as private files in Vercel Blob storage.
 // On your own computer, they're saved in a .data folder instead.
 const LOCAL_DIR = path.join(process.cwd(), ".data", "plans");
@@ -38,7 +53,7 @@ export async function savePlan(data: Omit<SavedPlan, "id">): Promise<string> {
   return id;
 }
 
-export async function loadPlan(id: string): Promise<SavedPlan | null> {
+export async function loadPlan(id: string): Promise<StoredPlan | null> {
   if (!ID_PATTERN.test(id)) return null;
 
   if (useBlob()) {

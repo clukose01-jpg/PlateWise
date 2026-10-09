@@ -31,7 +31,8 @@ export const PlanSchema = z.object({
     }),
   ),
   lunches: z.array(z.object({ day: z.enum(WEEKDAYS), name: z.string() })),
-  prepList: z.array(z.string()),
+  // Sunday prep, grouped by the day it's for, as short steps.
+  prepList: z.array(z.object({ day: z.enum(WEEKDAYS), steps: z.array(z.string()) })),
   groceryList: z.array(z.object({ section: z.string(), items: z.array(z.string()) })),
 });
 

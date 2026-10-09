@@ -273,14 +273,29 @@ button {
   text-align: center;
 }
 
-.scanning img,
-.thumb {
-  display: block;
-  width: 100%;
-  max-height: 220px;
-  object-fit: cover;
-  border-radius: 14px;
+.thumbs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
   margin-bottom: 14px;
+}
+
+.thumbs img {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.scanning .thumbs {
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.scanning .thumbs img {
+  width: 96px;
+  height: 96px;
 }
 
 .scanning p,
@@ -755,6 +770,24 @@ legend.question {
 .checklist label.done span {
   color: var(--muted);
   text-decoration: line-through;
+}
+
+.prep-day h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 16px 0 2px;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.prep-day:first-of-type h3 {
+  margin-top: 4px;
+}
+
+.prep-day .day-badge.small {
+  margin-right: 0;
 }
 
 .grocery-section h3 {

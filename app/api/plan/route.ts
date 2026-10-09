@@ -58,7 +58,10 @@ Make this plan:
       : "No lunches. Leave the lunches list empty."
   }
 
-3. A Sunday prep list: what to wash, chop, marinate or cook on Sunday so weeknights go fast. Say which day each task is for. Only prep ahead what stays safe and fresh until the day it's eaten; for later in the week, say to freeze it or leave it for that day.
+3. A Sunday prep list: what to wash, chop, marinate or cook on Sunday so weeknights go fast.
+   - Group it by the day the prep is for, and leave out days that need no prep.
+   - Write each step as one short action of a few words, like "Chop 1 onion" or "Marinate the chicken". Put each action in its own step instead of joining several in one sentence.
+   - Only prep ahead what stays safe and fresh until the day it's eaten. For later in the week, add a step to freeze it, or leave it for that day.
 
 4. One grocery list for a single trip: everything the plan needs that isn't already in the fridge, with amounts for this household. Group it by store section: Produce, Meat and fish, Dairy and eggs, Bakery, Pantry, Frozen. Leave out empty sections. Assume she already has salt, pepper and cooking oil.`;
 }
