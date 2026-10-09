@@ -1445,3 +1445,49 @@ main.compare {
 .allergy-list {
   margin-bottom: 10px;
 }
+
+/* Deleting a plan */
+
+.delete-plan {
+  margin-top: 28px;
+}
+
+.danger-link {
+  display: block;
+  margin: 0 auto;
+  padding: 8px 4px;
+  background: none;
+  border: none;
+  color: var(--error);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.confirm-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.confirm-buttons > button {
+  flex: 1;
+  margin: 0;
+}
+
+.danger {
+  min-height: 52px;
+  padding: 12px;
+  border: 1.5px solid var(--error);
+  border-radius: 14px;
+  background: var(--card);
+  color: var(--error);
+  font-weight: 650;
+}
+
+.cleared-notice {
+  margin: 0 0 16px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: var(--green-soft);
+  font-weight: 600;
+}

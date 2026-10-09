@@ -1,7 +1,7 @@
-import { randomBytes } from "node:crypto";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
+import { mkdir, readFile, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { get, put } from "@vercel/blob";
+import { del, get, put } from "@vercel/blob";
 import type { Family, Plan, TestInfo } from "./plan-schema";
 
 export type SavedPlan = {
@@ -13,6 +13,8 @@ export type SavedPlan = {
   test: TestInfo;
   // True when the plan passed the allergy safety check before anyone saw it.
   safetyChecked?: boolean;
+  // Only the device that made the plan has the key that deletes it. Older plans don't have one.
+  ownerKeyHash?: string;
 };
 
 // Older plans stored prep as one flat list and had no night-before steps.
@@ -59,6 +61,32 @@ export async function savePlan(data: Omit<SavedPlan, "id" | "createdAt">): Promi
     await writeFile(path.join(LOCAL_DIR, `${id}.json`), json);
   }
   return id;
+}
+
+function hashKey(key: string) {
+  return createHash("sha256").update(key).digest("hex");
+}
+
+// A secret for the device that makes a plan, and the fingerprint of it that's saved with the plan.
+export function newOwnerKey() {
+  const ownerKey = randomBytes(18).toString("base64url");
+  return { ownerKey, ownerKeyHash: hashKey(ownerKey) };
+}
+
+export function isOwner(stored: StoredPlan, ownerKey: string) {
+  if (!stored.ownerKeyHash) return false;
+  const given = Buffer.from(hashKey(ownerKey));
+  const expected = Buffer.from(stored.ownerKeyHash);
+  return given.length === expected.length && timingSafeEqual(given, expected);
+}
+
+export async function deletePlan(id: string) {
+  if (!ID_PATTERN.test(id)) return;
+  if (useBlob()) {
+    await del(`plans/${id}.json`);
+  } else {
+    await unlink(path.join(LOCAL_DIR, `${id}.json`)).catch(() => {});
+  }
 }
 
 // Saves a changed plan over the old one, like after swapping a dinner.

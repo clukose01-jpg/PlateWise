@@ -1,7 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { apiKeyProblem, KEY_REJECTED, PLAN_EFFORT } from "@/lib/claude";
 import { FamilySchema } from "@/lib/plan-schema";
-import { savePlan, StorageNotSetUpError } from "@/lib/plans";
+import { newOwnerKey, savePlan, StorageNotSetUpError } from "@/lib/plans";
 import { makeSafePlan, type PlanFix, PlanSafetyError, SAFETY_CHECK_ON } from "@/lib/safe-plan";
 import { writePlan } from "@/lib/write-plan";
 
@@ -33,8 +33,16 @@ export async function POST(request: Request) {
     if (!result) {
       return errorResponse("We couldn't make a plan this time. Please try again.", 502);
     }
-    const id = await savePlan({ family, plan: result.plan, test: result.test, safetyChecked: SAFETY_CHECK_ON });
-    return Response.json({ id });
+    // The key goes back to her device only, so only she can delete the plan later.
+    const { ownerKey, ownerKeyHash } = newOwnerKey();
+    const id = await savePlan({
+      family,
+      plan: result.plan,
+      test: result.test,
+      safetyChecked: SAFETY_CHECK_ON,
+      ownerKeyHash,
+    });
+    return Response.json({ id, ownerKey });
   } catch (error) {
     if (error instanceof PlanSafetyError) {
       console.error("Plan failed the safety check:", JSON.stringify(error.rounds));

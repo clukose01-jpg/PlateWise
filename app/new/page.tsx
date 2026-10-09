@@ -8,7 +8,7 @@ import { Logo } from "@/components/Illustrations";
 import PlanningWait from "@/components/PlanningWait";
 import StepBar from "@/components/StepBar";
 import TabBar from "@/components/TabBar";
-import { loadPantry, savePantry, setCurrentPlanId } from "@/lib/device";
+import { loadPantry, saveOwnerKey, savePantry, setCurrentPlanId } from "@/lib/device";
 import { ratingsForNextPlan } from "@/lib/ratings";
 
 type Stage = "fridge" | "family" | "planning";
@@ -19,10 +19,13 @@ export default function NewPlan() {
   const [fridgeItems, setFridgeItems] = useState<string[]>([]);
   const [pantryItems, setPantryItems] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [cleared, setCleared] = useState<string | null>(null);
 
   // Pantry staples are remembered on this device, so next week she only photographs the fridge.
   useEffect(() => {
     setPantryItems(loadPantry());
+    // Arriving here right after deleting or removing a plan.
+    setCleared(new URLSearchParams(window.location.search).get("cleared"));
   }, []);
 
   // Saved only when she changes it, so opening the page never overwrites the saved pantry.
@@ -58,6 +61,7 @@ export default function NewPlan() {
       if (!response.ok) throw new Error(result.error);
 
       setCurrentPlanId(result.id);
+      if (result.ownerKey) saveOwnerKey(result.id, result.ownerKey);
       const testMode = new URLSearchParams(window.location.search).has("test");
       router.push(`/plan/${result.id}?tab=week${testMode ? "&test" : ""}`);
     } catch (err) {
@@ -79,6 +83,14 @@ export default function NewPlan() {
           </>
         )}
       </header>
+
+      {cleared && stage === "fridge" && (
+        <p className="cleared-notice" role="status">
+          {cleared === "deleted"
+            ? "Your plan was deleted. Make a new one below."
+            : "That plan was removed from this device. Make a new one below."}
+        </p>
+      )}
 
       <StepBar step={stage === "fridge" ? 1 : stage === "family" ? 2 : 3} />
 

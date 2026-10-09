@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import DeletePlan from "@/components/DeletePlan";
 import DinnerCard from "@/components/DinnerCard";
 import { Logo } from "@/components/Illustrations";
 import { GroceryList, PrepList } from "@/components/PlanSections";
@@ -117,6 +118,8 @@ export default async function PlanPage({ params, searchParams }: Props) {
                 {test.costUsd === null ? "cost unknown" : `≈ $${test.costUsd.toFixed(3)}`} · {test.model}
               </p>
             )}
+
+            <DeletePlan planId={id} />
           </div>
         </div>
       )}

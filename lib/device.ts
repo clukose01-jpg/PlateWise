@@ -1,6 +1,7 @@
 // Things remembered on this device only (phone or computer): the current plan, the pantry and the family answers.
 
 const CURRENT_PLAN_KEY = "platewise.currentPlan";
+const OWNER_KEYS_KEY = "platewise.ownerKeys";
 const PANTRY_KEY = "platewise.pantry";
 export const FAMILY_KEY = "platewise.family";
 
@@ -28,6 +29,36 @@ export function getCurrentPlanId(): string | null {
 
 export function setCurrentPlanId(id: string) {
   write(CURRENT_PLAN_KEY, id);
+}
+
+// The secret that lets this device delete a plan it made, by plan.
+function ownerKeys(): Record<string, string> {
+  const saved = read(OWNER_KEYS_KEY);
+  return saved && typeof saved === "object" ? (saved as Record<string, string>) : {};
+}
+
+export function getOwnerKey(planId: string): string | null {
+  const key = ownerKeys()[planId];
+  return typeof key === "string" ? key : null;
+}
+
+export function saveOwnerKey(planId: string, key: string) {
+  write(OWNER_KEYS_KEY, { ...ownerKeys(), [planId]: key });
+}
+
+// After a plan is deleted or removed: forget its ticks and key, and stop opening to it.
+export function forgetPlan(planId: string) {
+  clearPlanTicks(planId);
+  const keys = ownerKeys();
+  delete keys[planId];
+  write(OWNER_KEYS_KEY, keys);
+  if (getCurrentPlanId() === planId) {
+    try {
+      localStorage.removeItem(CURRENT_PLAN_KEY);
+    } catch {
+      // Nothing to forget.
+    }
+  }
 }
 
 export function loadPantry(): string[] {
