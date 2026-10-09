@@ -2,9 +2,14 @@ import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import { createClient, type Effort, estimateCostUsd, FALLBACK_BETA, MODEL } from "./claude";
 import { buildPlanPrompt } from "./plan-prompt";
 import { type Family, type Plan, PlanSchema, type TestInfo } from "./plan-schema";
+import { describeFix, type PlanFix } from "./safe-plan";
 
-// Asks Claude for the week's plan. Returns null if Claude declined or the reply didn't fit the plan.
-export async function writePlan(family: Family, effort: Effort): Promise<{ plan: Plan; test: TestInfo } | null> {
+// Asks Claude for the week's plan, or to fix one. Returns null if Claude declined or the reply didn't fit.
+export async function writePlan(
+  family: Family,
+  effort: Effort,
+  fix?: PlanFix,
+): Promise<{ plan: Plan; test: TestInfo } | null> {
   const started = Date.now();
   const stream = createClient().beta.messages.stream({
     model: MODEL,
@@ -12,7 +17,7 @@ export async function writePlan(family: Family, effort: Effort): Promise<{ plan:
     betas: [FALLBACK_BETA],
     fallbacks: "default",
     output_config: { effort, format: betaZodOutputFormat(PlanSchema) },
-    messages: [{ role: "user", content: buildPlanPrompt(family) }],
+    messages: [{ role: "user", content: buildPlanPrompt(family) + (fix ? describeFix(fix) : "") }],
   });
   const response = await stream.finalMessage();
 

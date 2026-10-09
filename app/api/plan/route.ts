@@ -2,10 +2,14 @@ import Anthropic from "@anthropic-ai/sdk";
 import { apiKeyProblem, KEY_REJECTED, PLAN_EFFORT } from "@/lib/claude";
 import { FamilySchema } from "@/lib/plan-schema";
 import { savePlan, StorageNotSetUpError } from "@/lib/plans";
+import { makeSafePlan, type PlanFix, PlanSafetyError, SAFETY_CHECK_ON } from "@/lib/safe-plan";
 import { writePlan } from "@/lib/write-plan";
 
-// Writing a whole week can take a minute or two.
+// Writing and double-checking a whole week can take a minute or two.
 export const maxDuration = 300;
+
+const NOT_SAFE =
+  "We couldn't make a plan we're sure is safe for your family's allergies this time. Please try again.";
 
 function errorResponse(message: string, status: number) {
   return Response.json({ error: message }, { status });
@@ -24,13 +28,18 @@ export async function POST(request: Request) {
   const family = parsed.data;
 
   try {
-    const result = await writePlan(family, PLAN_EFFORT);
+    const generate = (fix?: PlanFix) => writePlan(family, PLAN_EFFORT, fix);
+    const result = SAFETY_CHECK_ON ? await makeSafePlan(family, generate) : await generate();
     if (!result) {
       return errorResponse("We couldn't make a plan this time. Please try again.", 502);
     }
     const id = await savePlan({ family, plan: result.plan, test: result.test });
     return Response.json({ id });
   } catch (error) {
+    if (error instanceof PlanSafetyError) {
+      console.error("Plan failed the safety check:", JSON.stringify(error.rounds));
+      return errorResponse(NOT_SAFE, 502);
+    }
     if (error instanceof StorageNotSetUpError) {
       return errorResponse("The app can't save plans yet: connect a Blob store in Vercel.", 500);
     }

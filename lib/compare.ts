@@ -1,9 +1,10 @@
 // A temporary side-by-side test: the same families planned with Claude thinking for "medium" (today)
 // and "low" (faster and cheaper), checked for foods each family can't eat. Remove once decided.
+// Its word lists are written by hand, separately from the app's own check, so they double as an
+// independent check of the final plans.
+import { type Food, findFood, planText, type Problem } from "./food-check";
 import type { Family, Plan } from "./plan-schema";
 
-// A food to look for. `except` lists words that make it safe right before it, like "coconut milk".
-type Food = string | { word: string; except: string[] };
 type Rule = { who: string; foods: Food[] };
 export type TestFamily = { title: string; family: Family; rules: Rule[] };
 
@@ -129,48 +130,73 @@ export const TEST_FAMILIES: TestFamily[] = [
       },
     ],
   },
+  {
+    title: "Sesame and soy allergy, one picky kid",
+    family: {
+      ...common,
+      allergies: "Sesame and soy",
+      adults: 2,
+      kids: [{ name: "Mia", refuses: "beef, potatoes" }],
+      maxMinutes: 30,
+      lunches: true,
+      fridgeItems: ["tofu", "chicken breasts", "edamame", "ground beef", "potatoes", "rice noodles"],
+      pantryItems: ["soy sauce", "sesame oil", "tahini", "teriyaki sauce", "hummus", "rice"],
+    },
+    rules: [
+      { who: "Sesame allergy", foods: ["sesame", "tahini", "hummus", "halva", "furikake"] },
+      {
+        who: "Soy allergy",
+        foods: ["soy", "soya", "tofu", "edamame", "tamari", "miso", "tempeh", "teriyaki", "soybean", "soybeans"],
+      },
+      {
+        who: "Mia won't eat beef or potatoes",
+        foods: ["beef", "steak", "potato", "potatoes", "fries", "hash browns", "tater tots"],
+      },
+    ],
+  },
+  {
+    title: "Fish and milk allergy, one picky kid",
+    family: {
+      ...common,
+      allergies: "Fish and milk",
+      adults: 2,
+      kids: [{ name: "Ben", refuses: "chicken" }],
+      maxMinutes: 30,
+      lunches: false,
+      fridgeItems: ["tilapia", "ground beef", "romaine lettuce", "butter", "parmesan"],
+      pantryItems: ["Worcestershire sauce", "Caesar dressing", "fish sauce", "pesto", "pasta", "canned tuna"],
+    },
+    rules: [
+      {
+        who: "Fish allergy",
+        foods: ["fish", "salmon", "tuna", "cod", "tilapia", "halibut", "trout", "anchovy", "anchovies",
+          "sardine", "sardines", "worcestershire", "caesar"],
+      },
+      {
+        who: "Milk allergy",
+        foods: [
+          { word: "milk", except: ["coconut", "oat", "soy", "almond", "rice", ...PLANT_BASED] },
+          { word: "cheese", except: PLANT_BASED },
+          { word: "butter", except: ["peanut", "almond", "sunflower", "seed", "apple", ...PLANT_BASED] },
+          { word: "cream", except: ["coconut", ...PLANT_BASED] },
+          { word: "yogurt", except: ["coconut", "oat", "soy", ...PLANT_BASED] },
+          "parmesan", "mozzarella", "cheddar", "ricotta", "feta", "ghee", "buttermilk", "whey", "queso", "ranch",
+          "alfredo", "pesto",
+        ],
+      },
+      { who: "Ben won't eat chicken", foods: ["chicken"] },
+    ],
+  },
 ];
-
-export type Problem = { who: string; food: string; where: string; text: string };
-
-function escape(text: string) {
-  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-// Every piece of text in the plan, with where it appears.
-function planText(plan: Plan): { where: string; text: string }[] {
-  return [
-    ...plan.dinners.flatMap((d) => [
-      { where: `${d.day} dinner`, text: d.name },
-      { where: `${d.day} tip`, text: d.tip },
-      ...d.steps.map((text) => ({ where: `${d.day} steps`, text })),
-      ...d.nightBefore.map((text) => ({ where: `${d.day} night before`, text })),
-    ]),
-    ...plan.lunches.map((l) => ({ where: `${l.day} lunch`, text: l.name })),
-    ...plan.prepList.flatMap((p) => p.steps.map((text) => ({ where: `Sunday prep for ${p.day}`, text }))),
-    ...plan.groceryList.flatMap((g) => g.items.map((text) => ({ where: `Grocery list (${g.section})`, text }))),
-  ];
-}
-
-// Words just before a match that mean the food is being avoided, like "no onions" or "nut-free".
-const AVOIDING = /(-free|\bfree|\bno|\bwithout|\binstead of|\bin place of|\bskip|\bnot|\bavoid|\bleave out)\s*[\w-]*\s*$/i;
 
 export function checkPlan(test: TestFamily, plan: Plan) {
   const problems: Problem[] = [];
   for (const { where, text } of planText(plan)) {
     for (const rule of test.rules) {
       for (const food of rule.foods) {
-        const { word, except } = typeof food === "string" ? { word: food, except: [] } : food;
-        const pattern = new RegExp(`\\b${escape(word)}\\b`, "gi");
-        for (const match of text.matchAll(pattern)) {
-          const before = text.slice(Math.max(0, match.index - 30), match.index).toLowerCase();
-          const after = text.slice(match.index + match[0].length).toLowerCase();
-          // "peanut-free", "no onions", "without nuts"
-          if (/^[\s-]?free\b/.test(after) || AVOIDING.test(before)) continue;
-          if (except.some((safe) => before.trimEnd().endsWith(safe))) continue;
-          if (!problems.some((p) => p.where === where && p.text === text && p.who === rule.who)) {
-            problems.push({ who: rule.who, food: match[0], where, text });
-          }
+        const found = findFood(text, food);
+        if (found && !problems.some((p) => p.where === where && p.text === text && p.who === rule.who)) {
+          problems.push({ who: rule.who, food: found, where, text });
         }
       }
     }

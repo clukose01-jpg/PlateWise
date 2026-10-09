@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { MAX_PHOTOS_PER_SCAN } from "@/lib/photo-limits";
 import { resizePhoto } from "@/lib/resize-photo";
 import { Logo } from "./Illustrations";
+import SafetyTest from "./SafetyTest";
 
 type Effort = "medium" | "low";
 const SETTINGS: { effort: Effort; label: string }[] = [
@@ -150,8 +151,10 @@ export default function CompareTool() {
         </p>
       </header>
 
+      <SafetyTest code={code} />
+
       <section className="card">
-        <h2 className="section-title">1. Plans</h2>
+        <h2 className="section-title">2. Speed comparison (already done)</h2>
         <p>
           Makes 6 test plans: 3 families with allergies and picky kids, each made both ways. Every plan is
           checked for foods that family can&apos;t eat. Their own kitchens include some of those foods, to see
@@ -207,7 +210,7 @@ export default function CompareTool() {
       })}
 
       <section className="card">
-        <h2 className="section-title">2. Photo scan</h2>
+        <h2 className="section-title">3. Photo scan</h2>
         <p>
           Pick 1 to {MAX_PHOTOS_PER_SCAN} photos of a fridge, freezer or pantry. They&apos;re read both ways so
           you can see what each one finds. Costs a few cents.
