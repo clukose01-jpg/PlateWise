@@ -1491,3 +1491,60 @@ main.compare {
   background: var(--green-soft);
   font-weight: 600;
 }
+
+/* Logging in */
+
+.login .question {
+  margin-top: 0;
+}
+
+.login .hint {
+  margin: 10px 0 16px;
+}
+
+.code-input {
+  font-size: 28px !important;
+  letter-spacing: 0.3em;
+  text-align: center;
+  margin: 4px 0 16px;
+}
+
+.login-link {
+  margin: 10px 0 0;
+  font-size: 15px;
+  color: var(--muted);
+}
+
+.login-link a {
+  font-weight: 650;
+}
+
+.account-card .primary {
+  margin-top: 4px;
+}
+
+.login-nudge .confirm-buttons {
+  margin-top: 4px;
+}
+
+.login-nudge .confirm-buttons > a {
+  flex: 1;
+}
+
+.plan-history {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.plan-history li {
+  padding: 8px 0;
+}
+
+.plan-history li + li {
+  border-top: 1px solid var(--border);
+}
+
+.plan-history a {
+  font-weight: 600;
+}

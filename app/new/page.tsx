@@ -5,10 +5,12 @@ import { useEffect, useState } from "react";
 import FamilyStep, { type FamilyAnswers } from "@/components/FamilyStep";
 import FridgeStep from "@/components/FridgeStep";
 import { Logo } from "@/components/Illustrations";
+import LoginLink from "@/components/LoginLink";
 import PlanningWait from "@/components/PlanningWait";
 import StepBar from "@/components/StepBar";
 import TabBar from "@/components/TabBar";
-import { loadPantry, saveOwnerKey, savePantry, setCurrentPlanId } from "@/lib/device";
+import { syncFromAccount } from "@/lib/account-client";
+import { loadPantry, rememberMadePlan, saveOwnerKey, savePantry, setCurrentPlanId } from "@/lib/device";
 import { ratingsForNextPlan } from "@/lib/ratings";
 
 type Stage = "fridge" | "family" | "planning";
@@ -23,7 +25,7 @@ export default function NewPlan() {
 
   // Pantry staples are remembered on this device, so next week she only photographs the fridge.
   useEffect(() => {
-    setPantryItems(loadPantry());
+    syncFromAccount().then(() => setPantryItems(loadPantry()));
     // Arriving here right after deleting or removing a plan.
     setCleared(new URLSearchParams(window.location.search).get("cleared"));
   }, []);
@@ -62,6 +64,7 @@ export default function NewPlan() {
 
       setCurrentPlanId(result.id);
       if (result.ownerKey) saveOwnerKey(result.id, result.ownerKey);
+      rememberMadePlan({ id: result.id, madeOn, createdAt: new Date().toISOString() });
       const testMode = new URLSearchParams(window.location.search).has("test");
       router.push(`/plan/${result.id}?tab=week${testMode ? "&test" : ""}`);
     } catch (err) {
@@ -80,6 +83,7 @@ export default function NewPlan() {
           <>
             <h1 className="hero">Dinner, decided.</h1>
             <p className="tagline">Plan the whole week of dinners in a few minutes.</p>
+            <LoginLink />
           </>
         )}
       </header>

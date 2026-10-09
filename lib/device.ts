@@ -1,7 +1,10 @@
-// Things remembered on this device only (phone or computer): the current plan, the pantry and the family answers.
+// Things remembered on this device (phone or computer): the current plan, the pantry and the family
+// answers. When she's logged in, changes also save to her account.
+import { isSyncedKey, scheduleAccountSave } from "./account-client";
 
 const CURRENT_PLAN_KEY = "platewise.currentPlan";
 const OWNER_KEYS_KEY = "platewise.ownerKeys";
+const PLANS_KEY = "platewise.plans";
 const PANTRY_KEY = "platewise.pantry";
 export const FAMILY_KEY = "platewise.family";
 
@@ -19,6 +22,7 @@ function write(key: string, value: unknown) {
   } catch {
     // This browser blocks storage; it just won't be remembered.
   }
+  if (isSyncedKey(key)) scheduleAccountSave();
 }
 
 // The plan this device opens to. Opening a shared plan link makes it this device's plan too.
@@ -28,7 +32,8 @@ export function getCurrentPlanId(): string | null {
 }
 
 export function setCurrentPlanId(id: string) {
-  write(CURRENT_PLAN_KEY, id);
+  // Opening the same plan again changes nothing, so there's nothing to save.
+  if (getCurrentPlanId() !== id) write(CURRENT_PLAN_KEY, id);
 }
 
 // The secret that lets this device delete a plan it made, by plan.
@@ -46,18 +51,34 @@ export function saveOwnerKey(planId: string, key: string) {
   write(OWNER_KEYS_KEY, { ...ownerKeys(), [planId]: key });
 }
 
+// The plans she's made on this device (or in her account), newest first.
+export type PlanRef = { id: string; madeOn: string; createdAt: string };
+
+export function loadMadePlans(): PlanRef[] {
+  const saved = read(PLANS_KEY);
+  return Array.isArray(saved)
+    ? saved.filter((plan): plan is PlanRef => typeof plan?.id === "string" && typeof plan?.createdAt === "string")
+    : [];
+}
+
+export function rememberMadePlan(plan: PlanRef) {
+  write(PLANS_KEY, [plan, ...loadMadePlans().filter((p) => p.id !== plan.id)]);
+}
+
 // After a plan is deleted or removed: forget its ticks and key, and stop opening to it.
 export function forgetPlan(planId: string) {
   clearPlanTicks(planId);
   const keys = ownerKeys();
   delete keys[planId];
   write(OWNER_KEYS_KEY, keys);
+  write(PLANS_KEY, loadMadePlans().filter((p) => p.id !== planId));
   if (getCurrentPlanId() === planId) {
     try {
       localStorage.removeItem(CURRENT_PLAN_KEY);
     } catch {
       // Nothing to forget.
     }
+    scheduleAccountSave();
   }
 }
 

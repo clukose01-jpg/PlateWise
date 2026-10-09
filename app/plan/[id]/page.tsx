@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import DeletePlan from "@/components/DeletePlan";
 import DinnerCard from "@/components/DinnerCard";
+import LoginNudge from "@/components/LoginNudge";
 import { Logo } from "@/components/Illustrations";
 import { GroceryList, PrepList } from "@/components/PlanSections";
 import RememberPlan from "@/components/RememberPlan";
@@ -86,6 +87,8 @@ export default async function PlanPage({ params, searchParams }: Props) {
                 )}
               </section>
             )}
+
+            <LoginNudge planId={id} />
           </div>
 
           <div className="week-main">

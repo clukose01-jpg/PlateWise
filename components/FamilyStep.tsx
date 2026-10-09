@@ -1,6 +1,7 @@
 "use client";
 
 import { type FormEvent, type KeyboardEvent, useEffect, useState } from "react";
+import { syncFromAccount } from "@/lib/account-client";
 import { isNoAllergy, loadFamily, saveFamily } from "@/lib/device";
 import { COOK_TIMES } from "@/lib/plan-schema";
 import { countRatings } from "@/lib/ratings";
@@ -54,14 +55,16 @@ export default function FamilyStep({ error, onBack, onSubmit }: Props) {
 
   useEffect(() => {
     setRatingCount(countRatings());
-    // Answers are remembered on this device, so next Sunday she doesn't retype them.
-    const saved = loadFamily();
-    if (!saved) return;
-    setAllergies(saved.allergies);
-    setAdults(saved.adults);
-    setKids(saved.kids.length ? saved.kids.map((kid) => ({ ...kid, typing: "" })) : [EMPTY_KID]);
-    setMaxMinutes(saved.maxMinutes);
-    setLunches(saved.lunches);
+    // Answers are remembered on this device (and her account), so next Sunday she doesn't retype them.
+    syncFromAccount().then(() => {
+      const saved = loadFamily();
+      if (!saved) return;
+      setAllergies(saved.allergies);
+      setAdults(saved.adults);
+      setKids(saved.kids.length ? saved.kids.map((kid) => ({ ...kid, typing: "" })) : [EMPTY_KID]);
+      setMaxMinutes(saved.maxMinutes);
+      setLunches(saved.lunches);
+    });
   }, []);
 
   function updateKid(index: number, changes: Partial<KidDraft>) {

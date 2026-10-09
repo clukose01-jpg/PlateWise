@@ -13,6 +13,7 @@ PlateWise plans a family's week of dinners on Sunday. See [plan.md](plan.md) for
 8. **Big screens.** On a computer or a tablet turned sideways, the tabs move to a sidebar and pages fill the screen. Tonight's recipe gets big text that's easy to read from across the kitchen. Phones look exactly the same as before.
 9. **Allergy safety check.** Before any plan or swapped dinner is shown, a word check looks for the family's allergens (and foods that usually contain them, like wheat in soy sauce), the kids' dislikes, dinners over her cooking time and missing days. Then a second Claude review looks for hidden allergens. Anything found is fixed and checked again; if it still isn't clean after two fixes, she sees "please try again" instead of the plan.
 10. **Delete a plan.** At the bottom of the **Week** tab. On the device that made the plan, "Delete this plan" removes it for everyone (after a confirmation) and goes straight to making a new one. Anyone else it was shared with can only remove it from their own device. The pantry, family answers and ratings stay saved.
+11. **Log in (optional).** From the **More** tab, the Week tab after a plan, or "Already use PlateWise? Log in" on New plan. She types her email and the 6-digit code we email her; there's no password. Once logged in, her family answers, pantry, ratings, current plan and list of plans save to her account and come back on any device she logs into. Logging out takes them off that device.
 
 ## Put it online
 
@@ -33,6 +34,11 @@ You need two accounts: one to pay for the AI, and one to host the app.
 4. **Turn on daily reminders.**
    - Add three more environment variables: `VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY` (make a pair with `npx web-push generate-vapid-keys`), and `CRON_SECRET` (any long random text).
    - The `vercel.json` file tells Vercel to check once an hour. Each phone saves its own time zone, and the app sends its reminder once a day, in the first check after 3pm there. That keeps it right in every time zone and when the clocks change.
+5. **Turn on logging in.**
+   - Buy your own website name (PlateWise uses tryplatewise.com) and connect it to the project in Vercel.
+   - Make a free account at [resend.com](https://resend.com), add your website name there, and add the records it shows to your domain's DNS in Vercel.
+   - Create a Resend API key and add it in Vercel as `RESEND_API_KEY`. Add `SESSION_SECRET` too (any long random text). Redeploy.
+   - Until both are set, the login stays hidden and everything is saved on each device, as before.
 
 ## Run your 20 test scans
 

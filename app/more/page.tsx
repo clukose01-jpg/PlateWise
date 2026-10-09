@@ -2,11 +2,14 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import AccountCard from "@/components/AccountCard";
 import { FoodList } from "@/components/FridgeStep";
 import { Logo } from "@/components/Illustrations";
 import InstallHelp from "@/components/InstallHelp";
+import PlanHistory from "@/components/PlanHistory";
 import ReminderSettings from "@/components/ReminderSettings";
 import TabBar from "@/components/TabBar";
+import { syncFromAccount } from "@/lib/account-client";
 import { loadFamily, loadPantry, type SavedFamily, savePantry } from "@/lib/device";
 import { type DinnerRating, likedDinners } from "@/lib/ratings";
 
@@ -16,9 +19,11 @@ export default function MorePage() {
   const [family, setFamily] = useState<SavedFamily | null>(null);
 
   useEffect(() => {
-    setFavorites(likedDinners());
-    setPantry(loadPantry());
-    setFamily(loadFamily());
+    syncFromAccount().then(() => {
+      setFavorites(likedDinners());
+      setPantry(loadPantry());
+      setFamily(loadFamily());
+    });
   }, []);
 
   function updatePantry(items: string[]) {
@@ -35,6 +40,8 @@ export default function MorePage() {
 
       {/* On a computer, these cards flow into columns. */}
       <div className="more-layout">
+        <AccountCard />
+
         <section className="card">
           <h2 className="section-title">Favorite dinners</h2>
           {favorites.length === 0 ? (
@@ -53,6 +60,8 @@ export default function MorePage() {
             </ul>
           )}
         </section>
+
+        <PlanHistory />
 
         <section className="card">
           <h2 className="section-title">Your pantry</h2>

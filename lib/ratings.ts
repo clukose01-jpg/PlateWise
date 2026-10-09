@@ -1,6 +1,8 @@
 // What the family thought of past dinners, saved on this device.
 // The next plan uses these to pick more meals they like.
 
+import { scheduleAccountSave } from "./account-client";
+
 const RATINGS_KEY = "platewise.ratings";
 
 // How many past ratings to send with a new plan. The newest ones matter most.
@@ -43,6 +45,7 @@ function writeAll(ratings: SavedRatings) {
   } catch {
     // Ratings just won't be remembered.
   }
+  scheduleAccountSave();
 }
 
 export function loadRating(planId: string, day: string): DinnerRating | null {
