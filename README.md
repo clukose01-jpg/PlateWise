@@ -3,7 +3,7 @@
 PlateWise plans a family's week of dinners on Sunday. See [plan.md](plan.md) for the MVP plan.
 
 **Built so far:**
-1. **Fridge scan.** She takes a photo of each shelf (up to 8), PlateWise lists the food it sees without repeats, and she can fix the list or type it herself.
+1. **Fridge scan.** She takes a photo of each shelf (up to 5), PlateWise lists the food it sees without repeats, and she can fix the list or type it herself.
 2. **Family questions.** Allergies, what each kid won't eat, the longest she'll cook on a weeknight, and whether to plan lunches. Her phone remembers the answers for next week.
 3. **The plan.** Monday–Friday dinners, a Sunday prep list grouped by day, and one grocery list, saved at a private link she can share.
 

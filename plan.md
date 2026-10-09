@@ -22,7 +22,7 @@ Everything else (the grocery list and the prep list) is there to make that plan 
 | Any allergies? | Peanuts |
 | Who's eating, and what does each kid refuse? | 2 adults. Maya (7): mushrooms, fish. Leo (3): anything spicy |
 | What's the longest you'll cook on a weeknight? | 30 minutes |
-| Snap photos of your fridge *(optional)* | One photo per shelf, the door and the freezer (up to 8) |
+| Snap photos of your fridge *(optional)* | One photo per shelf, the door and the freezer (up to 5) |
 | Add lunches too? *(checkbox, off unless she ticks it)* | No |
 
 **How the fridge photo works:**
