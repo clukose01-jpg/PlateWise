@@ -1,60 +1,14 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
-import { z } from "zod";
-import {
-  apiKeyProblem,
-  createClient,
-  estimateCostUsd,
-  FALLBACK_BETA,
-  KEY_REJECTED,
-  MODEL,
-} from "@/lib/claude";
+import { apiKeyProblem, KEY_REJECTED, SCAN_EFFORT } from "@/lib/claude";
+import { isPhotoType, KnownItems, scanKitchen, toImageBlocks } from "@/lib/kitchen-scan";
 import { MAX_PHOTOS_PER_SCAN } from "@/lib/photo-limits";
 
 export const maxDuration = 120;
 
 // The hosting service rejects uploads over 4.5 MB.
 const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
-const PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"] as const;
-type PhotoType = (typeof PHOTO_TYPES)[number];
-
-// "pantry" foods are remembered on her phone for next week; "fresh" ones are for this week only.
-const KitchenItems = z.object({
-  items: z.array(z.object({ name: z.string(), kind: z.enum(["fresh", "pantry"]) })),
-});
-
-// Foods already on her lists, so a new photo only adds what's new.
-const KnownItems = z.array(z.string().max(100)).max(160);
-
-function buildPrompt(photoCount: number, known: string[]) {
-  const intro =
-    photoCount === 1
-      ? "This is a photo of part of a family's kitchen: a fridge shelf, the freezer or the pantry."
-      : `These are ${photoCount} photos of a family's kitchen, showing different fridge shelves, the freezer or the pantry.`;
-
-  return `${intro} List the foods you can clearly see that could go into a family lunch or dinner.
-
-- Use short, everyday names a parent would write on a grocery list, like "chicken breasts", "baby spinach" or "cheddar cheese".
-- List each food once, even if it shows up in more than one photo.
-- Add an amount in brackets only when you can clearly see it and it matters for cooking, like "eggs (about 6)".
-- Include sauces and condiments only when they're useful for cooking a meal, like "soy sauce" or "salsa".
-- Skip drinks, except milk.
-- If you can't tell what something is, leave it out. The parent will add anything you miss.
-- Mark each food as "pantry" or "fresh":
-  - "pantry" is for long-lasting staples a family keeps stocked for weeks, like dry pasta, rice, flour, canned and jarred food, spices, oils, sauces and condiments, and frozen vegetables.
-  - "fresh" is for food that gets used up within a week or two, like fruit, vegetables, meat, fish, dairy, eggs, bread, leftovers and frozen meat.
-- If the photos don't show food, return an empty list.${
-    known.length
-      ? `\n- These foods are already on her list, so leave them out, along with close variants of them: ${known.join(", ")}.`
-      : ""
-  }`;
-}
 
 const COULD_NOT_READ = "We couldn't read that photo. Try another one, or type what you have.";
-
-function isPhotoType(type: string): type is PhotoType {
-  return (PHOTO_TYPES as readonly string[]).includes(type);
-}
 
 function errorResponse(message: string, status: number) {
   return Response.json({ error: message }, { status });
@@ -91,63 +45,12 @@ export async function POST(request: Request) {
   }
   const known = parseKnown(form.get("known"));
 
-  const images: Anthropic.Beta.BetaImageBlockParam[] = await Promise.all(
-    photos.map(async (photo) => ({
-      type: "image" as const,
-      source: {
-        type: "base64" as const,
-        media_type: photo.type as PhotoType,
-        data: Buffer.from(await photo.arrayBuffer()).toString("base64"),
-      },
-    })),
-  );
-
-  const client = createClient();
-  const started = Date.now();
-
   try {
-    const response = await client.beta.messages.parse({
-      model: MODEL,
-      max_tokens: 16000,
-      betas: [FALLBACK_BETA],
-      fallbacks: "default",
-      output_config: { effort: "medium", format: betaZodOutputFormat(KitchenItems) },
-      messages: [
-        {
-          role: "user",
-          content: [...images, { type: "text", text: buildPrompt(photos.length, known) }],
-        },
-      ],
-    });
-
-    if (response.stop_reason === "refusal" || !response.parsed_output) {
+    const result = await scanKitchen(await toImageBlocks(photos), known, SCAN_EFFORT);
+    if (!result) {
       return errorResponse(COULD_NOT_READ, 422);
     }
-
-    // Leave out anything already on her lists, and repeats within this scan.
-    const seen = known.map((item) => item.toLowerCase());
-    const fresh: string[] = [];
-    const pantry: string[] = [];
-    for (const { name, kind } of response.parsed_output.items) {
-      const item = name.trim();
-      if (item && !seen.includes(item.toLowerCase())) {
-        seen.push(item.toLowerCase());
-        (kind === "pantry" ? pantry : fresh).push(item);
-      }
-    }
-    const { input_tokens, output_tokens } = response.usage;
-
-    return Response.json({
-      fresh,
-      pantry,
-      test: {
-        model: response.model,
-        inputTokens: input_tokens,
-        outputTokens: output_tokens,
-        costUsd: estimateCostUsd(response.model, input_tokens, output_tokens),
-        seconds: (Date.now() - started) / 1000,
-      },
-    });
+    return Response.json(result);
   } catch (error) {
     if (error instanceof Anthropic.AuthenticationError) {
       console.error("Scan failed: Claude rejected the API key:", error.message);

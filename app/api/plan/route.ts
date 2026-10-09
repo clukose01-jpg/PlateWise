@@ -1,16 +1,8 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
-import {
-  apiKeyProblem,
-  createClient,
-  estimateCostUsd,
-  FALLBACK_BETA,
-  KEY_REJECTED,
-  MODEL,
-} from "@/lib/claude";
-import { buildPlanPrompt } from "@/lib/plan-prompt";
-import { FamilySchema, PlanSchema } from "@/lib/plan-schema";
+import { apiKeyProblem, KEY_REJECTED, PLAN_EFFORT } from "@/lib/claude";
+import { FamilySchema } from "@/lib/plan-schema";
 import { savePlan, StorageNotSetUpError } from "@/lib/plans";
+import { writePlan } from "@/lib/write-plan";
 
 // Writing a whole week can take a minute or two.
 export const maxDuration = 300;
@@ -31,36 +23,12 @@ export async function POST(request: Request) {
   }
   const family = parsed.data;
 
-  const client = createClient();
-  const started = Date.now();
-
   try {
-    const stream = client.beta.messages.stream({
-      model: MODEL,
-      max_tokens: 64000,
-      betas: [FALLBACK_BETA],
-      fallbacks: "default",
-      output_config: { effort: "medium", format: betaZodOutputFormat(PlanSchema) },
-      messages: [{ role: "user", content: buildPlanPrompt(family) }],
-    });
-    const response = await stream.finalMessage();
-
-    if (response.stop_reason === "refusal" || !response.parsed_output) {
+    const result = await writePlan(family, PLAN_EFFORT);
+    if (!result) {
       return errorResponse("We couldn't make a plan this time. Please try again.", 502);
     }
-
-    const { input_tokens, output_tokens } = response.usage;
-    const id = await savePlan({
-      family,
-      plan: response.parsed_output,
-      test: {
-        model: response.model,
-        inputTokens: input_tokens,
-        outputTokens: output_tokens,
-        costUsd: estimateCostUsd(response.model, input_tokens, output_tokens),
-        seconds: (Date.now() - started) / 1000,
-      },
-    });
+    const id = await savePlan({ family, plan: result.plan, test: result.test });
     return Response.json({ id });
   } catch (error) {
     if (error instanceof StorageNotSetUpError) {

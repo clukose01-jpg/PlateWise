@@ -1340,3 +1340,82 @@ button:disabled {
     color: var(--accent);
   }
 }
+
+/* Speed test page (temporary) */
+
+main.compare {
+  max-width: 980px;
+}
+
+.compare-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.compare-columns h3 {
+  margin: 0 0 4px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.compare-columns p {
+  margin: 0 0 6px;
+}
+
+.compare-summary > div {
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--bg);
+}
+
+.compare-big {
+  font-family: var(--heading);
+  font-size: 26px;
+  font-weight: 650;
+}
+
+.compare-run + .compare-run {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.compare-dinners,
+.compare-problems,
+.compare-foods {
+  margin: 6px 0 10px;
+  padding-left: 18px;
+  font-size: 15px;
+}
+
+.compare-dinners li,
+.compare-problems li {
+  margin-bottom: 4px;
+}
+
+.compare-pass {
+  color: var(--green);
+  font-weight: 650;
+}
+
+.compare-fail,
+.compare-problems {
+  color: var(--error);
+}
+
+.compare-problems em {
+  color: var(--text);
+}
+
+.compare-only {
+  margin-left: 4px;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: var(--tomato-soft);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}

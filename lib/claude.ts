@@ -5,6 +5,11 @@ export const MODEL = "claude-opus-5-5";
 // If Claude declines a request, the API retries it on a fallback model it picks.
 export const FALLBACK_BETA = "server-side-fallback-2026-07-01";
 
+// How long Claude thinks before answering: "low" is faster and cheaper, "medium" more careful.
+export type Effort = "low" | "medium";
+export const PLAN_EFFORT: Effort = "medium";
+export const SCAN_EFFORT: Effort = "medium";
+
 // US dollars per million tokens. Used to show what each scan costs while testing.
 const PRICES: Record<string, { input: number; output: number }> = {
   "claude-opus-5-5": { input: 4, output: 20 },
