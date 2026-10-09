@@ -6,7 +6,8 @@ export const COOK_TIMES = [15, 20, 30, 45, 60] as const;
 
 // What she tells us. Limits keep one request from running up the AI bill.
 export const FamilySchema = z.object({
-  allergies: z.string().max(300),
+  // Up to 12 allergies, joined like "peanuts, shellfish".
+  allergies: z.string().max(600),
   adults: z.number().int().min(1).max(6),
   kids: z
     .array(z.object({ name: z.string().max(60), refuses: z.string().max(300) }))

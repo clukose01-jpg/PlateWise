@@ -1441,3 +1441,7 @@ main.compare {
   padding-left: 18px;
   color: var(--muted);
 }
+
+.allergy-list {
+  margin-bottom: 10px;
+}

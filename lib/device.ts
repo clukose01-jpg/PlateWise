@@ -42,7 +42,7 @@ export function savePantry(items: string[]) {
 export type SavedKid = { name: string; refuses: string[] };
 
 export type SavedFamily = {
-  allergies: string;
+  allergies: string[];
   adults: number;
   kids: SavedKid[];
   maxMinutes: number;
@@ -59,11 +59,39 @@ export function toFoods(refuses: unknown): string[] {
     .filter(Boolean);
 }
 
+const NO_ALLERGIES = ["none", "no", "n/a", "na", "nothing", "nope"];
+
+export function isNoAllergy(text: string) {
+  return NO_ALLERGIES.includes(text.trim().toLowerCase());
+}
+
+// Allergies are separate bubbles. Answers saved before that were one line, like "peanuts, shellfish";
+// commas inside brackets stay together, as in "dairy (milk, cheese)".
+export function toAllergies(saved: unknown): string[] {
+  if (Array.isArray(saved)) return saved.filter((allergy) => typeof allergy === "string");
+  if (typeof saved !== "string") return [];
+  const parts: string[] = [];
+  let current = "";
+  let depth = 0;
+  for (const char of saved) {
+    if (char === "(") depth++;
+    if (char === ")") depth = Math.max(0, depth - 1);
+    if ((char === "," || char === ";") && depth === 0) {
+      parts.push(current);
+      current = "";
+    } else {
+      current += char;
+    }
+  }
+  parts.push(current);
+  return parts.map((part) => part.trim()).filter((part) => part && !isNoAllergy(part));
+}
+
 export function loadFamily(): SavedFamily | null {
   const saved = read(FAMILY_KEY) as Partial<SavedFamily> | null;
   if (!saved || typeof saved !== "object") return null;
   return {
-    allergies: typeof saved.allergies === "string" ? saved.allergies : "",
+    allergies: toAllergies(saved.allergies),
     adults: typeof saved.adults === "number" ? saved.adults : 2,
     kids: Array.isArray(saved.kids)
       ? saved.kids.map((kid: { name?: unknown; refuses?: unknown }) => ({

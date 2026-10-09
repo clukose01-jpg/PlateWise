@@ -1,7 +1,7 @@
 "use client";
 
 import { type FormEvent, type KeyboardEvent, useEffect, useState } from "react";
-import { loadFamily, saveFamily } from "@/lib/device";
+import { isNoAllergy, loadFamily, saveFamily } from "@/lib/device";
 import { COOK_TIMES } from "@/lib/plan-schema";
 import { countRatings } from "@/lib/ratings";
 
@@ -14,21 +14,27 @@ export type FamilyAnswers = {
 };
 
 const MAX_FOODS_PER_KID = 15;
+const MAX_ALLERGIES = 12;
 
 // While she's typing, each kid's foods are separate bubbles plus whatever is in the box.
 type KidDraft = { name: string; refuses: string[]; typing: string };
 
 const EMPTY_KID: KidDraft = { name: "", refuses: [], typing: "" };
 
-function addFoods(existing: string[], text: string): string[] {
+function addFoods(existing: string[], text: string, max = MAX_FOODS_PER_KID): string[] {
   const foods = [...existing];
   for (const raw of text.split(",")) {
     const food = raw.trim();
-    if (food && foods.length < MAX_FOODS_PER_KID && !foods.some((f) => f.toLowerCase() === food.toLowerCase())) {
+    if (food && foods.length < max && !foods.some((f) => f.toLowerCase() === food.toLowerCase())) {
       foods.push(food);
     }
   }
   return foods;
+}
+
+// Typing "none" just means no allergies, so it doesn't become a bubble.
+function addAllergies(existing: string[], text: string) {
+  return addFoods(existing, text, MAX_ALLERGIES).filter((allergy) => !isNoAllergy(allergy));
 }
 
 type Props = {
@@ -38,7 +44,8 @@ type Props = {
 };
 
 export default function FamilyStep({ error, onBack, onSubmit }: Props) {
-  const [allergies, setAllergies] = useState("");
+  const [allergies, setAllergies] = useState<string[]>([]);
+  const [allergyTyping, setAllergyTyping] = useState("");
   const [adults, setAdults] = useState(2);
   const [kids, setKids] = useState<KidDraft[]>([EMPTY_KID]);
   const [maxMinutes, setMaxMinutes] = useState(30);
@@ -78,6 +85,19 @@ export default function FamilyStep({ error, onBack, onSubmit }: Props) {
     updateKid(index, { refuses: kids[index].refuses.filter((f) => f !== food) });
   }
 
+  function addTypedAllergies() {
+    setAllergies(addAllergies(allergies, allergyTyping));
+    setAllergyTyping("");
+  }
+
+  // Enter or a comma adds the allergy, instead of sending the whole form.
+  function onAllergyKey(event: KeyboardEvent<HTMLInputElement>) {
+    if (event.key === "Enter" || event.key === ",") {
+      event.preventDefault();
+      addTypedAllergies();
+    }
+  }
+
   function removeKid(index: number) {
     setKids(kids.filter((_, i) => i !== index));
   }
@@ -85,17 +105,18 @@ export default function FamilyStep({ error, onBack, onSubmit }: Props) {
   function submit(event: FormEvent) {
     event.preventDefault();
     // Include anything still in a box that she didn't tap Add for.
+    const allergyList = addAllergies(allergies, allergyTyping);
     const finished = kids
       .map((kid) => ({ name: kid.name.trim(), refuses: addFoods(kid.refuses, kid.typing) }))
       .filter((kid) => kid.name || kid.refuses.length);
     const answers: FamilyAnswers = {
-      allergies: allergies.trim(),
+      allergies: allergyList.join(", "),
       adults,
       kids: finished.map((kid) => ({ name: kid.name, refuses: kid.refuses.join(", ") })),
       maxMinutes,
       lunches,
     };
-    saveFamily({ allergies: answers.allergies, adults, kids: finished, maxMinutes, lunches });
+    saveFamily({ allergies: allergyList, adults, kids: finished, maxMinutes, lunches });
     onSubmit(answers);
   }
 
@@ -108,12 +129,38 @@ export default function FamilyStep({ error, onBack, onSubmit }: Props) {
         <span className="number">1</span>
         Any food allergies?
       </label>
-      <input
-        id="allergies"
-        value={allergies}
-        onChange={(event) => setAllergies(event.target.value)}
-        placeholder="Like peanuts. Leave blank if none."
-      />
+      {allergies.length > 0 && (
+        <ul className="items refuses allergy-list">
+          {allergies.map((allergy) => (
+            <li key={allergy}>
+              <span>{allergy}</span>
+              <button
+                type="button"
+                aria-label={`Remove ${allergy} allergy`}
+                onClick={() => setAllergies(allergies.filter((a) => a !== allergy))}
+              >
+                ×
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      {allergies.length < MAX_ALLERGIES && (
+        <div className="add">
+          <input
+            id="allergies"
+            value={allergyTyping}
+            onChange={(event) => setAllergyTyping(event.target.value)}
+            onKeyDown={onAllergyKey}
+            placeholder={allergies.length ? "Add another allergy" : "Like peanuts. Leave blank if none."}
+            maxLength={40}
+            enterKeyHint="done"
+          />
+          <button type="button" onClick={addTypedAllergies} aria-label="Add allergy">
+            Add
+          </button>
+        </div>
+      )}
 
       <fieldset>
         <legend className="question">

@@ -72,7 +72,7 @@ export default function MorePage() {
           {family ? (
             <ul className="family-summary">
               <li>
-                <strong>Allergies:</strong> {family.allergies || "none"}
+                <strong>Allergies:</strong> {family.allergies.length ? family.allergies.join(", ") : "none"}
               </li>
               <li>
                 <strong>Eating:</strong> {family.adults} adult{family.adults === 1 ? "" : "s"}
