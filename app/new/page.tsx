@@ -69,7 +69,7 @@ export default function NewPlan() {
   }
 
   return (
-    <main>
+    <main className="new-plan">
       <header>
         <Logo />
         {stage === "fridge" && (

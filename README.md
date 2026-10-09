@@ -10,6 +10,7 @@ PlateWise plans a family's week of dinners on Sunday. See [plan.md](plan.md) for
 5. **Swap a dinner.** "Swap for a different dinner" gets a new dinner that follows the same rules, keeps the rest of the week, and updates the grocery list and prep.
 6. **Ratings.** After a dinner, she taps "Liked it" or "Not for us" and can add a comment. Her phone remembers the ratings, and each new plan brings back favorites, avoids misses, and gets less experimental as favorites build up.
 7. **Daily reminder.** Turned on from the **More** tab. Weeknights around 3pm Eastern, her phone shows tonight's dinner and anything to do for tomorrow. Sundays it shows prep day, or a nudge to plan the week. On iPhone, PlateWise has to be added to the home screen first.
+8. **Big screens.** On a computer or a tablet turned sideways, the tabs move to a sidebar and pages fill the screen. Tonight's recipe gets big text that's easy to read from across the kitchen. Phones look exactly the same as before.
 
 ## Put it online
 

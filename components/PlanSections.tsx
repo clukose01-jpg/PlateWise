@@ -7,7 +7,7 @@ export type PrepGroup = { day: string; steps: string[] };
 // The Sunday prep list, grouped by the day each step is for.
 export function PrepList({ planId, groups }: { planId: string; groups: PrepGroup[] }) {
   return (
-    <section className="card">
+    <section className="card prep">
       <h2 className="section-title">Sunday prep</h2>
       {groups.map((group) => (
         <div className="prep-day" key={group.day || "all"}>
@@ -34,7 +34,7 @@ export function PrepList({ planId, groups }: { planId: string; groups: PrepGroup
 // One grocery list for the week, by store section. Ticks are shared with the Today tab.
 export function GroceryList({ planId, groceryList }: { planId: string; groceryList: Plan["groceryList"] }) {
   return (
-    <section className="card">
+    <section className="card grocery">
       <h2 className="section-title">Grocery list</h2>
       <p className="hint">Tap items as they go in your cart.</p>
       {groceryList.map((group) => (

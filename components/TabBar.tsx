@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getCurrentPlanId } from "@/lib/device";
-import { TabIcon } from "./Illustrations";
+import { Logo, TabIcon } from "./Illustrations";
 
 export type Tab = "today" | "week" | "groceries" | "new" | "more";
 
@@ -32,6 +32,10 @@ export default function TabBar({ active, planId }: Props) {
 
   return (
     <nav className="tabbar" aria-label="PlateWise">
+      {/* Only shown on a computer, where the tabs become a sidebar. */}
+      <Link href="/" className="tabbar-logo">
+        <Logo />
+      </Link>
       {tabs.map((tab) => (
         <Link
           key={tab.id}

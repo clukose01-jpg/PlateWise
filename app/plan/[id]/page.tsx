@@ -64,57 +64,64 @@ export default async function PlanPage({ params, searchParams }: Props) {
         />
       )}
 
+      {/* On a computer, sharing and "planned around" sit to the right of the dinners. */}
       {tab === "week" && (
-        <>
-          <ShareButton />
+        <div className="week-layout">
+          <div className="week-side">
+            <ShareButton />
 
-          {plannedAround.length > 0 && (
-            <section className="planned-around">
-              <h2 className="section-title">Planned around</h2>
-              <ul>
-                {plannedAround.map((line) => (
-                  <li key={line}>{line}</li>
-                ))}
-              </ul>
+            {plannedAround.length > 0 && (
+              <section className="planned-around">
+                <h2 className="section-title">Planned around</h2>
+                <ul>
+                  {plannedAround.map((line) => (
+                    <li key={line}>{line}</li>
+                  ))}
+                </ul>
+              </section>
+            )}
+          </div>
+
+          <div className="week-main">
+            <section>
+              <h2 className="section-title">Dinners</h2>
+              {plan.dinners.map((dinner, i) => (
+                <DinnerCard key={dinner.day} planId={id} dinner={dinner} index={i} />
+              ))}
+              <p className="hint">Tap a dinner to see how to make it, and rate it after you eat.</p>
             </section>
-          )}
 
-          <section>
-            <h2 className="section-title">Dinners</h2>
-            {plan.dinners.map((dinner, i) => (
-              <DinnerCard key={dinner.day} planId={id} dinner={dinner} index={i} />
-            ))}
-            <p className="hint">Tap a dinner to see how to make it, and rate it after you eat.</p>
-          </section>
+            {plan.lunches.length > 0 && (
+              <section className="card">
+                <h2 className="section-title">Lunches</h2>
+                <ul className="lunches">
+                  {plan.lunches.map((lunch, i) => (
+                    <li key={lunch.day}>
+                      <span className={`day-badge small day-${i}`}>{lunch.day.slice(0, 3)}</span>
+                      {lunch.name}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
 
-          {plan.lunches.length > 0 && (
-            <section className="card">
-              <h2 className="section-title">Lunches</h2>
-              <ul className="lunches">
-                {plan.lunches.map((lunch, i) => (
-                  <li key={lunch.day}>
-                    <span className={`day-badge small day-${i}`}>{lunch.day.slice(0, 3)}</span>
-                    {lunch.name}
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-
-          {testMode && (
-            <p className="test-info">
-              Test info: {test.seconds.toFixed(0)}s · {test.inputTokens.toLocaleString()} tokens in ·{" "}
-              {test.outputTokens.toLocaleString()} out ·{" "}
-              {test.costUsd === null ? "cost unknown" : `≈ $${test.costUsd.toFixed(3)}`} · {test.model}
-            </p>
-          )}
-        </>
+            {testMode && (
+              <p className="test-info">
+                Test info: {test.seconds.toFixed(0)}s · {test.inputTokens.toLocaleString()} tokens in ·{" "}
+                {test.outputTokens.toLocaleString()} out ·{" "}
+                {test.costUsd === null ? "cost unknown" : `≈ $${test.costUsd.toFixed(3)}`} · {test.model}
+              </p>
+            )}
+          </div>
+        </div>
       )}
 
       {tab === "groceries" && (
         <>
-          <GroceryList planId={id} groceryList={plan.groceryList} />
-          <PrepList planId={id} groups={prep} />
+          <div className="groceries-layout">
+            <GroceryList planId={id} groceryList={plan.groceryList} />
+            <PrepList planId={id} groups={prep} />
+          </div>
           <p className="hint center">Always check food labels for allergens.</p>
         </>
       )}

@@ -982,6 +982,10 @@ legend.question {
   color: var(--accent);
 }
 
+.tabbar-logo {
+  display: none;
+}
+
 .splash {
   min-height: 60vh;
   display: grid;
@@ -1071,4 +1075,268 @@ legend.question {
 
 button:disabled {
   opacity: 0.6;
+}
+
+/* Computers and tablets held sideways. Phones never see anything below.
+   The tab bar becomes a sidebar, pages use the full width, and recipes get bigger text
+   so they're easy to read from across the kitchen. */
+
+@media (min-width: 960px) {
+  :root {
+    --sidebar: 220px;
+  }
+
+  body {
+    font-size: 18px;
+  }
+
+  main:has(> .tabbar) {
+    max-width: none;
+    margin: 0 0 0 var(--sidebar);
+    /* Content fills the screen, up to a width that still reads comfortably. */
+    padding: 40px max(40px, (100vw - var(--sidebar) - 1320px) / 2) 64px;
+  }
+
+  /* Making a plan is a form, which is easier to fill in at a narrower width. */
+  main.new-plan:has(> .tabbar) {
+    padding-inline: max(40px, (100vw - var(--sidebar) - 720px) / 2);
+  }
+
+  /* The sidebar shows the logo, so pages don't repeat it. */
+  main:has(> .tabbar) > header > .logo {
+    display: none;
+  }
+
+  main:has(> .tabbar) > header:not(:has(> :not(.logo))) {
+    margin: 0;
+  }
+
+  .plan-title {
+    margin-top: 0;
+    font-size: 40px;
+  }
+
+  .hero {
+    margin-top: 0;
+    font-size: 52px;
+  }
+
+  .tabbar {
+    top: 0;
+    right: auto;
+    width: var(--sidebar);
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 4px;
+    padding: 28px 14px;
+    border-top: none;
+    border-right: 1px solid var(--border);
+  }
+
+  .tabbar-logo {
+    display: block;
+    margin: 0 0 28px 10px;
+    text-decoration: none;
+  }
+
+  .tab {
+    flex: none;
+    max-width: none;
+    flex-direction: row;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    font-size: 16px;
+  }
+
+  .tab.active {
+    background: var(--accent-soft);
+  }
+
+  .today-date {
+    margin-bottom: 28px;
+  }
+
+  .nudge {
+    max-width: 640px;
+  }
+
+  /* Dinners */
+
+  .dinner summary {
+    padding: 16px 20px;
+  }
+
+  .dish {
+    font-size: 19px;
+  }
+
+  .steps {
+    font-size: 19px;
+    padding: 18px 28px 18px 48px;
+  }
+
+  .steps li {
+    margin-bottom: 12px;
+  }
+
+  .tip {
+    margin: 18px 20px 0;
+  }
+
+  .swap,
+  .feedback {
+    margin-inline: 20px;
+  }
+
+  .rate-buttons {
+    max-width: 420px;
+  }
+
+  /* Tonight's dinner on the Today tab is the recipe she cooks from, so it's the biggest. */
+  .today-columns > .dinner summary {
+    gap: 18px;
+    padding: 22px 26px;
+  }
+
+  .today-columns > .dinner .day-badge {
+    width: 64px;
+    height: 64px;
+    font-size: 16px;
+  }
+
+  .today-columns > .dinner .dish {
+    font-family: var(--heading);
+    font-size: 30px;
+  }
+
+  .today-columns > .dinner .minutes {
+    font-size: 17px;
+  }
+
+  .today-columns > .dinner .tip {
+    margin: 22px 26px 0;
+    padding: 14px 18px;
+  }
+
+  .today-columns > .dinner .steps {
+    font-size: 22px;
+    line-height: 1.55;
+    padding: 24px 36px 20px 64px;
+  }
+
+  .today-columns > .dinner .steps li {
+    margin-bottom: 16px;
+    padding-left: 8px;
+  }
+
+  .today-columns > .dinner .swap,
+  .today-columns > .dinner .feedback {
+    margin-inline: 26px;
+  }
+
+  /* Lists flow into columns when there's room. */
+
+  .grocery {
+    columns: 3 220px;
+    column-gap: 36px;
+  }
+
+  .prep {
+    columns: 2 300px;
+    column-gap: 36px;
+  }
+
+  .grocery > h2,
+  .grocery > .hint,
+  .prep > h2 {
+    column-span: all;
+  }
+
+  .grocery-section,
+  .prep-day {
+    break-inside: avoid;
+  }
+
+  /* Lines up the first heading with the tops of the other columns. */
+  .grocery-section:first-of-type h3,
+  .prep-day:first-of-type h3 {
+    margin-top: 0;
+  }
+
+  .more-layout {
+    columns: 2 340px;
+    column-gap: 20px;
+  }
+
+  .more-layout > .card {
+    break-inside: avoid;
+  }
+}
+
+/* Wide enough for two columns: the main content on the left, extras on the right. */
+@media (min-width: 1200px) {
+  .today-columns,
+  .week-layout {
+    display: flex;
+    align-items: flex-start;
+    gap: 36px;
+  }
+
+  .today-columns > :first-child,
+  .week-main {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .today-side,
+  .week-side {
+    flex: none;
+    width: 340px;
+    position: sticky;
+    top: 40px;
+  }
+
+  .week-side {
+    order: 2;
+  }
+
+  .week-main .section-title {
+    margin-top: 0;
+  }
+
+  .groceries-layout {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+    align-items: start;
+  }
+
+  .groceries-layout .grocery {
+    columns: 2 220px;
+  }
+
+  .groceries-layout .prep {
+    columns: auto;
+  }
+}
+
+@media (min-width: 960px) and (hover: hover) {
+  .tab:hover {
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  .tab.active:hover {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+
+  .primary:hover {
+    background: var(--button-pressed);
+  }
+
+  .dinner summary:hover .dish {
+    color: var(--accent);
+  }
 }

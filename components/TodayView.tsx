@@ -72,7 +72,7 @@ export default function TodayView({ planId, plan, prepGroups, createdAt, madeOn 
 
   if (today === "Saturday") {
     return (
-      <>
+      <div className="today">
         <h1 className="plan-title">Shopping day</h1>
         <p className="tagline today-date">{dateLabel}</p>
         {madeForComingWeek ? (
@@ -86,35 +86,39 @@ export default function TodayView({ planId, plan, prepGroups, createdAt, madeOn 
             text="Make next week's plan, and its grocery list will show up here for your shopping trip."
           />
         )}
-      </>
+      </div>
     );
   }
 
   if (today === "Sunday") {
     return madeForComingWeek ? (
-      <>
+      <div className="today">
         <h1 className="plan-title">Prep day</h1>
         <p className="tagline today-date">{dateLabel}</p>
-        <PrepList planId={planId} groups={prepGroups} />
-        {headsUp}
-        <Link href={`/plan/${planId}?tab=groceries`} className="secondary">
-          See the grocery list
-        </Link>
-      </>
+        <div className="today-columns">
+          <PrepList planId={planId} groups={prepGroups} />
+          <div className="today-side">
+            {headsUp}
+            <Link href={`/plan/${planId}?tab=groceries`} className="secondary">
+              See the grocery list
+            </Link>
+          </div>
+        </div>
+      </div>
     ) : (
-      <>
+      <div className="today">
         <h1 className="plan-title">New week, new plan</h1>
         <p className="tagline today-date">{dateLabel}</p>
         <NewPlanNudge
           title="Time to plan next week"
           text="It takes a few minutes. Your pantry, your family's answers and your ratings are already saved."
         />
-      </>
+      </div>
     );
   }
 
   return (
-    <>
+    <div className="today">
       <h1 className="plan-title">Tonight</h1>
       <p className="tagline today-date">{dateLabel}</p>
       {ageDays > 7 && (
@@ -123,18 +127,25 @@ export default function TodayView({ planId, plan, prepGroups, createdAt, madeOn 
           text={`It was made on ${madeOn}. Make a new one for this week?`}
         />
       )}
-      {tonight ? (
-        <DinnerCard planId={planId} dinner={tonight} index={dinnerIndex} startOpen />
-      ) : (
-        <p className="quiet">No dinner is planned for tonight.</p>
-      )}
-      {lunch && (
-        <section className="card">
-          <h2 className="section-title">Today&apos;s lunch</h2>
-          <p className="lunch-today">{lunch.name}</p>
-        </section>
-      )}
-      {headsUp}
-    </>
+      {/* On a computer, tonight's recipe fills the left and the rest sits beside it. */}
+      <div className="today-columns">
+        {tonight ? (
+          <DinnerCard planId={planId} dinner={tonight} index={dinnerIndex} startOpen />
+        ) : (
+          <p className="quiet">No dinner is planned for tonight.</p>
+        )}
+        {(lunch || headsUp) && (
+          <div className="today-side">
+            {lunch && (
+              <section className="card">
+                <h2 className="section-title">Today&apos;s lunch</h2>
+                <p className="lunch-today">{lunch.name}</p>
+              </section>
+            )}
+            {headsUp}
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
