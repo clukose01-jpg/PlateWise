@@ -14,17 +14,18 @@ function explain(error: unknown) {
       : String(error);
   let advice =
     "Google didn't accept it. Check the address is the Gmail you made the app password in, and that you copied all 16 letters.";
-  if (/5\.7\.9|Application-specific password required/i.test(detail)) {
+  // Check the specific replies first: Gmail prefixes every refusal with "Invalid login".
+  if (/5\.7\.14|log in via your web browser|WebLoginRequired/i.test(detail)) {
+    advice =
+      "Google blocked the sign-in because it's new to this Gmail. Sign in to this Gmail in a browser, check for a \"Was this you?\" or security alert and approve it, wait 10 minutes, then try again.";
+  } else if (/5\.7\.9|Application-specific password required/i.test(detail)) {
     advice =
       "Google wants an app password here, not the Gmail password. Make one at myaccount.google.com/apppasswords while signed in to this Gmail.";
+  } else if (/ETIMEDOUT|ECONNREFUSED|ECONNRESET|ENOTFOUND|ESOCKET|timeout/i.test(detail)) {
+    advice = "PlateWise couldn't reach Gmail just now. Try again in a minute.";
   } else if (/5\.7\.8|Username and Password not accepted|BadCredentials|Invalid login/i.test(detail)) {
     advice =
       "Google said the address or app password is wrong. Make sure you created the app password while signed in to this Gmail (not another one), then copy all 16 letters.";
-  } else if (/5\.7\.14|log in via your web browser|WebLoginRequired/i.test(detail)) {
-    advice =
-      "Google blocked the sign-in as unusual. Sign in to this Gmail in a browser, approve any security alert, wait a few minutes, then try again.";
-  } else if (/ETIMEDOUT|ECONNREFUSED|ECONNRESET|ENOTFOUND|ESOCKET|timeout/i.test(detail)) {
-    advice = "PlateWise couldn't reach Gmail just now. Try again in a minute.";
   }
   return { advice, detail: detail.replace(/\s+/g, " ").slice(0, 300) };
 }
