@@ -1890,3 +1890,49 @@ main.admin {
     height: 220px;
   }
 }
+
+/* Admin page: code box, Monday email, and adding it to the home screen. */
+
+.admin-code {
+  max-width: 480px;
+}
+
+.admin-code .question,
+.admin-card form .question {
+  margin-top: 0;
+}
+
+.admin-code .hint {
+  margin: -4px 0 12px;
+}
+
+.admin-code input,
+.admin-card form input {
+  margin-bottom: 16px;
+}
+
+.weekly-actions .link {
+  margin-top: 10px;
+}
+
+.admin-steps {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.admin-steps li + li {
+  margin-top: 8px;
+}
+
+@media (min-width: 720px) {
+  .admin-settings {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 16px;
+    align-items: start;
+  }
+}
+
+.admin-settings .hint.center {
+  margin: 14px 0 0;
+}

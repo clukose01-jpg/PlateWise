@@ -67,7 +67,7 @@ These started out on the leave-out list, or weren't in the plan at all. Each was
 | Allergy safety check on every plan and swap | Plans got faster by letting the AI think less, so every plan is now checked for allergens, hidden allergens, kids' dislikes and cooking time before anyone sees it, and fixed or blocked if anything's wrong. | Whether any tester ever sees "please try again", and whether any allergen ever slips through. Ask about this directly. |
 | Delete a plan | To restart a week that didn't fit the family. | How often people delete a plan and make a new one. |
 | Optional login with email and password | So plans, family answers, pantry and ratings follow her to any phone or computer. The first login uses an emailed code, then a password after that. | How many testers make an account, and whether anyone gets stuck logging in. |
-| Private admin page | Shows you how many families use PlateWise, roughly where they are (city, from their internet connection), their allergies, how many come back each week, and what the AI costs. | Add a short privacy note before a public launch that says you count approximate location. |
+| Private admin page | Shows you how many families use PlateWise, roughly where they are (city, from their internet connection), their allergies, how many come back each week, and what the AI costs. It has its own home screen icon, and a summary email comes every Monday morning. | Add a short privacy note before a public launch that says you count approximate location. |
 
 ## 4. How you'll know it works
 

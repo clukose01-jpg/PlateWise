@@ -17,8 +17,11 @@ export type AdminStats = {
   totals: {
     plans: number;
     plansLast7: number;
+    plansPrev7: number;
     families: number;
     returning: number;
+    newFamiliesLast7: number;
+    returningLast7: number;
     accounts: number;
     accountsLast7: number;
     withPassword: number;
@@ -27,14 +30,17 @@ export type AdminStats = {
     scans: number;
     safetyFixed: number;
     blocked: number;
+    blockedLast7: number;
     liked: number;
     disliked: number;
     costTotal: number;
     costLast30: number;
+    costLast7: number;
     costPerPlan: number | null;
   };
   planTimes: string[];
   places: Count[];
+  placesLast7: Count[];
   timeZones: Count[];
   allergies: Count[];
   refusals: Count[];
@@ -88,6 +94,8 @@ function bump(map: Map<string, number>, key: string, by = 1) {
   map.set(key, (map.get(key) ?? 0) + by);
 }
 
+const isBlocked = (event: AppEvent) => event.type === "plan-blocked" || event.type === "swap-blocked";
+
 async function readFolder<T>(prefix: string) {
   return readMany<T>(await listNames(prefix));
 }
@@ -101,17 +109,23 @@ export async function adminStats(): Promise<AdminStats> {
   ]);
   const now = Date.now();
   const recent = (iso: string | undefined, days: number) => Boolean(iso) && now - Date.parse(iso!) < days * DAY;
+  const between = (iso: string | undefined, fromDays: number, toDays: number) =>
+    recent(iso, toDays) && !recent(iso, fromDays);
   const datedPlans = plans.filter((plan) => plan.createdAt).sort((a, b) => b.createdAt!.localeCompare(a.createdAt!));
 
   // Who made each plan.
   const familyOf = (plan: StoredPlan) =>
     plan.accountId ? `a:${plan.accountId}` : plan.deviceId ? `d:${plan.deviceId}` : `p:${plan.id}`;
 
-  // Families, and the weeks each one made a plan in.
+  // Families, the weeks each one made a plan in, and when each one first and last made one.
   const weeks = new Map<string, Set<number>>();
+  const firstPlan = new Map<string, string>();
+  const lastPlan = new Map<string, string>();
   const addWeek = (family: string, iso: string) => {
     if (!weeks.has(family)) weeks.set(family, new Set());
     weeks.get(family)!.add(weekOf(iso));
+    if (!firstPlan.has(family) || iso < firstPlan.get(family)!) firstPlan.set(family, iso);
+    if (!lastPlan.has(family) || iso > lastPlan.get(family)!) lastPlan.set(family, iso);
   };
   for (const plan of datedPlans) addWeek(familyOf(plan), plan.createdAt!);
   for (const account of accounts) {
@@ -136,21 +150,26 @@ export async function adminStats(): Promise<AdminStats> {
 
   // Where families are: from their plans, and from scans and swaps.
   const placeFamilies = new Map<string, Set<string>>();
-  const addPlace = (place: string | null, family: string) => {
+  const placeFamiliesLast7 = new Map<string, Set<string>>();
+  const addPlace = (place: string | null, family: string, at: string) => {
     if (!place) return;
-    if (!placeFamilies.has(place)) placeFamilies.set(place, new Set());
-    placeFamilies.get(place)!.add(family);
+    for (const map of recent(at, 7) ? [placeFamilies, placeFamiliesLast7] : [placeFamilies]) {
+      if (!map.has(place)) map.set(place, new Set());
+      map.get(place)!.add(family);
+    }
   };
   const deviceFamily = new Map<string, string>();
   for (const plan of datedPlans) {
-    addPlace(placeName(plan.origin), familyOf(plan));
+    addPlace(placeName(plan.origin), familyOf(plan), plan.createdAt!);
     if (plan.deviceId && !deviceFamily.has(plan.deviceId)) deviceFamily.set(plan.deviceId, familyOf(plan));
   }
   for (const event of events) {
     const family = event.deviceId ? (deviceFamily.get(event.deviceId) ?? `d:${event.deviceId}`) : `e:${event.at}`;
-    addPlace(placeName(event.origin), family);
+    addPlace(placeName(event.origin), family, event.at);
   }
-  const places = topCounts(new Map([...placeFamilies].map(([place, families]) => [place, families.size])));
+  const familiesPerPlace = (map: Map<string, Set<string>>, limit?: number) =>
+    topCounts(new Map([...map].map(([place, families]) => [place, families.size])), limit);
+  const places = familiesPerPlace(placeFamilies);
 
   const timeZones = new Map<string, number>();
   for (const reminder of reminders) {
@@ -176,8 +195,13 @@ export async function adminStats(): Promise<AdminStats> {
     totals: {
       plans: plans.length,
       plansLast7: datedPlans.filter((plan) => recent(plan.createdAt, 7)).length,
+      plansPrev7: datedPlans.filter((plan) => between(plan.createdAt, 7, 14)).length,
       families: weeks.size,
       returning: [...weeks.values()].filter((set) => set.size >= 2).length,
+      // New this week: their first plan was in the last 7 days. Came back: a plan this week, and one before.
+      newFamiliesLast7: [...firstPlan.values()].filter((iso) => recent(iso, 7)).length,
+      returningLast7: [...lastPlan].filter(([family, iso]) => recent(iso, 7) && !recent(firstPlan.get(family), 7))
+        .length,
       accounts: accounts.length,
       accountsLast7: accounts.filter((account) => recent(account.createdAt, 7)).length,
       withPassword: accounts.filter((account) => account.passwordHash).length,
@@ -185,15 +209,18 @@ export async function adminStats(): Promise<AdminStats> {
       swaps: plans.reduce((total, plan) => total + (plan.swaps ?? 0), 0),
       scans: events.filter((event) => event.type === "scan").length,
       safetyFixed: plans.filter((plan) => (plan.safetyFixes ?? 0) > 0).length,
-      blocked: events.filter((event) => event.type === "plan-blocked" || event.type === "swap-blocked").length,
+      blocked: events.filter(isBlocked).length,
+      blockedLast7: events.filter((event) => isBlocked(event) && recent(event.at, 7)).length,
       liked: ratings.filter((rating) => rating.liked).length,
       disliked: ratings.filter((rating) => !rating.liked).length,
       costTotal: planCost() + eventCost(),
       costLast30: planCost(30) + eventCost(30),
+      costLast7: planCost(7) + eventCost(7),
       costPerPlan: planCosts.length ? planCosts.reduce((a, b) => a + b, 0) / planCosts.length : null,
     },
     planTimes: datedPlans.map((plan) => plan.createdAt!),
     places,
+    placesLast7: familiesPerPlace(placeFamiliesLast7, 5),
     timeZones: topCounts(timeZones),
     allergies: topCounts(allergies),
     refusals: topCounts(refusals),

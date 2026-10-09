@@ -1,9 +1,9 @@
 import nodemailer from "nodemailer";
 import { type GmailAccount, savedGmail } from "./email-settings";
 
-// Sends the login code. Online it goes out from the app's own Gmail account, using an app password
-// set in Vercel or saved on the setup page (or through Resend, if the app later gets its own website
-// name). On your own computer the code is printed in the terminal instead.
+// Sends login codes and the admin's Monday email. Online they go out from the app's own Gmail
+// account, using an app password set in Vercel or saved on the setup page (or through Resend, if the
+// app later gets its own website name). On your own computer they're printed in the terminal instead.
 export class EmailNotSetUpError extends Error {}
 
 // Google shows app passwords in groups of four letters; the spaces don't matter.
@@ -55,7 +55,11 @@ function message(code: string) {
   };
 }
 
-export async function sendLoginCode(email: string, code: string) {
+export type Email = { to: string; subject: string; text: string; html: string };
+
+// Sends one email from the app's Gmail (or Resend). Returns false on your own computer when no
+// email account is set up, so the caller can print it instead.
+export async function sendEmail(email: Email): Promise<boolean> {
   const resendKey = process.env.RESEND_API_KEY?.trim();
   const account = await gmail();
 
@@ -63,23 +67,25 @@ export async function sendLoginCode(email: string, code: string) {
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ from: process.env.EMAIL_FROM, to: [email], ...message(code) }),
+      body: JSON.stringify({ from: process.env.EMAIL_FROM, ...email, to: [email.to] }),
     });
     if (!response.ok) {
       throw new Error(`Resend said ${response.status}: ${await response.text().catch(() => "")}`);
     }
-    return;
+    return true;
   }
 
   if (account) {
-    await gmailTransport(account).sendMail({
-      from: { name: "PlateWise", address: account.user },
-      to: email,
-      ...message(code),
-    });
-    return;
+    await gmailTransport(account).sendMail({ from: { name: "PlateWise", address: account.user }, ...email });
+    return true;
   }
 
   if (process.env.VERCEL) throw new EmailNotSetUpError();
-  console.log(`[local] PlateWise login code for ${email}: ${code}`);
+  return false;
+}
+
+export async function sendLoginCode(email: string, code: string) {
+  if (!(await sendEmail({ to: email, ...message(code) }))) {
+    console.log(`[local] PlateWise login code for ${email}: ${code}`);
+  }
 }
