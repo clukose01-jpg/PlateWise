@@ -48,7 +48,7 @@ export default async function PlanPage({ params, searchParams }: Props) {
       {plannedAround.length > 0 && (
         <section className="planned-around">
           <h2 className="section-title">
-            <span aria-hidden="true">📝</span> Planned around
+            Planned around
           </h2>
           <ul>
             {plannedAround.map((line) => (
@@ -60,7 +60,7 @@ export default async function PlanPage({ params, searchParams }: Props) {
 
       <section>
         <h2 className="section-title">
-          <span aria-hidden="true">🍽️</span> Dinners
+          Dinners
         </h2>
         {plan.dinners.map((dinner, i) => (
           <details className="card dinner" key={dinner.day}>
@@ -92,7 +92,7 @@ export default async function PlanPage({ params, searchParams }: Props) {
       {plan.lunches.length > 0 && (
         <section className="card">
           <h2 className="section-title">
-            <span aria-hidden="true">🥪</span> Lunches
+            Lunches
           </h2>
           <ul className="lunches">
             {plan.lunches.map((lunch, i) => (
@@ -107,7 +107,7 @@ export default async function PlanPage({ params, searchParams }: Props) {
 
       <section className="card">
         <h2 className="section-title">
-          <span aria-hidden="true">🔪</span> Sunday prep
+          Sunday prep
         </h2>
         {prepGroups(plan).map((group) => (
           <div className="prep-day" key={group.day || "all"}>
@@ -131,7 +131,7 @@ export default async function PlanPage({ params, searchParams }: Props) {
 
       <section className="card">
         <h2 className="section-title">
-          <span aria-hidden="true">🛒</span> Grocery list
+          Grocery list
         </h2>
         <p className="hint">Tap items as they go in your cart.</p>
         {plan.groceryList.map((group) => (

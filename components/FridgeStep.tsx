@@ -180,7 +180,7 @@ export default function FridgeStep({
             </p>
 
             <FoodList
-              title="🥬 Fresh this week"
+              title="Fresh this week"
               hint="Fridge and freezer"
               items={items}
               allItems={everything}
@@ -189,7 +189,7 @@ export default function FridgeStep({
               label="Add fresh food"
             />
             <FoodList
-              title="🥫 Pantry"
+              title="Pantry"
               hint="Saved for next week"
               className="pantry"
               items={pantry}

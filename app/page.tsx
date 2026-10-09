@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import FamilyStep, { type FamilyAnswers } from "@/components/FamilyStep";
 import FridgeStep from "@/components/FridgeStep";
 import { Logo } from "@/components/Illustrations";
@@ -18,29 +18,30 @@ export default function Home() {
   const [stage, setStage] = useState<Stage>("fridge");
   const [fridgeItems, setFridgeItems] = useState<string[]>([]);
   const [pantryItems, setPantryItems] = useState<string[]>([]);
-  const pantryLoaded = useRef(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let saved: string[] = [];
     try {
-      const saved = JSON.parse(localStorage.getItem(PANTRY_KEY) ?? "[]");
-      if (Array.isArray(saved)) {
-        setPantryItems(saved.filter((item): item is string => typeof item === "string"));
+      const parsed = JSON.parse(localStorage.getItem(PANTRY_KEY) ?? "[]");
+      if (Array.isArray(parsed)) {
+        saved = parsed.filter((item): item is string => typeof item === "string");
       }
     } catch {
       // Nothing saved, or this browser blocks storage.
     }
-    pantryLoaded.current = true;
+    setPantryItems(saved);
   }, []);
 
-  useEffect(() => {
-    if (!pantryLoaded.current) return;
+  // Saved only when she changes it, so opening the page never overwrites the saved pantry.
+  function updatePantry(items: string[]) {
+    setPantryItems(items);
     try {
-      localStorage.setItem(PANTRY_KEY, JSON.stringify(pantryItems));
+      localStorage.setItem(PANTRY_KEY, JSON.stringify(items));
     } catch {
       // The pantry just won't be remembered.
     }
-  }, [pantryItems]);
+  }
 
   async function makePlan(answers: FamilyAnswers) {
     setError(null);
@@ -92,7 +93,7 @@ export default function Home() {
           items={fridgeItems}
           onItemsChange={setFridgeItems}
           pantry={pantryItems}
-          onPantryChange={setPantryItems}
+          onPantryChange={updatePantry}
           onNext={() => {
             setStage("family");
             window.scrollTo(0, 0);
