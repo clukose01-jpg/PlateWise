@@ -59,11 +59,28 @@ export async function savePlan(data: Omit<SavedPlan, "id" | "createdAt">): Promi
   return id;
 }
 
+// Saves a changed plan over the old one, like after swapping a dinner.
+export async function updatePlan(stored: StoredPlan) {
+  const json = JSON.stringify(stored);
+  if (useBlob()) {
+    await put(`plans/${stored.id}.json`, json, {
+      access: "private",
+      contentType: "application/json",
+      allowOverwrite: true,
+    });
+  } else if (process.env.VERCEL) {
+    throw new StorageNotSetUpError();
+  } else {
+    await writeFile(path.join(LOCAL_DIR, `${stored.id}.json`), json);
+  }
+}
+
 export async function loadPlan(id: string): Promise<StoredPlan | null> {
   if (!ID_PATTERN.test(id)) return null;
 
   if (useBlob()) {
-    const result = await get(`plans/${id}.json`, { access: "private" });
+    // Plans can change after a swap, so always read the latest copy.
+    const result = await get(`plans/${id}.json`, { access: "private", useCache: false });
     if (!result?.stream) return null;
     return new Response(result.stream).json();
   }

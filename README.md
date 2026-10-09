@@ -7,7 +7,8 @@ PlateWise plans a family's week of dinners on Sunday. See [plan.md](plan.md) for
 2. **Family questions.** Allergies, what each kid won't eat, the longest she'll cook on a weeknight, and whether to plan lunches. Her phone remembers the answers for next week.
 3. **The plan.** Monday–Friday dinners, a Sunday prep list grouped by day, and one grocery list, saved at a private link she can share.
 4. **Tabs.** The app opens to **Today**: tonight's dinner, tonight's "for tomorrow" steps, the grocery list on Saturday and prep on Sunday. **Week** shows the whole plan, **Groceries** the shopping and prep lists, **New plan** makes the next one, and **More** has favorites, the pantry, family answers and how to add PlateWise to the home screen.
-5. **Ratings.** After a dinner, she taps "Liked it" or "Not for us" and can add a comment. Her phone remembers the ratings, and each new plan brings back favorites, avoids misses, and gets less experimental as favorites build up.
+5. **Swap a dinner.** "Swap for a different dinner" gets a new dinner that follows the same rules, keeps the rest of the week, and updates the grocery list and prep.
+6. **Ratings.** After a dinner, she taps "Liked it" or "Not for us" and can add a comment. Her phone remembers the ratings, and each new plan brings back favorites, avoids misses, and gets less experimental as favorites build up.
 
 ## Put it online
 

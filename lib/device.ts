@@ -79,3 +79,15 @@ export function loadFamily(): SavedFamily | null {
 export function saveFamily(family: SavedFamily) {
   write(FAMILY_KEY, family);
 }
+
+// After a swap the grocery and prep lists change, so old ticks no longer line up.
+export function clearPlanTicks(planId: string) {
+  try {
+    const prefix = `platewise.${planId}.`;
+    Object.keys(localStorage)
+      .filter((key) => key.startsWith(prefix))
+      .forEach((key) => localStorage.removeItem(key));
+  } catch {
+    // Nothing to clear.
+  }
+}

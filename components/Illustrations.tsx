@@ -128,3 +128,18 @@ export function TabIcon({ name }: { name: "today" | "week" | "groceries" | "new"
     </svg>
   );
 }
+
+export function SwapIcon() {
+  return (
+    <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
+      <path
+        d="M4 7h11l-3-3M16 13H5l3 3"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}

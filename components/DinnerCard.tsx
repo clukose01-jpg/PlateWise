@@ -1,9 +1,11 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { clearPlanTicks } from "@/lib/device";
 import type { StoredPlan } from "@/lib/plans";
 import { type DinnerRating, loadRating, removeRating, saveRating } from "@/lib/ratings";
-import { ClockIcon, ThumbIcon } from "./Illustrations";
+import { ClockIcon, SwapIcon, ThumbIcon } from "./Illustrations";
 
 type Props = {
   planId: string;
@@ -14,7 +16,11 @@ type Props = {
 };
 
 export default function DinnerCard({ planId, dinner, index, startOpen = false }: Props) {
+  const router = useRouter();
   const [rating, setRating] = useState<DinnerRating | null>(null);
+  const [swapping, setSwapping] = useState(false);
+  const [swapError, setSwapError] = useState<string | null>(null);
+  const [justSwapped, setJustSwapped] = useState(false);
 
   useEffect(() => {
     setRating(loadRating(planId, dinner.day));
@@ -37,6 +43,33 @@ export default function DinnerCard({ planId, dinner, index, startOpen = false }:
     };
     saveRating(next);
     setRating(next);
+  }
+
+  async function swap() {
+    setSwapping(true);
+    setSwapError(null);
+    try {
+      const response = await fetch("/api/swap", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ planId, day: dinner.day }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error);
+
+      // The old rating was for the old dinner, and the grocery and prep lists have changed.
+      removeRating(planId, dinner.day);
+      setRating(null);
+      clearPlanTicks(planId);
+      setJustSwapped(true);
+      router.refresh();
+    } catch (err) {
+      setSwapError(
+        err instanceof Error && err.message ? err.message : "Something went wrong. Please try again.",
+      );
+    } finally {
+      setSwapping(false);
+    }
   }
 
   function updateNote(note: string) {
@@ -66,6 +99,9 @@ export default function DinnerCard({ planId, dinner, index, startOpen = false }:
         )}
         <span className="chevron" aria-hidden="true" />
       </summary>
+      {justSwapped && (
+        <p className="swapped">New dinner! Your grocery list and Sunday prep were updated to match.</p>
+      )}
       {dinner.tip && (
         <p className="tip">
           <strong>Tip:</strong> {dinner.tip}
@@ -76,6 +112,20 @@ export default function DinnerCard({ planId, dinner, index, startOpen = false }:
           <li key={j}>{step}</li>
         ))}
       </ol>
+
+      <div className="swap">
+        <button type="button" className="swap-button" onClick={swap} disabled={swapping}>
+          <SwapIcon /> {swapping ? "Finding another dinner…" : "Swap for a different dinner"}
+        </button>
+        {swapping && (
+          <p className="hint">This takes about 30 seconds. Your grocery list will update too.</p>
+        )}
+        {swapError && (
+          <p className="error" role="alert">
+            {swapError}
+          </p>
+        )}
+      </div>
 
       <div className="feedback">
         <p className="feedback-title">How was it?</p>

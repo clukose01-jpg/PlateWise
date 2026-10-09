@@ -746,6 +746,41 @@ legend.question {
   color: var(--green);
 }
 
+.swap {
+  margin: 0 16px 16px;
+}
+
+.swap-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.swap-button:disabled {
+  color: var(--muted);
+  cursor: progress;
+}
+
+.swap .hint,
+.swap .error {
+  margin: 8px 0 0;
+}
+
+.swapped {
+  margin: 16px 16px 0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--tomato-soft);
+  font-weight: 600;
+}
+
 .feedback {
   margin: 0 16px 16px;
   padding-top: 14px;
