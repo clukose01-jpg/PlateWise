@@ -153,7 +153,7 @@ function planText(plan: Plan): { where: string; text: string }[] {
 }
 
 // Words just before a match that mean the food is being avoided, like "no onions" or "nut-free".
-const AVOIDING = /(-free|\bfree|\bno|\bwithout|\binstead of|\bskip|\bnot|\bavoid|\bleave out)\s*[\w-]*\s*$/i;
+const AVOIDING = /(-free|\bfree|\bno|\bwithout|\binstead of|\bin place of|\bskip|\bnot|\bavoid|\bleave out)\s*[\w-]*\s*$/i;
 
 export function checkPlan(test: TestFamily, plan: Plan) {
   const problems: Problem[] = [];

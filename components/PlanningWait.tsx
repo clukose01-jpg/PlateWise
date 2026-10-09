@@ -27,7 +27,7 @@ export default function PlanningWait() {
       <p className="planning-message" key={index}>
         {MESSAGES[index]}
       </p>
-      <p className="hint">This takes about a minute. Keep this page open.</p>
+      <p className="hint">This takes about 30 seconds. Keep this page open.</p>
     </section>
   );
 }
