@@ -2,6 +2,7 @@
 
 import { type FormEvent, type KeyboardEvent, useEffect, useState } from "react";
 import { COOK_TIMES } from "@/lib/plan-schema";
+import { countRatings } from "@/lib/ratings";
 
 export type FamilyAnswers = {
   allergies: string;
@@ -54,8 +55,10 @@ export default function FamilyStep({ error, onBack, onSubmit }: Props) {
   const [kids, setKids] = useState<KidDraft[]>([EMPTY_KID]);
   const [maxMinutes, setMaxMinutes] = useState(30);
   const [lunches, setLunches] = useState(false);
+  const [ratingCount, setRatingCount] = useState(0);
 
   useEffect(() => {
+    setRatingCount(countRatings());
     try {
       const saved = JSON.parse(localStorage.getItem(SAVED_ANSWERS_KEY) ?? "null");
       if (!saved) return;
@@ -243,6 +246,13 @@ export default function FamilyStep({ error, onBack, onSubmit }: Props) {
       {error && (
         <p className="error" role="alert">
           {error}
+        </p>
+      )}
+
+      {ratingCount > 0 && (
+        <p className="hint ratings-used">
+          We&apos;ll use your ratings of {ratingCount} past dinner{ratingCount === 1 ? "" : "s"} to
+          pick meals you&apos;ll like.
         </p>
       )}
 

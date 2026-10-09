@@ -16,6 +16,18 @@ export const FamilySchema = z.object({
   fridgeItems: z.array(z.string().max(100)).max(80),
   // Long-lasting staples she keeps stocked. Older versions of the app didn't send this.
   pantryItems: z.array(z.string().max(100)).max(80).default([]),
+  // What the family thought of past dinners, newest first.
+  feedback: z
+    .array(
+      z.object({
+        dish: z.string().max(120),
+        liked: z.boolean(),
+        note: z.string().max(300),
+        lastPlan: z.boolean(),
+      }),
+    )
+    .max(30)
+    .default([]),
   madeOn: z.string().max(60),
 });
 

@@ -60,3 +60,23 @@ export function ShareIcon() {
     </svg>
   );
 }
+
+export function ThumbIcon({ down = false }: { down?: boolean }) {
+  return (
+    <svg
+      viewBox="0 0 20 20"
+      width="18"
+      height="18"
+      aria-hidden="true"
+      style={down ? { transform: "rotate(180deg)" } : undefined}
+    >
+      <path
+        d="M6 9v8H3.5A1.5 1.5 0 0 1 2 15.5v-5A1.5 1.5 0 0 1 3.5 9H6Zm0 0 3.2-6.2a1.6 1.6 0 0 1 3 .9L11.6 7H16a2 2 0 0 1 2 2.3l-1 6A2 2 0 0 1 15 17H6"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}

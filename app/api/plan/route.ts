@@ -35,12 +35,30 @@ function describeFamily(family: Family) {
   ].join("\n");
 }
 
+function describeFeedback(family: Family) {
+  return family.feedback
+    .map((rating) => {
+      const verdict = rating.liked ? "Liked" : "Didn't like";
+      const note = rating.note ? ` Their comment: "${rating.note}"` : "";
+      const recent = rating.lastPlan ? " (from last week's plan)" : "";
+      return `- ${verdict}: ${rating.dish}${recent}.${note}`;
+    })
+    .join("\n");
+}
+
 function buildPrompt(family: Family) {
   return `You're planning a week of dinners for a busy working parent. She shops once and preps on Sunday, so on weeknights there's nothing left to decide.
 
 About the family:
 ${describeFamily(family)}
-
+${
+  family.feedback.length
+    ? `
+What the family thought of past dinners, newest first:
+${describeFeedback(family)}
+`
+    : ""
+}
 Make this plan:
 
 1. Dinners for Monday to Friday. Each one is a single meal the whole family eats.
@@ -51,7 +69,14 @@ Make this plan:
    - Keep it varied: don't serve the same main ingredient on back-to-back nights.
    - Stick to meals kids usually like, made from ingredients any ordinary supermarket sells.
    - Give 3 to 6 short steps in plain words, and say when a step uses Sunday's prep.
-   - Add a tip when it helps a picky eater, like serving the sauce on the side. Otherwise leave the tip empty.
+   - Add a tip when it helps a picky eater, like serving the sauce on the side. Otherwise leave the tip empty.${
+     family.feedback.length
+       ? `
+   - Learn from what they thought of past dinners: bring back dinners they liked or close variations of them, steer away from what they didn't like, and follow their comments.
+   - The more dinners they've liked, the more of the week should be favorites and variations on them. Keep one or two new ideas each week so it doesn't get boring.
+   - Don't serve the exact same dinner as last week's plan.`
+       : ""
+   }
 
 2. ${
     family.lunches

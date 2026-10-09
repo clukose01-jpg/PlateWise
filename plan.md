@@ -43,7 +43,6 @@ Everything else (the grocery list and the prep list) is there to make that plan 
 |---|---|
 | Scanning a video | Claude reads photos, not video. A video would be cut into many frames, which is slower and costs more. One photo per shelf covers the same ground. *(Multiple photos were added after the first test runs showed one photo missed too much.)* |
 | Keeping track of what's in the fridge from week to week | She takes a new photo each Sunday. |
-| Thumbs up or down, and learning the family's tastes | This only helps after weeks of use. Until then, she can retype her answers in a minute. |
 | Accounts and logins | A link is enough to share the plan, and testers don't have to make a password. |
 | Payments and subscription | First find out whether she uses it. Ask about price in conversation instead. |
 | App Store and Google Play | A web link is free. Your canvas already says to wait for proof that people want it. |

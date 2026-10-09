@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Checklist from "@/components/Checklist";
-import { ClockIcon, Logo } from "@/components/Illustrations";
+import DinnerCard from "@/components/DinnerCard";
+import { Logo } from "@/components/Illustrations";
 import ShareButton from "@/components/ShareButton";
 import { WEEKDAYS } from "@/lib/plan-schema";
 import { loadPlan, prepGroups } from "@/lib/plans";
@@ -63,30 +64,9 @@ export default async function PlanPage({ params, searchParams }: Props) {
           Dinners
         </h2>
         {plan.dinners.map((dinner, i) => (
-          <details className="card dinner" key={dinner.day}>
-            <summary>
-              <span className={`day-badge day-${i}`}>{dinner.day.slice(0, 3)}</span>
-              <span className="dish-info">
-                <span className="dish">{dinner.name}</span>
-                <span className="minutes">
-                  <ClockIcon /> {dinner.minutes} min
-                </span>
-              </span>
-              <span className="chevron" aria-hidden="true" />
-            </summary>
-            {dinner.tip && (
-              <p className="tip">
-                <strong>Tip:</strong> {dinner.tip}
-              </p>
-            )}
-            <ol className="steps">
-              {dinner.steps.map((step, j) => (
-                <li key={j}>{step}</li>
-              ))}
-            </ol>
-          </details>
+          <DinnerCard key={dinner.day} planId={id} dinner={dinner} index={i} />
         ))}
-        <p className="hint">Tap a dinner to see how to make it.</p>
+        <p className="hint">Tap a dinner to see how to make it, and rate it after you eat.</p>
       </section>
 
       {plan.lunches.length > 0 && (

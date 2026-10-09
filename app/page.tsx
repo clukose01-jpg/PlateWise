@@ -7,6 +7,7 @@ import FridgeStep from "@/components/FridgeStep";
 import { Logo } from "@/components/Illustrations";
 import PlanningWait from "@/components/PlanningWait";
 import StepBar from "@/components/StepBar";
+import { ratingsForNextPlan } from "@/lib/ratings";
 
 type Stage = "fridge" | "family" | "planning";
 
@@ -58,7 +59,13 @@ export default function Home() {
       const response = await fetch("/api/plan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...answers, fridgeItems, pantryItems, madeOn }),
+        body: JSON.stringify({
+          ...answers,
+          fridgeItems,
+          pantryItems,
+          feedback: ratingsForNextPlan(),
+          madeOn,
+        }),
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error);
