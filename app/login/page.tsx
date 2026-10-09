@@ -5,9 +5,13 @@ import { useRouter } from "next/navigation";
 import { type FormEvent, useEffect, useState } from "react";
 import { Logo } from "@/components/Illustrations";
 import TabBar from "@/components/TabBar";
-import { loginStatus, sendCode, verifyCode } from "@/lib/account-client";
+import { loginStatus, logInWithPassword, sendCode, setPassword, verifyCode } from "@/lib/account-client";
 
-type Step = "loading" | "unavailable" | "email" | "code" | "already";
+// Email and password, or an emailed code the first time (or when she forgets her password).
+// After a code, she's offered a password so next time she doesn't need one.
+type Step = "loading" | "unavailable" | "already" | "password" | "code" | "new-password";
+
+const MIN_PASSWORD_LENGTH = 8;
 
 // Only go back to a page on this site.
 function nextPage() {
@@ -19,7 +23,9 @@ export default function LoginPage() {
   const router = useRouter();
   const [step, setStep] = useState<Step>("loading");
   const [email, setEmail] = useState("");
+  const [password, setPasswordText] = useState("");
   const [code, setCode] = useState("");
+  const [hadPassword, setHadPassword] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -30,7 +36,7 @@ export default function LoginPage() {
       else if (status.email) {
         setEmail(status.email);
         setStep("already");
-      } else setStep("email");
+      } else setStep("password");
     });
   }, []);
 
@@ -46,8 +52,19 @@ export default function LoginPage() {
     }
   }
 
-  function emailCode(event?: FormEvent) {
-    event?.preventDefault();
+  function passwordLogIn(event: FormEvent) {
+    event.preventDefault();
+    run(async () => {
+      await logInWithPassword(email.trim(), password);
+      router.push(nextPage());
+    });
+  }
+
+  function emailCode() {
+    if (!email.trim()) {
+      setError("Type your email first.");
+      return;
+    }
     run(async () => {
       await sendCode(email.trim());
       setCode("");
@@ -63,9 +80,23 @@ export default function LoginPage() {
     });
   }
 
-  function logIn(value = code) {
+  function codeLogIn(value = code) {
     run(async () => {
-      await verifyCode(email.trim(), value);
+      const { hasPassword } = await verifyCode(email.trim(), value);
+      setHadPassword(hasPassword);
+      setPasswordText("");
+      setStep("new-password");
+    });
+  }
+
+  function savePassword(event: FormEvent) {
+    event.preventDefault();
+    if (password.length < MIN_PASSWORD_LENGTH) {
+      setError(`Use at least ${MIN_PASSWORD_LENGTH} characters.`);
+      return;
+    }
+    run(async () => {
+      await setPassword(password);
       router.push(nextPage());
     });
   }
@@ -95,8 +126,8 @@ export default function LoginPage() {
         </section>
       )}
 
-      {step === "email" && (
-        <form className="card" onSubmit={emailCode}>
+      {step === "password" && (
+        <form className="card" onSubmit={passwordLogIn}>
           <label className="question" htmlFor="login-email">
             Your email
           </label>
@@ -104,21 +135,36 @@ export default function LoginPage() {
             id="login-email"
             type="email"
             inputMode="email"
-            autoComplete="email"
+            autoComplete="username"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             placeholder="you@example.com"
             required
           />
-          <p className="hint">We&apos;ll email you a 6-digit code. There&apos;s no password to remember.</p>
-          <button type="submit" className="primary" disabled={busy || !email.trim()}>
-            {busy ? "Sending…" : "Email me a code"}
+          <label className="question" htmlFor="login-password">
+            Password
+          </label>
+          <input
+            id="login-password"
+            type="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(event) => setPasswordText(event.target.value)}
+          />
+          <button type="submit" className="primary" disabled={busy || !email.trim() || !password}>
+            {busy ? "Logging in…" : "Log in"}
           </button>
           {error && (
             <p className="error" role="alert">
               {error}
             </p>
           )}
+          <div className="code-option">
+            <p className="hint">First time here, or forgot your password?</p>
+            <button type="button" className="secondary" onClick={emailCode} disabled={busy}>
+              Email me a code instead
+            </button>
+          </div>
         </form>
       )}
 
@@ -127,7 +173,7 @@ export default function LoginPage() {
           className="card"
           onSubmit={(event) => {
             event.preventDefault();
-            logIn();
+            codeLogIn();
           }}
         >
           <label className="question" htmlFor="login-code">
@@ -148,7 +194,7 @@ export default function LoginPage() {
               const digits = event.target.value.replace(/\D/g, "").slice(0, 6);
               setCode(digits);
               // Log in as soon as all 6 digits are in, including when the phone fills them in.
-              if (digits.length === 6 && !busy) logIn(digits);
+              if (digits.length === 6 && !busy) codeLogIn(digits);
             }}
             placeholder="••••••"
           />
@@ -168,11 +214,46 @@ export default function LoginPage() {
             type="button"
             className="link"
             onClick={() => {
-              setStep("email");
+              setStep("password");
               setError(null);
             }}
           >
             Use a different email
+          </button>
+        </form>
+      )}
+
+      {step === "new-password" && (
+        <form className="card" onSubmit={savePassword}>
+          <h2 className="section-title">{hadPassword ? "Set a new password?" : "Create a password"}</h2>
+          <p>
+            {hadPassword
+              ? "You're logged in. If you forgot your password, make a new one here."
+              : "You're logged in. With a password, next time you can log in on any device without waiting for a code."}
+          </p>
+          {/* Lets the phone's password manager save the email with the password. */}
+          <input type="email" autoComplete="username" value={email} readOnly hidden />
+          <label className="question" htmlFor="new-password">
+            {hadPassword ? "New password" : "Password"}
+          </label>
+          <input
+            id="new-password"
+            type="password"
+            autoComplete="new-password"
+            value={password}
+            onChange={(event) => setPasswordText(event.target.value)}
+          />
+          <p className="hint">At least {MIN_PASSWORD_LENGTH} characters.</p>
+          <button type="submit" className="primary" disabled={busy || !password}>
+            {busy ? "Saving…" : hadPassword ? "Save new password" : "Save password"}
+          </button>
+          {error && (
+            <p className="error" role="alert">
+              {error}
+            </p>
+          )}
+          <button type="button" className="link" onClick={() => router.push(nextPage())} disabled={busy}>
+            {hadPassword ? "Keep my old password" : "Skip for now"}
           </button>
         </form>
       )}

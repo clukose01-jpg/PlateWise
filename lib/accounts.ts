@@ -1,5 +1,6 @@
 import { createHash, createHmac, randomInt, timingSafeEqual } from "node:crypto";
 import { z } from "zod";
+import { checkPassword, hashPassword } from "./passwords";
 import { loadPlan } from "./plans";
 import { sessionSecret } from "./session";
 import { readJson, writeJson } from "./store";
@@ -34,7 +35,15 @@ export const AccountDataSchema = z.object({
 });
 
 export type AccountData = z.infer<typeof AccountDataSchema>;
-export type Account = { id: string; email: string; createdAt: string; updatedAt: string; data: AccountData };
+export type Account = {
+  id: string;
+  email: string;
+  createdAt: string;
+  updatedAt: string;
+  data: AccountData;
+  // A salted fingerprint of her password, if she made one. Never sent to any device.
+  passwordHash?: string;
+};
 
 export const EMPTY_DATA: AccountData = {
   family: null,
@@ -134,9 +143,9 @@ export async function withLivePlan(data: AccountData): Promise<{ data: AccountDa
   };
 }
 
-export async function logIn(email: string, device: AccountData) {
+export async function logIn(email: string, device: AccountData, known?: Account) {
   const id = accountIdFor(email);
-  const existing = await loadAccount(id);
+  const existing = known ?? (await loadAccount(id));
   const now = new Date().toISOString();
   const account: Account = existing ?? { id, email: normalizeEmail(email), createdAt: now, updatedAt: now, data: EMPTY_DATA };
   const { data } = await withLivePlan(existing ? mergeData(existing.data, device) : device);
@@ -192,4 +201,37 @@ export async function checkLoginCode(email: string, code: string): Promise<CodeC
   }
   await writeJson(codeFile(email), { ...saved, tries: saved.tries + 1 });
   return saved.tries + 1 >= MAX_TRIES ? "expired" : "wrong";
+}
+
+export async function setPassword(account: Account, password: string) {
+  const saved: Account = { ...account, passwordHash: await hashPassword(password), updatedAt: new Date().toISOString() };
+  await writeJson(`accounts/${account.id}.json`, saved);
+}
+
+// Logging in with a password: 10 wrong tries in 15 minutes locks it for a while, so nobody can
+// keep guessing. The emailed code still works.
+const MAX_WRONG_PASSWORDS = 10;
+const LOCK_MINUTES = 15;
+
+type Attempts = { wrong: number[] };
+
+function attemptsFile(email: string) {
+  return `login-attempts/${accountIdFor(email)}.json`;
+}
+
+export type PasswordLogin = { result: "ok"; account: Account } | { result: "wrong" | "locked" };
+
+export async function logInWithPassword(email: string, password: string, device: AccountData): Promise<PasswordLogin> {
+  const now = Date.now();
+  const attempts = await readJson<Attempts>(attemptsFile(email));
+  const recent = (attempts?.wrong ?? []).filter((time) => now - time < LOCK_MINUTES * 60 * 1000);
+  if (recent.length >= MAX_WRONG_PASSWORDS) return { result: "locked" };
+
+  const account = await loadAccount(accountIdFor(email));
+  if (!(await checkPassword(password, account?.passwordHash)) || !account) {
+    await writeJson(attemptsFile(email), { wrong: [...recent, now] } satisfies Attempts);
+    return { result: "wrong" };
+  }
+  if (recent.length) await writeJson(attemptsFile(email), { wrong: [] } satisfies Attempts);
+  return { result: "ok", account: await logIn(email, device, account) };
 }

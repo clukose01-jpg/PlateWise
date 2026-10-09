@@ -1552,3 +1552,29 @@ main.compare {
 .login input + .question {
   margin-top: 20px;
 }
+
+.code-option {
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.code-option .hint {
+  margin: 0 0 4px;
+}
+
+.code-option .secondary {
+  margin-top: 8px;
+}
+
+.password-form {
+  margin-top: 8px;
+}
+
+.password-form .question {
+  margin-top: 0;
+}
+
+.login input + .primary {
+  margin-top: 16px;
+}

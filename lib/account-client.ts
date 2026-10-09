@@ -151,14 +151,16 @@ async function postJson(url: string, body: unknown) {
   return result;
 }
 
-export async function loginStatus(): Promise<{ enabled: boolean; email: string | null }> {
+export type LoginStatus = { enabled: boolean; email: string | null; hasPassword: boolean };
+
+export async function loginStatus(): Promise<LoginStatus> {
   try {
     const status = await fetch("/api/auth/status", { cache: "no-store" }).then((r) => r.json());
     // Keep the device's note of who's logged in matched with the server.
     if (status.email !== accountEmail()) setAccountEmail(status.email);
-    return { enabled: Boolean(status.enabled), email: status.email ?? null };
+    return { enabled: Boolean(status.enabled), email: status.email ?? null, hasPassword: Boolean(status.hasPassword) };
   } catch {
-    return { enabled: false, email: accountEmail() };
+    return { enabled: false, email: accountEmail(), hasPassword: false };
   }
 }
 
@@ -166,12 +168,26 @@ export async function sendCode(email: string) {
   await postJson("/api/auth/send-code", { email });
 }
 
-// Logs in with the emailed code. What's on this device joins her account.
-export async function verifyCode(email: string, code: string) {
-  const result = await postJson("/api/auth/verify", { email, code, device: deviceData() });
+function loggedIn(result: { email: string; data: Partial<AccountData> }) {
   applyData(result.data);
   setAccountEmail(result.email);
   pulling = Promise.resolve();
+}
+
+// Logs in with the emailed code. What's on this device joins her account.
+// Says whether she already has a password, so she can be offered one.
+export async function verifyCode(email: string, code: string): Promise<{ hasPassword: boolean }> {
+  const result = await postJson("/api/auth/verify", { email, code, device: deviceData() });
+  loggedIn(result);
+  return { hasPassword: Boolean(result.hasPassword) };
+}
+
+export async function logInWithPassword(email: string, password: string) {
+  loggedIn(await postJson("/api/auth/password-login", { email, password, device: deviceData() }));
+}
+
+export async function setPassword(password: string) {
+  await postJson("/api/auth/password", { password });
 }
 
 // Logging out takes her things off this device; they stay saved in her account.

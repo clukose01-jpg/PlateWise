@@ -6,5 +6,9 @@ import { sessionAccountId } from "@/lib/session";
 export async function GET(request: Request) {
   const id = sessionAccountId(request);
   const account = id ? await loadAccount(id) : null;
-  return Response.json({ enabled: await loginIsSetUp(), email: account?.email ?? null });
+  return Response.json({
+    enabled: await loginIsSetUp(),
+    email: account?.email ?? null,
+    hasPassword: Boolean(account?.passwordHash),
+  });
 }

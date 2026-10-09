@@ -29,7 +29,7 @@ export async function POST(request: Request) {
   try {
     const account = await logIn(email, parsed.data.device);
     return Response.json(
-      { email: account.email, data: account.data },
+      { email: account.email, data: account.data, hasPassword: Boolean(account.passwordHash) },
       { headers: { "Set-Cookie": sessionCookie(account.id) } },
     );
   } catch (error) {
