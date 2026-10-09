@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { clearPlanTicks } from "@/lib/device";
+import { clearPlanTicks, deviceHeaders } from "@/lib/device";
 import type { StoredPlan } from "@/lib/plans";
 import { type DinnerRating, loadRating, removeRating, saveRating } from "@/lib/ratings";
 import { ClockIcon, SwapIcon, ThumbIcon } from "./Illustrations";
@@ -51,7 +51,7 @@ export default function DinnerCard({ planId, dinner, index, startOpen = false }:
     try {
       const response = await fetch("/api/swap", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...deviceHeaders() },
         body: JSON.stringify({ planId, day: dinner.day }),
       });
       const result = await response.json();

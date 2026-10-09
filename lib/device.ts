@@ -5,6 +5,7 @@ import { isSyncedKey, scheduleAccountSave } from "./account-client";
 const CURRENT_PLAN_KEY = "platewise.currentPlan";
 const OWNER_KEYS_KEY = "platewise.ownerKeys";
 const PLANS_KEY = "platewise.plans";
+const DEVICE_ID_KEY = "platewise.deviceId";
 const PANTRY_KEY = "platewise.pantry";
 export const FAMILY_KEY = "platewise.family";
 
@@ -29,6 +30,26 @@ function write(key: string, value: unknown) {
 export function getCurrentPlanId(): string | null {
   const id = read(CURRENT_PLAN_KEY);
   return typeof id === "string" ? id : null;
+}
+
+// A random number for this device, so the admin page can count families without knowing who
+// they are. It isn't tied to anything else.
+export function getDeviceId(): string {
+  try {
+    let id = localStorage.getItem(DEVICE_ID_KEY);
+    if (!id) {
+      id = crypto.randomUUID().replace(/-/g, "").slice(0, 20);
+      localStorage.setItem(DEVICE_ID_KEY, id);
+    }
+    return id;
+  } catch {
+    return "";
+  }
+}
+
+export function deviceHeaders(): Record<string, string> {
+  const id = getDeviceId();
+  return id ? { "x-platewise-device": id } : {};
 }
 
 export function setCurrentPlanId(id: string) {

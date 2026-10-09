@@ -3,6 +3,7 @@ import { mkdir, readFile, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { del, get, put } from "@vercel/blob";
 import type { Family, Plan, TestInfo } from "./plan-schema";
+import type { Origin } from "./visitor";
 
 export type SavedPlan = {
   id: string;
@@ -15,6 +16,12 @@ export type SavedPlan = {
   safetyChecked?: boolean;
   // Only the device that made the plan has the key that deletes it. Older plans don't have one.
   ownerKeyHash?: string;
+  // For the admin page. Plans made before these were added don't have them.
+  origin?: Origin;
+  deviceId?: string;
+  accountId?: string;
+  safetyFixes?: number;
+  swaps?: number;
 };
 
 // Older plans stored prep as one flat list and had no night-before steps.

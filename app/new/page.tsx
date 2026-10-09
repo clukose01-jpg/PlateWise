@@ -10,7 +10,14 @@ import PlanningWait from "@/components/PlanningWait";
 import StepBar from "@/components/StepBar";
 import TabBar from "@/components/TabBar";
 import { syncFromAccount } from "@/lib/account-client";
-import { loadPantry, rememberMadePlan, saveOwnerKey, savePantry, setCurrentPlanId } from "@/lib/device";
+import {
+  deviceHeaders,
+  loadPantry,
+  rememberMadePlan,
+  saveOwnerKey,
+  savePantry,
+  setCurrentPlanId,
+} from "@/lib/device";
 import { ratingsForNextPlan } from "@/lib/ratings";
 
 type Stage = "fridge" | "family" | "planning";
@@ -50,7 +57,7 @@ export default function NewPlan() {
     try {
       const response = await fetch("/api/plan", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...deviceHeaders() },
         body: JSON.stringify({
           ...answers,
           fridgeItems,

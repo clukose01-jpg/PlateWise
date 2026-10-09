@@ -1,8 +1,12 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { after } from "next/server";
 import { apiKeyProblem, KEY_REJECTED, PLAN_EFFORT } from "@/lib/claude";
 import { FamilySchema } from "@/lib/plan-schema";
 import { newOwnerKey, savePlan, StorageNotSetUpError } from "@/lib/plans";
-import { makeSafePlan, type PlanFix, PlanSafetyError, SAFETY_CHECK_ON } from "@/lib/safe-plan";
+import { logEvent } from "@/lib/events";
+import { makeSafePlan, type PlanFix, PlanSafetyError, SAFETY_CHECK_ON, type SafetyRound } from "@/lib/safe-plan";
+import { sessionAccountId } from "@/lib/session";
+import { requestDeviceId, requestOrigin } from "@/lib/visitor";
 import { writePlan } from "@/lib/write-plan";
 
 // Writing and double-checking a whole week can take a minute or two.
@@ -41,11 +45,21 @@ export async function POST(request: Request) {
       test: result.test,
       safetyChecked: SAFETY_CHECK_ON,
       ownerKeyHash,
+      origin: requestOrigin(request),
+      deviceId: requestDeviceId(request),
+      accountId: sessionAccountId(request) ?? undefined,
+      safetyFixes:
+        "rounds" in result
+          ? (result.rounds as SafetyRound[]).filter((round) => round.problems.length).length
+          : undefined,
     });
     return Response.json({ id, ownerKey });
   } catch (error) {
     if (error instanceof PlanSafetyError) {
       console.error("Plan failed the safety check:", JSON.stringify(error.rounds));
+      after(() =>
+        logEvent({ type: "plan-blocked", origin: requestOrigin(request), deviceId: requestDeviceId(request) }),
+      );
       return errorResponse(NOT_SAFE, 502);
     }
     if (error instanceof StorageNotSetUpError) {

@@ -1,4 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { after } from "next/server";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import { z } from "zod";
 import {
@@ -12,7 +13,9 @@ import {
 import { buildPlanPrompt } from "@/lib/plan-prompt";
 import { type Family, type Plan, PlanSchema, type TestInfo, WEEKDAYS } from "@/lib/plan-schema";
 import { loadPlan, type StoredPlan, StorageNotSetUpError, updatePlan } from "@/lib/plans";
+import { logEvent } from "@/lib/events";
 import { describeFix, makeSafePlan, type PlanFix, PlanSafetyError, SAFETY_CHECK_ON } from "@/lib/safe-plan";
+import { requestDeviceId, requestOrigin } from "@/lib/visitor";
 
 export const maxDuration = 300;
 
@@ -122,7 +125,15 @@ export async function POST(request: Request) {
     if (!result) {
       return errorResponse("We couldn't swap that dinner this time. Please try again.", 502);
     }
-    await updatePlan({ ...stored, plan: result.plan });
+    await updatePlan({ ...stored, plan: result.plan, swaps: (stored.swaps ?? 0) + 1 });
+    after(() =>
+      logEvent({
+        type: "swap",
+        origin: requestOrigin(request),
+        deviceId: requestDeviceId(request),
+        costUsd: result.test.costUsd,
+      }),
+    );
     return Response.json({
       dish: result.plan.dinners.find((dinner) => dinner.day === day)!.name,
       test: result.test,
@@ -130,6 +141,9 @@ export async function POST(request: Request) {
   } catch (error) {
     if (error instanceof PlanSafetyError) {
       console.error("Swap failed the safety check:", JSON.stringify(error.rounds));
+      after(() =>
+        logEvent({ type: "swap-blocked", origin: requestOrigin(request), deviceId: requestDeviceId(request) }),
+      );
       return errorResponse(
         "We couldn't find another dinner we're sure is safe for your family's allergies. Your dinner wasn't changed.",
         502,

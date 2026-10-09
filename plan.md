@@ -66,21 +66,9 @@ These started out on the leave-out list, or weren't in the plan at all. Each was
 | Daily reminder around 3pm in each person's own time zone | Reminds her of tonight's dinner before she gets home, instead of you texting each tester. | Whether people find it helpful or turn it off. |
 | Big-screen layout for computers and tablets | Your mom likes a big screen when cooking. Tonight's recipe gets big text she can read from across the kitchen. | Whether people cook from a computer or tablet, and whether they get stuck because their plan is saved on a different device. |
 | Allergy safety check on every plan and swap | Plans got faster by letting the AI think less, so every plan is now checked for allergens, hidden allergens, kids' dislikes and cooking time before anyone sees it, and fixed or blocked if anything's wrong. | Whether any tester ever sees "please try again", and whether any allergen ever slips through. Ask about this directly. |
-
-## Next up: save info with an email
-
-Right now everything is saved on each device. A plan opens anywhere from its link, but family answers, the pantry, ratings and favorites stay on the phone or computer where she entered them.
-
-**When to build it.** Wait for one of these signs:
-- Testers use PlateWise on more than one device, like a phone and a computer.
-- Testers come back for a second or third week, so losing their ratings and pantry would hurt.
-- You're ready to charge $6.99. Payments need an account anyway, so build both together.
-
-**How it should work:**
-- **Email with a sign-in link, no password.** She types her email, taps the link we send, and she's in. It's cheap to send.
-- **Phone number later, if at all.** Every text costs money and takes more setup.
-- **Optional at first.** People can still try PlateWise without signing up. After their first plan, ask: "Want to save your plans? Add your email."
-- **What it saves:** plans, family answers, pantry, ratings and favorites, so they show up on any phone or computer she signs in on.
+| Delete a plan | To restart a week that didn't fit the family. | How often people delete a plan and make a new one. |
+| Optional login with email and password | So plans, family answers, pantry and ratings follow her to any phone or computer. The first login uses an emailed code, then a password after that. | How many testers make an account, and whether anyone gets stuck logging in. |
+| Private admin page | Shows you how many families use PlateWise, roughly where they are (city, from their internet connection), their allergies, how many come back each week, and what the AI costs. | Add a short privacy note before a public launch that says you count approximate location. |
 
 ## 4. How you'll know it works
 

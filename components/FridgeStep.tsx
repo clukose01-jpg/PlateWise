@@ -1,6 +1,7 @@
 "use client";
 
 import { type ChangeEvent, type FormEvent, useEffect, useRef, useState } from "react";
+import { deviceHeaders } from "@/lib/device";
 import { MAX_PHOTOS_PER_SCAN, MAX_PHOTOS_TOTAL } from "@/lib/photo-limits";
 import type { TestInfo } from "@/lib/plan-schema";
 import { resizePhoto } from "@/lib/resize-photo";
@@ -84,7 +85,7 @@ export default function FridgeStep({
     body.append("known", JSON.stringify(everything));
 
     try {
-      const response = await fetch("/api/scan", { method: "POST", body });
+      const response = await fetch("/api/scan", { method: "POST", body, headers: deviceHeaders() });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error);
 

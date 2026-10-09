@@ -1,7 +1,10 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { after } from "next/server";
 import { apiKeyProblem, KEY_REJECTED, SCAN_EFFORT } from "@/lib/claude";
 import { isPhotoType, KnownItems, scanKitchen, toImageBlocks } from "@/lib/kitchen-scan";
+import { logEvent } from "@/lib/events";
 import { MAX_PHOTOS_PER_SCAN } from "@/lib/photo-limits";
+import { requestDeviceId, requestOrigin } from "@/lib/visitor";
 
 export const maxDuration = 120;
 
@@ -50,6 +53,14 @@ export async function POST(request: Request) {
     if (!result) {
       return errorResponse(COULD_NOT_READ, 422);
     }
+    after(() =>
+      logEvent({
+        type: "scan",
+        origin: requestOrigin(request),
+        deviceId: requestDeviceId(request),
+        costUsd: result.test.costUsd,
+      }),
+    );
     return Response.json(result);
   } catch (error) {
     if (error instanceof Anthropic.AuthenticationError) {

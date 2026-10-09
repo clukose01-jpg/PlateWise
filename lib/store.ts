@@ -1,6 +1,6 @@
-import { mkdir, readFile, unlink, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { del, get, put } from "@vercel/blob";
+import { del, get, list, put } from "@vercel/blob";
 import { StorageNotSetUpError, useBlob } from "./plans";
 
 // Small private JSON files: in Vercel Blob storage online, in the .data folder on your own computer.
@@ -36,4 +36,32 @@ export async function deleteJson(name: string) {
   } else {
     await unlink(path.join(LOCAL_ROOT, name)).catch(() => {});
   }
+}
+
+// Every file name under a folder, like "plans/". For the admin page.
+export async function listNames(prefix: string): Promise<string[]> {
+  if (useBlob()) {
+    const names: string[] = [];
+    let cursor: string | undefined;
+    do {
+      const page = await list({ prefix, cursor, limit: 1000 });
+      names.push(...page.blobs.map((blob) => blob.pathname));
+      cursor = page.hasMore ? page.cursor : undefined;
+    } while (cursor);
+    return names;
+  }
+  const entries = await readdir(path.join(LOCAL_ROOT, prefix), { recursive: true, withFileTypes: true }).catch(() => []);
+  return entries
+    .filter((entry) => entry.isFile() && entry.name.endsWith(".json"))
+    .map((entry) => path.relative(LOCAL_ROOT, path.join(entry.parentPath, entry.name)).split(path.sep).join("/"));
+}
+
+// Reads many files, a few at a time.
+export async function readMany<T>(names: string[], batch = 20): Promise<T[]> {
+  const results: T[] = [];
+  for (let i = 0; i < names.length; i += batch) {
+    const chunk = await Promise.all(names.slice(i, i + batch).map((name) => readJson<T>(name).catch(() => null)));
+    results.push(...chunk.filter((item): item is Awaited<T> & T => item !== null));
+  }
+  return results;
 }
