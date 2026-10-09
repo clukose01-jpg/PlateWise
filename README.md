@@ -34,11 +34,11 @@ You need two accounts: one to pay for the AI, and one to host the app.
 4. **Turn on daily reminders.**
    - Add three more environment variables: `VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY` (make a pair with `npx web-push generate-vapid-keys`), and `CRON_SECRET` (any long random text).
    - The `vercel.json` file tells Vercel to check once an hour. Each phone saves its own time zone, and the app sends its reminder once a day, in the first check after 3pm there. That keeps it right in every time zone and when the clocks change.
-5. **Turn on logging in.**
-   - Buy your own website name (PlateWise uses tryplatewise.com) and connect it to the project in Vercel.
-   - Make a free account at [resend.com](https://resend.com), add your website name there, and add the records it shows to your domain's DNS in Vercel.
-   - Create a Resend API key and add it in Vercel as `RESEND_API_KEY`. Add `SESSION_SECRET` too (any long random text). Redeploy.
-   - Until both are set, the login stays hidden and everything is saved on each device, as before.
+5. **Turn on logging in.** Login codes are emailed from a Gmail account made just for the app.
+   - Make a free Gmail account for PlateWise. In its Google Account settings, turn on **2-Step Verification**, then create an **App password** (search "App passwords" in the settings).
+   - In Vercel, add `GMAIL_USER` (the Gmail address) and `GMAIL_APP_PASSWORD` (the 16-letter app password, marked Sensitive), plus `SESSION_SECRET` (any long random text). Redeploy.
+   - Until they're set, the login stays hidden and everything is saved on each device, as before.
+   - Gmail sends up to about 500 emails a day. If PlateWise outgrows that, get a website name and an email service like Resend, and set `RESEND_API_KEY` and `EMAIL_FROM` instead.
 
 ## Run your 20 test scans
 
