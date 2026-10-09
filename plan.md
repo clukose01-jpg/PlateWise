@@ -43,7 +43,7 @@ Everything else (the grocery list and the prep list) is there to make that plan 
 |---|---|
 | Scanning a video | Claude reads photos, not video. A video would be cut into many frames, which is slower and costs more. Several photos cover the same ground. |
 | Keeping track of fresh food from week to week | She scans the fridge again each Sunday. (Pantry staples are remembered. See below.) |
-| Accounts and logins | A link is enough to share the plan, and testers don't have to make a password. |
+| Accounts and logins | A link is enough to share the plan, and testers don't have to make a password. See **Next up** for when to add them. |
 | Payments and subscription | First find out whether she uses it. Ask about price in conversation instead. |
 | App Store and Google Play | A web link is free. Your canvas already says to wait for proof that people want it. |
 | Voice agent | You answer questions personally for now. |
@@ -64,6 +64,22 @@ These started out on the leave-out list, or weren't in the plan at all. Each was
 | Tomorrow heads-up | Night-before steps, like moving chicken to the fridge, keep tomorrow fast. | Whether those steps get done. |
 | Add to home screen | It opens like an app, and iPhones need it for reminders. | How many testers add it. |
 | Daily reminder around 3pm Eastern | Reminds her of tonight's dinner before she gets home, instead of you texting each tester. | Whether people find it helpful or turn it off. |
+| Big-screen layout for computers and tablets | Your mom likes a big screen when cooking. Tonight's recipe gets big text she can read from across the kitchen. | Whether people cook from a computer or tablet, and whether they get stuck because their plan is saved on a different device. |
+
+## Next up: save info with an email
+
+Right now everything is saved on each device. A plan opens anywhere from its link, but family answers, the pantry, ratings and favorites stay on the phone or computer where she entered them.
+
+**When to build it.** Wait for one of these signs:
+- Testers use PlateWise on more than one device, like a phone and a computer.
+- Testers come back for a second or third week, so losing their ratings and pantry would hurt.
+- You're ready to charge $6.99. Payments need an account anyway, so build both together.
+
+**How it should work:**
+- **Email with a sign-in link, no password.** She types her email, taps the link we send, and she's in. It's cheap to send.
+- **Phone number later, if at all.** Every text costs money and takes more setup.
+- **Optional at first.** People can still try PlateWise without signing up. After their first plan, ask: "Want to save your plans? Add your email."
+- **What it saves:** plans, family answers, pantry, ratings and favorites, so they show up on any phone or computer she signs in on.
 
 ## 4. How you'll know it works
 
