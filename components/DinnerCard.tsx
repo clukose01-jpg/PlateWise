@@ -1,17 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { Plan } from "@/lib/plan-schema";
+import type { StoredPlan } from "@/lib/plans";
 import { type DinnerRating, loadRating, removeRating, saveRating } from "@/lib/ratings";
 import { ClockIcon, ThumbIcon } from "./Illustrations";
 
 type Props = {
   planId: string;
-  dinner: Plan["dinners"][number];
+  dinner: StoredPlan["plan"]["dinners"][number];
   index: number;
+  // The Today tab opens tonight's dinner straight away.
+  startOpen?: boolean;
 };
 
-export default function DinnerCard({ planId, dinner, index }: Props) {
+export default function DinnerCard({ planId, dinner, index, startOpen = false }: Props) {
   const [rating, setRating] = useState<DinnerRating | null>(null);
 
   useEffect(() => {
@@ -45,7 +47,7 @@ export default function DinnerCard({ planId, dinner, index }: Props) {
   }
 
   return (
-    <details className="card dinner">
+    <details className="card dinner" open={startOpen || undefined}>
       <summary>
         <span className={`day-badge day-${index}`}>{dinner.day.slice(0, 3)}</span>
         <span className="dish-info">

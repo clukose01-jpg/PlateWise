@@ -42,6 +42,8 @@ export const PlanSchema = z.object({
       minutes: z.number().int(),
       tip: z.string(),
       steps: z.array(z.string()),
+      // Things to do the night before, like moving meat from the freezer to the fridge.
+      nightBefore: z.array(z.string()),
     }),
   ),
   lunches: z.array(z.object({ day: z.enum(WEEKDAYS), name: z.string() })),

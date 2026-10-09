@@ -6,14 +6,20 @@ import type { Family, Plan, TestInfo } from "./plan-schema";
 
 export type SavedPlan = {
   id: string;
+  // When the plan was made. Plans made before this was added don't have it.
+  createdAt?: string;
   family: Family;
   plan: Plan;
   test: TestInfo;
 };
 
-// Plans made before prep was grouped by day stored it as one flat list.
-type StoredPlan = Omit<SavedPlan, "plan"> & {
-  plan: Omit<Plan, "prepList"> & { prepList: Plan["prepList"] | string[] };
+// Older plans stored prep as one flat list and had no night-before steps.
+type StoredDinner = Omit<Plan["dinners"][number], "nightBefore"> & { nightBefore?: string[] };
+export type StoredPlan = Omit<SavedPlan, "plan"> & {
+  plan: Omit<Plan, "prepList" | "dinners"> & {
+    prepList: Plan["prepList"] | string[];
+    dinners: StoredDinner[];
+  };
 };
 
 export type PrepGroup = { day: string; steps: string[] };
@@ -37,10 +43,10 @@ function useBlob() {
   return Boolean(process.env.BLOB_READ_WRITE_TOKEN);
 }
 
-export async function savePlan(data: Omit<SavedPlan, "id">): Promise<string> {
+export async function savePlan(data: Omit<SavedPlan, "id" | "createdAt">): Promise<string> {
   // 12 random characters: impossible to guess, short enough to text.
   const id = randomBytes(9).toString("base64url");
-  const json = JSON.stringify({ id, ...data });
+  const json = JSON.stringify({ id, createdAt: new Date().toISOString(), ...data });
 
   if (useBlob()) {
     await put(`plans/${id}.json`, json, { access: "private", contentType: "application/json" });

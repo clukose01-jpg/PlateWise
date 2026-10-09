@@ -80,3 +80,51 @@ export function ThumbIcon({ down = false }: { down?: boolean }) {
     </svg>
   );
 }
+
+// Icons for the bottom tab bar.
+export function TabIcon({ name }: { name: "today" | "week" | "groceries" | "new" | "more" }) {
+  const common = {
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: 1.8,
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+  };
+  return (
+    <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+      {name === "today" && (
+        <>
+          <circle cx="12" cy="12" r="4" {...common} />
+          <path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4" {...common} />
+        </>
+      )}
+      {name === "week" && (
+        <>
+          <rect x="3.5" y="5" width="17" height="15" rx="2.5" {...common} />
+          <path d="M3.5 10h17M8 3v4M16 3v4" {...common} />
+          <path d="M7.5 14h2M11 14h2M14.5 14h2M7.5 17h2M11 17h2" {...common} />
+        </>
+      )}
+      {name === "groceries" && (
+        <>
+          <path d="M3 4h2.2l2.2 11h10.4l2-8H6.3" {...common} />
+          <circle cx="9" cy="19" r="1.4" {...common} />
+          <circle cx="16.5" cy="19" r="1.4" {...common} />
+        </>
+      )}
+      {name === "new" && (
+        <>
+          <circle cx="12" cy="12" r="8.5" {...common} />
+          <path d="M12 8v8M8 12h8" {...common} />
+        </>
+      )}
+      {name === "more" && (
+        <>
+          <circle cx="5.5" cy="12" r="1.3" fill="currentColor" />
+          <circle cx="12" cy="12" r="1.3" fill="currentColor" />
+          <circle cx="18.5" cy="12" r="1.3" fill="currentColor" />
+        </>
+      )}
+    </svg>
+  );
+}

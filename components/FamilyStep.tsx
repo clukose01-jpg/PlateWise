@@ -1,6 +1,7 @@
 "use client";
 
 import { type FormEvent, type KeyboardEvent, useEffect, useState } from "react";
+import { loadFamily, saveFamily } from "@/lib/device";
 import { COOK_TIMES } from "@/lib/plan-schema";
 import { countRatings } from "@/lib/ratings";
 
@@ -12,25 +13,12 @@ export type FamilyAnswers = {
   lunches: boolean;
 };
 
-// Answers are remembered on this phone only, so next Sunday she doesn't retype them.
-const SAVED_ANSWERS_KEY = "platewise.family";
-
 const MAX_FOODS_PER_KID = 15;
 
 // While she's typing, each kid's foods are separate bubbles plus whatever is in the box.
 type KidDraft = { name: string; refuses: string[]; typing: string };
 
 const EMPTY_KID: KidDraft = { name: "", refuses: [], typing: "" };
-
-// Answers saved before foods were separate bubbles stored them as one line, like "fish, mushrooms".
-function toFoods(refuses: unknown): string[] {
-  if (Array.isArray(refuses)) return refuses.filter((food) => typeof food === "string");
-  if (typeof refuses !== "string") return [];
-  return refuses
-    .split(",")
-    .map((food) => food.trim())
-    .filter(Boolean);
-}
 
 function addFoods(existing: string[], text: string): string[] {
   const foods = [...existing];
@@ -59,25 +47,14 @@ export default function FamilyStep({ error, onBack, onSubmit }: Props) {
 
   useEffect(() => {
     setRatingCount(countRatings());
-    try {
-      const saved = JSON.parse(localStorage.getItem(SAVED_ANSWERS_KEY) ?? "null");
-      if (!saved) return;
-      setAllergies(saved.allergies);
-      setAdults(saved.adults);
-      setKids(
-        saved.kids.length
-          ? saved.kids.map((kid: { name: string; refuses: unknown }) => ({
-              name: kid.name,
-              refuses: toFoods(kid.refuses),
-              typing: "",
-            }))
-          : [EMPTY_KID],
-      );
-      setMaxMinutes(saved.maxMinutes);
-      setLunches(saved.lunches);
-    } catch {
-      // Nothing saved, or this browser blocks storage. Start blank.
-    }
+    // Answers are remembered on this phone, so next Sunday she doesn't retype them.
+    const saved = loadFamily();
+    if (!saved) return;
+    setAllergies(saved.allergies);
+    setAdults(saved.adults);
+    setKids(saved.kids.length ? saved.kids.map((kid) => ({ ...kid, typing: "" })) : [EMPTY_KID]);
+    setMaxMinutes(saved.maxMinutes);
+    setLunches(saved.lunches);
   }, []);
 
   function updateKid(index: number, changes: Partial<KidDraft>) {
@@ -118,14 +95,7 @@ export default function FamilyStep({ error, onBack, onSubmit }: Props) {
       maxMinutes,
       lunches,
     };
-    try {
-      localStorage.setItem(
-        SAVED_ANSWERS_KEY,
-        JSON.stringify({ allergies: answers.allergies, adults, kids: finished, maxMinutes, lunches }),
-      );
-    } catch {
-      // Not saved; she'll just answer again next time.
-    }
+    saveFamily({ allergies: answers.allergies, adults, kids: finished, maxMinutes, lunches });
     onSubmit(answers);
   }
 

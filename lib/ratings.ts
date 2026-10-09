@@ -74,3 +74,17 @@ export function ratingsForNextPlan(): RatingForPlan[] {
     lastPlan: rating.planId === lastPlanId,
   }));
 }
+
+// Dinners the family liked, newest first, each dish once.
+export function likedDinners(): DinnerRating[] {
+  const seen = new Set<string>();
+  return Object.values(readAll())
+    .filter((rating) => rating.liked)
+    .sort((a, b) => b.ratedAt - a.ratedAt)
+    .filter((rating) => {
+      const key = rating.dish.toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+}

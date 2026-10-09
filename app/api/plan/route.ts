@@ -69,7 +69,8 @@ Make this plan:
    - Keep it varied: don't serve the same main ingredient on back-to-back nights.
    - Stick to meals kids usually like, made from ingredients any ordinary supermarket sells.
    - Give 3 to 6 short steps in plain words, and say when a step uses Sunday's prep.
-   - Add a tip when it helps a picky eater, like serving the sauce on the side. Otherwise leave the tip empty.${
+   - Add a tip when it helps a picky eater, like serving the sauce on the side. Otherwise leave the tip empty.
+   - In nightBefore, list anything to do the night before, like moving meat from the freezer to the fridge or soaking beans. Leave it empty if there's nothing.${
      family.feedback.length
        ? `
    - Learn from what they thought of past dinners: bring back dinners they liked or close variations of them, steer away from what they didn't like, and follow their comments.

@@ -255,8 +255,8 @@ export default function FridgeStep({
 }
 
 type FoodListProps = {
-  title: string;
-  hint: string;
+  title?: string;
+  hint?: string;
   className?: string;
   items: string[];
   allItems: string[];
@@ -265,7 +265,7 @@ type FoodListProps = {
   label: string;
 };
 
-function FoodList({ title, hint, className, items, allItems, onChange, placeholder, label }: FoodListProps) {
+export function FoodList({ title, hint, className, items, allItems, onChange, placeholder, label }: FoodListProps) {
   const [typing, setTyping] = useState("");
 
   function add(event: FormEvent) {
@@ -280,9 +280,11 @@ function FoodList({ title, hint, className, items, allItems, onChange, placehold
 
   return (
     <div className="food-list">
-      <h3>
-        {title} <span className="hint">· {hint}</span>
-      </h3>
+      {title && (
+        <h3>
+          {title} {hint && <span className="hint">· {hint}</span>}
+        </h3>
+      )}
       {items.length > 0 && (
         <ul className={className ? `items ${className}` : "items"}>
           {items.map((item) => (
