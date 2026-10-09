@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- PlateWise app icon: a week calendar with a plate, fork and knife. Phones round the corners. -->
+  <rect width="100" height="100" fill="#4f7a4a"/>
+  <rect x="19" y="25" width="62" height="56" rx="10" fill="#fbf5ee"/>
+  <path d="M19 35a10 10 0 0 1 10-10h42a10 10 0 0 1 10 10v6H19Z" fill="#8a5a3c"/>
+  <rect x="31" y="17" width="6" height="15" rx="3" fill="#fbf5ee"/>
+  <rect x="63" y="17" width="6" height="15" rx="3" fill="#fbf5ee"/>
+  <circle cx="50" cy="61" r="11.5" fill="#e6efdf" stroke="#4f7a4a" stroke-width="3.6"/>
+  <g fill="#4f7a4a">
+    <rect x="30.6" y="49" width="1.9" height="8" rx="0.95"/>
+    <rect x="33.6" y="49" width="1.9" height="8" rx="0.95"/>
+    <rect x="36.6" y="49" width="1.9" height="8" rx="0.95"/>
+    <path d="M30.6 55.5h7.9v1.6a3.95 3.95 0 0 1-7.9 0Z"/>
+    <rect x="33.2" y="58" width="2.7" height="15" rx="1.35"/>
+    <path d="M65.4 49c4.4 2.4 5.1 9 3.8 14.5h-3.8Z"/>
+    <rect x="65.4" y="62" width="2.8" height="11" rx="1.4"/>
+  </g>
+</svg>
