@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { FoodList } from "@/components/FridgeStep";
 import { Logo } from "@/components/Illustrations";
 import InstallHelp from "@/components/InstallHelp";
+import ReminderSettings from "@/components/ReminderSettings";
 import TabBar from "@/components/TabBar";
 import { loadFamily, loadPantry, type SavedFamily, savePantry } from "@/lib/device";
 import { type DinnerRating, likedDinners } from "@/lib/ratings";
@@ -96,6 +97,8 @@ export default function MorePage() {
           {family ? "Change these in a new plan" : "Make a plan"}
         </Link>
       </section>
+
+      <ReminderSettings />
 
       <InstallHelp />
 

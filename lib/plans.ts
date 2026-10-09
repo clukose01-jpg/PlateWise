@@ -39,7 +39,7 @@ const ID_PATTERN = /^[A-Za-z0-9_-]{12}$/;
 
 export class StorageNotSetUpError extends Error {}
 
-function useBlob() {
+export function useBlob() {
   return Boolean(process.env.BLOB_READ_WRITE_TOKEN);
 }
 

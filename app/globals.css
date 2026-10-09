@@ -1056,3 +1056,19 @@ legend.question {
 .install-steps li {
   margin-bottom: 6px;
 }
+
+/* Daily reminder */
+
+.reminder-on {
+  margin: 0 0 4px;
+  font-weight: 650;
+  color: var(--accent);
+}
+
+.reminder-status {
+  margin: 12px 0 0;
+}
+
+button:disabled {
+  opacity: 0.6;
+}
