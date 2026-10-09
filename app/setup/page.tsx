@@ -13,6 +13,7 @@ export default function SetupPage() {
   const [saved, setSaved] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [detail, setDetail] = useState<string | null>(null);
   const [done, setDone] = useState(false);
 
   useEffect(() => {
@@ -34,6 +35,7 @@ export default function SetupPage() {
     event.preventDefault();
     setBusy(true);
     setError(null);
+    setDetail(null);
     try {
       const response = await fetch("/api/setup/email", {
         method: "POST",
@@ -41,7 +43,10 @@ export default function SetupPage() {
         body: JSON.stringify({ user, appPassword }),
       });
       const result = await response.json();
-      if (!response.ok) throw new Error(result.error);
+      if (!response.ok) {
+        setDetail(result.detail ?? null);
+        throw new Error(result.error);
+      }
       setAppPassword("");
       setSaved(true);
       setDone(true);
@@ -103,6 +108,7 @@ export default function SetupPage() {
               {error}
             </p>
           )}
+          {detail && <p className="hint">What Google said: {detail}</p>}
         </form>
       )}
     </main>
