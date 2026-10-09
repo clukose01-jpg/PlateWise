@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, useEffect, useState } from "react";
+import { type FormEvent, type KeyboardEvent, useEffect, useState } from "react";
 import { COOK_TIMES } from "@/lib/plan-schema";
 
 export type FamilyAnswers = {
@@ -14,7 +14,33 @@ export type FamilyAnswers = {
 // Answers are remembered on this phone only, so next Sunday she doesn't retype them.
 const SAVED_ANSWERS_KEY = "platewise.family";
 
-const EMPTY_KID = { name: "", refuses: "" };
+const MAX_FOODS_PER_KID = 15;
+
+// While she's typing, each kid's foods are separate bubbles plus whatever is in the box.
+type KidDraft = { name: string; refuses: string[]; typing: string };
+
+const EMPTY_KID: KidDraft = { name: "", refuses: [], typing: "" };
+
+// Answers saved before foods were separate bubbles stored them as one line, like "fish, mushrooms".
+function toFoods(refuses: unknown): string[] {
+  if (Array.isArray(refuses)) return refuses.filter((food) => typeof food === "string");
+  if (typeof refuses !== "string") return [];
+  return refuses
+    .split(",")
+    .map((food) => food.trim())
+    .filter(Boolean);
+}
+
+function addFoods(existing: string[], text: string): string[] {
+  const foods = [...existing];
+  for (const raw of text.split(",")) {
+    const food = raw.trim();
+    if (food && foods.length < MAX_FOODS_PER_KID && !foods.some((f) => f.toLowerCase() === food.toLowerCase())) {
+      foods.push(food);
+    }
+  }
+  return foods;
+}
 
 type Props = {
   error: string | null;
@@ -25,7 +51,7 @@ type Props = {
 export default function FamilyStep({ error, onBack, onSubmit }: Props) {
   const [allergies, setAllergies] = useState("");
   const [adults, setAdults] = useState(2);
-  const [kids, setKids] = useState([EMPTY_KID]);
+  const [kids, setKids] = useState<KidDraft[]>([EMPTY_KID]);
   const [maxMinutes, setMaxMinutes] = useState(30);
   const [lunches, setLunches] = useState(false);
 
@@ -35,7 +61,15 @@ export default function FamilyStep({ error, onBack, onSubmit }: Props) {
       if (!saved) return;
       setAllergies(saved.allergies);
       setAdults(saved.adults);
-      setKids(saved.kids.length ? saved.kids : [EMPTY_KID]);
+      setKids(
+        saved.kids.length
+          ? saved.kids.map((kid: { name: string; refuses: unknown }) => ({
+              name: kid.name,
+              refuses: toFoods(kid.refuses),
+              typing: "",
+            }))
+          : [EMPTY_KID],
+      );
       setMaxMinutes(saved.maxMinutes);
       setLunches(saved.lunches);
     } catch {
@@ -43,8 +77,25 @@ export default function FamilyStep({ error, onBack, onSubmit }: Props) {
     }
   }, []);
 
-  function updateKid(index: number, field: "name" | "refuses", value: string) {
-    setKids(kids.map((kid, i) => (i === index ? { ...kid, [field]: value } : kid)));
+  function updateKid(index: number, changes: Partial<KidDraft>) {
+    setKids(kids.map((kid, i) => (i === index ? { ...kid, ...changes } : kid)));
+  }
+
+  function addTypedFoods(index: number) {
+    const kid = kids[index];
+    updateKid(index, { refuses: addFoods(kid.refuses, kid.typing), typing: "" });
+  }
+
+  // Enter or a comma adds the food, instead of sending the whole form.
+  function onFoodKey(index: number, event: KeyboardEvent<HTMLInputElement>) {
+    if (event.key === "Enter" || event.key === ",") {
+      event.preventDefault();
+      addTypedFoods(index);
+    }
+  }
+
+  function removeFood(index: number, food: string) {
+    updateKid(index, { refuses: kids[index].refuses.filter((f) => f !== food) });
   }
 
   function removeKid(index: number) {
@@ -53,15 +104,22 @@ export default function FamilyStep({ error, onBack, onSubmit }: Props) {
 
   function submit(event: FormEvent) {
     event.preventDefault();
+    // Include anything still in a box that she didn't tap Add for.
+    const finished = kids
+      .map((kid) => ({ name: kid.name.trim(), refuses: addFoods(kid.refuses, kid.typing) }))
+      .filter((kid) => kid.name || kid.refuses.length);
     const answers: FamilyAnswers = {
       allergies: allergies.trim(),
       adults,
-      kids: kids.filter((kid) => kid.name.trim() || kid.refuses.trim()),
+      kids: finished.map((kid) => ({ name: kid.name, refuses: kid.refuses.join(", ") })),
       maxMinutes,
       lunches,
     };
     try {
-      localStorage.setItem(SAVED_ANSWERS_KEY, JSON.stringify(answers));
+      localStorage.setItem(
+        SAVED_ANSWERS_KEY,
+        JSON.stringify({ allergies: answers.allergies, adults, kids: finished, maxMinutes, lunches }),
+      );
     } catch {
       // Not saved; she'll just answer again next time.
     }
@@ -102,19 +160,49 @@ export default function FamilyStep({ error, onBack, onSubmit }: Props) {
 
         {kids.map((kid, i) => (
           <div className="kid" key={i}>
-            <input
-              value={kid.name}
-              onChange={(event) => updateKid(i, "name", event.target.value)}
-              placeholder="Kid's name or age"
-              aria-label={`Kid ${i + 1} name or age`}
-            />
-            <input
-              value={kid.refuses}
-              onChange={(event) => updateKid(i, "refuses", event.target.value)}
-              placeholder="Won't eat… (like fish)"
-              aria-label={`Foods kid ${i + 1} won't eat`}
-            />
-            <button type="button" aria-label={`Remove kid ${i + 1}`} onClick={() => removeKid(i)}>
+            <div className="kid-fields">
+              <input
+                value={kid.name}
+                onChange={(event) => updateKid(i, { name: event.target.value })}
+                placeholder="Kid's name or age"
+                aria-label={`Kid ${i + 1} name or age`}
+              />
+              {kid.refuses.length > 0 && (
+                <ul className="items refuses">
+                  {kid.refuses.map((food) => (
+                    <li key={food}>
+                      <span>{food}</span>
+                      <button
+                        type="button"
+                        aria-label={`Remove ${food} for kid ${i + 1}`}
+                        onClick={() => removeFood(i, food)}
+                      >
+                        ×
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <div className="add">
+                <input
+                  value={kid.typing}
+                  onChange={(event) => updateKid(i, { typing: event.target.value })}
+                  onKeyDown={(event) => onFoodKey(i, event)}
+                  placeholder={kid.refuses.length ? "Add another food" : "Won't eat… (like fish)"}
+                  aria-label={`Food kid ${i + 1} won't eat`}
+                  enterKeyHint="done"
+                />
+                <button type="button" onClick={() => addTypedFoods(i)} aria-label={`Add food for kid ${i + 1}`}>
+                  Add
+                </button>
+              </div>
+            </div>
+            <button
+              type="button"
+              className="remove-kid"
+              aria-label={`Remove kid ${i + 1}`}
+              onClick={() => removeKid(i)}
+            >
               ×
             </button>
           </div>

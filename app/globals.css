@@ -456,10 +456,24 @@ legend.question {
   background: var(--card);
 }
 
-.kid button {
-  grid-column: 2;
-  grid-row: 1 / span 2;
-  align-self: center;
+.kid-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.kid .items {
+  margin: 0;
+}
+
+.items.refuses li {
+  background: var(--tomato-soft);
+}
+
+.kid .remove-kid {
+  align-self: start;
+  margin-top: 6px;
   width: 36px;
   height: 36px;
   border: none;
