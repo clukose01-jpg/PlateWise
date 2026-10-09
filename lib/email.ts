@@ -1,19 +1,45 @@
 import nodemailer from "nodemailer";
+import { type GmailAccount, savedGmail } from "./email-settings";
 
 // Sends the login code. Online it goes out from the app's own Gmail account, using an app password
-// (or through Resend, if the app later gets its own website name). On your own computer the code is
-// printed in the terminal instead.
+// set in Vercel or saved on the setup page (or through Resend, if the app later gets its own website
+// name). On your own computer the code is printed in the terminal instead.
 export class EmailNotSetUpError extends Error {}
 
-function gmail() {
-  const user = process.env.GMAIL_USER?.trim();
-  // Google shows app passwords in groups of four letters; the spaces don't matter.
-  const pass = process.env.GMAIL_APP_PASSWORD?.replace(/\s/g, "");
-  return user && pass ? { user, pass } : null;
+// Google shows app passwords in groups of four letters; the spaces don't matter.
+export function cleanAppPassword(text: string) {
+  return text.replace(/\s/g, "");
 }
 
-export function emailIsSetUp() {
-  return Boolean(process.env.RESEND_API_KEY || gmail()) || !process.env.VERCEL;
+async function gmail(): Promise<GmailAccount | null> {
+  const user = process.env.GMAIL_USER?.trim();
+  const pass = cleanAppPassword(process.env.GMAIL_APP_PASSWORD ?? "");
+  if (user && pass) return { user, pass };
+  return savedGmail();
+}
+
+export async function emailIsSetUp() {
+  return Boolean(process.env.RESEND_API_KEY || (await gmail())) || !process.env.VERCEL;
+}
+
+function gmailTransport(account: GmailAccount) {
+  return nodemailer.createTransport({
+    host: process.env.SMTP_HOST ?? "smtp.gmail.com",
+    port: Number(process.env.SMTP_PORT ?? 465),
+    secure: true,
+    auth: account,
+    connectionTimeout: 15_000,
+  });
+}
+
+// Signs in to Gmail and sends the account a note, to prove it works before it's saved.
+export async function testGmail(account: GmailAccount) {
+  await gmailTransport(account).sendMail({
+    from: { name: "PlateWise", address: account.user },
+    to: account.user,
+    subject: "PlateWise can send login codes now",
+    text: "This is a test from PlateWise's setup page. Login codes will come from this address.",
+  });
 }
 
 function message(code: string) {
@@ -31,7 +57,7 @@ function message(code: string) {
 
 export async function sendLoginCode(email: string, code: string) {
   const resendKey = process.env.RESEND_API_KEY?.trim();
-  const account = gmail();
+  const account = await gmail();
 
   if (resendKey) {
     const response = await fetch("https://api.resend.com/emails", {
@@ -46,13 +72,11 @@ export async function sendLoginCode(email: string, code: string) {
   }
 
   if (account) {
-    const transport = nodemailer.createTransport({
-      host: process.env.SMTP_HOST ?? "smtp.gmail.com",
-      port: Number(process.env.SMTP_PORT ?? 465),
-      secure: true,
-      auth: account,
+    await gmailTransport(account).sendMail({
+      from: { name: "PlateWise", address: account.user },
+      to: email,
+      ...message(code),
     });
-    await transport.sendMail({ from: { name: "PlateWise", address: account.user }, to: email, ...message(code) });
     return;
   }
 

@@ -1548,3 +1548,7 @@ main.compare {
 .plan-history a {
   font-weight: 600;
 }
+
+.login input + .question {
+  margin-top: 20px;
+}

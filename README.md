@@ -36,7 +36,7 @@ You need two accounts: one to pay for the AI, and one to host the app.
    - The `vercel.json` file tells Vercel to check once an hour. Each phone saves its own time zone, and the app sends its reminder once a day, in the first check after 3pm there. That keeps it right in every time zone and when the clocks change.
 5. **Turn on logging in.** Login codes are emailed from a Gmail account made just for the app.
    - Make a free Gmail account for PlateWise. In its Google Account settings, turn on **2-Step Verification**, then create an **App password** (search "App passwords" in the settings).
-   - In Vercel, add `GMAIL_USER` (the Gmail address) and `GMAIL_APP_PASSWORD` (the 16-letter app password, marked Sensitive), plus `SESSION_SECRET` (any long random text). Redeploy.
+   - Add `SESSION_SECRET` in Vercel (any long random text). Then either open `/setup?code=<COMPARE_PASSCODE>` on the app and save the Gmail address and app password there (it checks them with Google and stores the password encrypted), or add `GMAIL_USER` and `GMAIL_APP_PASSWORD` (Sensitive) in Vercel and redeploy.
    - Until they're set, the login stays hidden and everything is saved on each device, as before.
    - Gmail sends up to about 500 emails a day. If PlateWise outgrows that, get a website name and an email service like Resend, and set `RESEND_API_KEY` and `EMAIL_FROM` instead.
 

@@ -11,7 +11,7 @@ const Verify = z.object({
 });
 
 export async function POST(request: Request) {
-  if (!loginIsSetUp()) {
+  if (!(await loginIsSetUp())) {
     return errorResponse("Logging in isn't set up yet.", 503);
   }
   const parsed = Verify.safeParse(await request.json().catch(() => null));

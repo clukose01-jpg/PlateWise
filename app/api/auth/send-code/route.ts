@@ -7,7 +7,7 @@ const SendCode = z.object({ email: z.string().trim().max(200).email() });
 
 // Emails a 6-digit login code. It says the same thing whether or not the email has an account.
 export async function POST(request: Request) {
-  if (!loginIsSetUp()) {
+  if (!(await loginIsSetUp())) {
     return errorResponse("Logging in isn't set up yet.", 503);
   }
   const parsed = SendCode.safeParse(await request.json().catch(() => null));
