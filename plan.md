@@ -41,16 +41,29 @@ Everything else (the grocery list and the prep list) is there to make that plan 
 
 | Leave out | Why it can wait |
 |---|---|
-| Scanning a video | Claude reads photos, not video. A video would be cut into many frames, which is slower and costs more. One photo per shelf covers the same ground. *(Multiple photos were added after the first test runs showed one photo missed too much.)* |
-| Keeping track of what's in the fridge from week to week | She takes a new photo each Sunday. |
+| Scanning a video | Claude reads photos, not video. A video would be cut into many frames, which is slower and costs more. Several photos cover the same ground. |
+| Keeping track of fresh food from week to week | She scans the fridge again each Sunday. (Pantry staples are remembered. See below.) |
 | Accounts and logins | A link is enough to share the plan, and testers don't have to make a password. |
 | Payments and subscription | First find out whether she uses it. Ask about price in conversation instead. |
 | App Store and Google Play | A web link is free. Your canvas already says to wait for proof that people want it. |
-| Weekly reminder texts and emails | Text your testers yourself. |
 | Voice agent | You answer questions personally for now. |
 | Grocery budget cap | Your customer profile says saving money is a bonus, not her main problem. |
-| Swapping out one meal | If she doesn't like the plan, she can make a new one. Note whether she asks for a swap. |
 | Weekend meals and breakfast | The pain is weeknights at 5pm. |
+
+## Added after testing
+
+These started out on the leave-out list, or weren't in the plan at all. Each was added because testing gave a reason.
+
+| Added | Why | What to watch for |
+|---|---|---|
+| Up to 8 kitchen photos | One photo missed too much in the first test runs. | Whether scans still miss food. |
+| Pantry remembered week to week | Your mom asked about the pantry. Staples barely change, so she shouldn't have to scan them every week. | Whether she keeps the pantry list up to date in the More tab. |
+| Thumbs up or down, and a comment, on each dinner | So each new plan brings back favorites, avoids misses, and gets less experimental. | Whether people bother to rate dinners. |
+| Today tab, plus Week, Groceries, New plan and More tabs | Opening the app shows just tonight's dinner and what to do, so there's nothing to look for at 5pm. | Whether people use Today or still go to Week. |
+| Swap a dinner | Fix one night without remaking the whole week. | How often people swap. Lots of swaps means the first plan isn't fitting the family. |
+| Tomorrow heads-up | Night-before steps, like moving chicken to the fridge, keep tomorrow fast. | Whether those steps get done. |
+| Add to home screen | It opens like an app, and iPhones need it for reminders. | How many testers add it. |
+| Daily reminder around 3pm Eastern | Reminds her of tonight's dinner before she gets home, instead of you texting each tester. | Whether people find it helpful or turn it off. |
 
 ## 4. How you'll know it works
 
