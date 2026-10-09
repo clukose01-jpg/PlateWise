@@ -118,7 +118,7 @@ export default function DinnerCard({ planId, dinner, index, startOpen = false }:
           <SwapIcon /> {swapping ? "Finding another dinner…" : "Swap for a different dinner"}
         </button>
         {swapping && (
-          <p className="hint">This takes about 30 seconds. Your grocery list will update too.</p>
+          <p className="hint">This takes under a minute. Your grocery list will update too.</p>
         )}
         {swapError && (
           <p className="error" role="alert">

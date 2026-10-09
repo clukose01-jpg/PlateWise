@@ -33,7 +33,7 @@ export async function POST(request: Request) {
     if (!result) {
       return errorResponse("We couldn't make a plan this time. Please try again.", 502);
     }
-    const id = await savePlan({ family, plan: result.plan, test: result.test });
+    const id = await savePlan({ family, plan: result.plan, test: result.test, safetyChecked: SAFETY_CHECK_ON });
     return Response.json({ id });
   } catch (error) {
     if (error instanceof PlanSafetyError) {

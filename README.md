@@ -11,6 +11,7 @@ PlateWise plans a family's week of dinners on Sunday. See [plan.md](plan.md) for
 6. **Ratings.** After a dinner, she taps "Liked it" or "Not for us" and can add a comment. Her phone remembers the ratings, and each new plan brings back favorites, avoids misses, and gets less experimental as favorites build up.
 7. **Daily reminder.** Turned on from the **More** tab. Weeknights around 3pm in her own time zone, her phone shows tonight's dinner and anything to do for tomorrow. Sundays it shows prep day, or a nudge to plan the week. On iPhone, PlateWise has to be added to the home screen first.
 8. **Big screens.** On a computer or a tablet turned sideways, the tabs move to a sidebar and pages fill the screen. Tonight's recipe gets big text that's easy to read from across the kitchen. Phones look exactly the same as before.
+9. **Allergy safety check.** Before any plan or swapped dinner is shown, a word check looks for the family's allergens (and foods that usually contain them, like wheat in soy sauce), the kids' dislikes, dinners over her cooking time and missing days. Then a second Claude review looks for hidden allergens. Anything found is fixed and checked again; if it still isn't clean after two fixes, she sees "please try again" instead of the plan.
 
 ## Put it online
 

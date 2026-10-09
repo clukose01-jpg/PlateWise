@@ -5,7 +5,7 @@ import { PotDrawing } from "./Illustrations";
 
 const MESSAGES = [
   "Picking dinners everyone will eat…",
-  "Checking for allergies…",
+  "Double-checking every dinner for allergies…",
   "Fitting each dinner into your cooking time…",
   "Using up what's in your fridge…",
   "Planning your Sunday prep…",
@@ -27,7 +27,7 @@ export default function PlanningWait() {
       <p className="planning-message" key={index}>
         {MESSAGES[index]}
       </p>
-      <p className="hint">This takes about 30 seconds. Keep this page open.</p>
+      <p className="hint">This takes under a minute. Keep this page open.</p>
     </section>
   );
 }

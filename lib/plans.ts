@@ -11,6 +11,8 @@ export type SavedPlan = {
   family: Family;
   plan: Plan;
   test: TestInfo;
+  // True when the plan passed the allergy safety check before anyone saw it.
+  safetyChecked?: boolean;
 };
 
 // Older plans stored prep as one flat list and had no night-before steps.

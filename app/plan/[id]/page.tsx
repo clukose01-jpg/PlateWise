@@ -28,7 +28,7 @@ export default async function PlanPage({ params, searchParams }: Props) {
   const saved = await loadPlan(id);
   if (!saved) notFound();
 
-  const { family, plan, test, createdAt } = saved;
+  const { family, plan, test, createdAt, safetyChecked } = saved;
   const tab: PlanTab = query.tab === "week" || query.tab === "groceries" ? query.tab : "today";
   const testMode = "test" in query;
   const prep = prepGroups(plan);
@@ -78,6 +78,11 @@ export default async function PlanPage({ params, searchParams }: Props) {
                     <li key={line}>{line}</li>
                   ))}
                 </ul>
+                {safetyChecked && (
+                  <p className="checked-note">
+                    Every dinner was double-checked for these. Always check food labels too, since brands differ.
+                  </p>
+                )}
               </section>
             )}
           </div>

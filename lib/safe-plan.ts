@@ -8,8 +8,9 @@ import { familyRules, findProblems, hasFoodRules, type Problem } from "./food-ch
 import { type Family, type Plan, type TestInfo, WEEKDAYS } from "./plan-schema";
 import { reviewPlan } from "./safety-review";
 
-// Off until the speed test page has confirmed it with the real AI.
-export const SAFETY_CHECK_ON = false;
+// On since the test page ran five trap families through it with the real AI: every final plan
+// followed every rule, and 3 of the 5 were fixed by the check first.
+export const SAFETY_CHECK_ON = true;
 
 const MAX_FIXES = 2;
 
