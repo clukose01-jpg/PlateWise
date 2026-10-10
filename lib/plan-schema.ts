@@ -20,6 +20,8 @@ export const FamilySchema = z.object({
   // The most she wants to spend on this week's groceries, in dollars. Optional.
   budget: z.number().int().min(1).max(5000).nullish(),
   fridgeItems: z.array(z.string().max(100)).max(80),
+  // Fridge food she marked "use soon", so the plan uses it first. Older versions didn't send it.
+  useSoon: z.array(z.string().max(100)).max(80).optional(),
   // Long-lasting staples she keeps stocked. Older versions of the app didn't send this.
   pantryItems: z.array(z.string().max(100)).max(80).default([]),
   // What the family thought of past dinners, newest first.
@@ -63,6 +65,8 @@ export const PlanSchema = z.object({
   groceryList: z.array(
     z.object({ section: z.string(), items: z.array(z.object({ name: z.string(), price: z.number() })) }),
   ),
+  // Food used in more than one meal, so none is left over, with the days that use it.
+  sharedIngredients: z.array(z.object({ name: z.string(), days: z.array(z.enum(WEEKDAYS)) })),
 });
 
 export type Plan = z.infer<typeof PlanSchema>;

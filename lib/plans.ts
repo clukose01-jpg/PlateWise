@@ -38,10 +38,12 @@ export type StoredDinner = Omit<Plan["dinners"][number], "nightBefore" | "cost" 
   ingredients?: string[];
 };
 export type StoredPlan = Omit<SavedPlan, "plan"> & {
-  plan: Omit<Plan, "prepList" | "dinners" | "groceryList"> & {
+  plan: Omit<Plan, "prepList" | "dinners" | "groceryList" | "sharedIngredients"> & {
     prepList: Plan["prepList"] | string[];
     dinners: StoredDinner[];
     groceryList: { section: string; items: (GroceryItem | string)[] }[];
+    // Plans made before this was added don't have it.
+    sharedIngredients?: Plan["sharedIngredients"];
   };
 };
 

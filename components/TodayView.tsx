@@ -91,7 +91,12 @@ export default function TodayView({
         <p className="tagline today-date">{dateLabel}</p>
         {madeForComingWeek ? (
           <>
-            <GroceryList planId={planId} groceryList={plan.groceryList} budget={budget} />
+            <GroceryList
+              planId={planId}
+              groceryList={plan.groceryList}
+              budget={budget}
+              shared={plan.sharedIngredients}
+            />
             <p className="hint center">Tomorrow is prep day.</p>
           </>
         ) : (

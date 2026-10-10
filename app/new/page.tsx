@@ -26,6 +26,7 @@ export default function NewPlan() {
   const router = useRouter();
   const [stage, setStage] = useState<Stage>("fridge");
   const [fridgeItems, setFridgeItems] = useState<string[]>([]);
+  const [useSoon, setUseSoon] = useState<string[]>([]);
   const [pantryItems, setPantryItems] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [cleared, setCleared] = useState<string | null>(null);
@@ -61,6 +62,7 @@ export default function NewPlan() {
         body: JSON.stringify({
           ...answers,
           fridgeItems,
+          useSoon: useSoon.filter((item) => fridgeItems.includes(item)),
           pantryItems,
           feedback: ratingsForNextPlan(),
           madeOn,
@@ -110,6 +112,8 @@ export default function NewPlan() {
         <FridgeStep
           items={fridgeItems}
           onItemsChange={setFridgeItems}
+          useSoon={useSoon}
+          onUseSoonChange={setUseSoon}
           pantry={pantryItems}
           onPantryChange={updatePantry}
           onNext={() => {

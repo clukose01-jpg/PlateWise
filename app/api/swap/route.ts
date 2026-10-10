@@ -96,7 +96,13 @@ async function swapDinner(
   });
   const { input_tokens, output_tokens } = response.usage;
   return {
-    plan: { ...stored.plan, dinners, prepList: generated.prepList, groceryList: generated.groceryList },
+    plan: {
+      ...stored.plan,
+      dinners,
+      prepList: generated.prepList,
+      groceryList: generated.groceryList,
+      sharedIngredients: generated.sharedIngredients,
+    },
     test: {
       model: response.model,
       inputTokens: input_tokens,

@@ -197,6 +197,7 @@ export function planText(plan: Plan): { where: string; text: string }[] {
     ...plan.groceryList.flatMap((g) =>
       g.items.map((item) => ({ where: `Grocery list (${g.section})`, text: itemName(item) })),
     ),
+    ...(plan.sharedIngredients ?? []).map((shared) => ({ where: "Shared ingredients", text: shared.name })),
   ];
 }
 

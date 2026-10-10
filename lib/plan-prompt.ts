@@ -20,6 +20,9 @@ function describeFamily(family: Family) {
     `- Longest she'll cook on a weeknight: ${family.maxMinutes} minutes`,
     ...(family.budget ? [`- Grocery budget this week: $${family.budget}`] : []),
     `- Fresh food already in the fridge or freezer: ${family.fridgeItems.join(", ") || "nothing listed"}`,
+    ...(family.useSoon?.length
+      ? [`- Needs using up soon, before it goes bad: ${family.useSoon.join(", ")}`]
+      : []),
     `- Already in the pantry: ${family.pantryItems.join(", ") || "nothing listed"}`,
   ].join("\n");
 }
@@ -56,7 +59,10 @@ Make this plan:
    - Never use an allergen, including hidden sources such as oils, sauces and packaged foods that often contain it.
    - Never use a food any kid won't eat.
    - Each dinner takes no more than ${family.maxMinutes} minutes on the night, counting the Sunday prep as already done. "minutes" is that time.
-   - Use the fresh food she already has first, using it early in the week, and build on what's in her pantry.
+   - Use the fresh food she already has first, using it early in the week, and build on what's in her pantry.${
+     family.useSoon?.length ? " Use the food that needs using up soon on Monday or Tuesday." : ""
+   }
+   - Waste nothing. When a dinner uses part of something sold in a bigger package, like half a bag of spinach, a bunch of cilantro or a tub of sour cream, use the rest in another dinner or lunch that week. Reuse ingredients across meals so she buys fewer things.
    - Keep it varied: don't serve the same main ingredient on back-to-back nights.
    - Stick to meals kids usually like, made from ingredients any ordinary supermarket sells.
    - In "ingredients", list everything the dinner uses with amounts for this household, like "1 lb chicken thighs" or "2 cups rice", including food she already has. Say when Sunday's prep already readied it, like "2 cups rice (cooked Sunday)". Leave out salt, pepper and cooking oil.
@@ -85,11 +91,13 @@ Make this plan:
 
 4. One grocery list for a single trip: everything the plan needs that isn't already in her fridge, freezer or pantry, with amounts for this household. Group it by store section: Produce, Meat and fish, Dairy and eggs, Bakery, Pantry, Frozen. Leave out empty sections. Assume she already has salt, pepper and cooking oil.
    - Give each item's name with its amount, like "2 lb chicken thighs".
-   - "price" is about what that item costs ${where}, in US dollars, for what she'd actually buy, like a whole bag or jar.${
+   - "price" is about what that item costs ${where}, in US dollars, for what she'd actually buy, like a whole bag or jar.
+
+5. In "sharedIngredients", list the food that more than one dinner or lunch uses, so none of it is left over, like a bag of spinach used on Monday and Thursday, with the days that use it. Only list real overlaps, and leave it empty if there are none. Leave out salt, pepper, oil and everyday pantry staples.${
      family.budget
        ? `
 
-5. Her grocery budget this week is $${family.budget}. Keep the grocery list's total, the sum of its prices, at or under it.
+6. Her grocery budget this week is $${family.budget}. Keep the grocery list's total, the sum of its prices, at or under it.
    - Use what she already has first, pick budget-friendly ingredients, and use the same ingredients in more than one meal.
    - Never break an allergy, kid or cooking-time rule to save money.
    - If the week can't fit the budget, get as close to it as you can.`

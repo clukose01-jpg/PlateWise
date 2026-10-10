@@ -146,7 +146,12 @@ export default async function PlanPage({ params, searchParams }: Props) {
       {tab === "groceries" && (
         <>
           <div className="groceries-layout">
-            <GroceryList planId={id} groceryList={plan.groceryList} budget={family.budget} />
+            <GroceryList
+              planId={id}
+              groceryList={plan.groceryList}
+              budget={family.budget}
+              shared={plan.sharedIngredients}
+            />
             <PrepList planId={id} groups={prep} />
           </div>
           <p className="hint center">Always check food labels for allergens.</p>

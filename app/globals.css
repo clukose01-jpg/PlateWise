@@ -476,6 +476,41 @@ legend.question {
   background: var(--tomato-soft);
 }
 
+/* Fresh food she marked "use soon": the plan uses it first. */
+.use-soon-hint {
+  margin: -4px 0 10px;
+}
+
+.items .item-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: auto;
+  height: auto;
+  min-height: 32px;
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 500;
+}
+
+.items li.use-soon {
+  background: var(--card);
+  box-shadow: inset 0 0 0 1.5px var(--notice);
+}
+
+.soon-tag {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--notice);
+  color: var(--card);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
 .food-list {
   margin-bottom: 22px;
 }
@@ -1394,6 +1429,7 @@ button:disabled {
 
   .grocery > h2,
   .grocery > .grocery-total,
+  .grocery > .shared-food,
   .grocery > .hint,
   .prep > h2 {
     column-span: all;
@@ -2431,4 +2467,40 @@ main.admin {
   margin: 0;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+}
+
+/* "Nothing goes to waste" on the grocery list: food used in more than one meal. */
+.shared-food {
+  margin: 4px 0 8px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--green-soft);
+}
+
+.shared-title {
+  margin: 0;
+  font-weight: 650;
+  color: var(--accent);
+}
+
+.shared-food .hint {
+  margin: 2px 0 8px;
+}
+
+.shared-food ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.shared-food li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 3px 0;
+}
+
+.shared-days {
+  color: var(--muted);
+  white-space: nowrap;
 }

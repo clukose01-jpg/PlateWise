@@ -12,6 +12,8 @@ type Step = "start" | "scanning" | "list";
 type Props = {
   items: string[];
   onItemsChange: (items: string[]) => void;
+  useSoon: string[];
+  onUseSoonChange: (items: string[]) => void;
   pantry: string[];
   onPantryChange: (items: string[]) => void;
   onNext: () => void;
@@ -20,6 +22,8 @@ type Props = {
 export default function FridgeStep({
   items,
   onItemsChange: setItems,
+  useSoon,
+  onUseSoonChange,
   pantry,
   onPantryChange: setPantry,
   onNext,
@@ -188,6 +192,8 @@ export default function FridgeStep({
               onChange={setItems}
               placeholder="Add fresh food"
               label="Add fresh food"
+              useSoon={useSoon}
+              onUseSoonChange={onUseSoonChange}
             />
             <FoodList
               title="Pantry"
@@ -264,9 +270,23 @@ type FoodListProps = {
   onChange: (items: string[]) => void;
   placeholder: string;
   label: string;
+  // Fresh food can be tapped to mark it "use soon", so the plan uses it first.
+  useSoon?: string[];
+  onUseSoonChange?: (items: string[]) => void;
 };
 
-export function FoodList({ title, hint, className, items, allItems, onChange, placeholder, label }: FoodListProps) {
+export function FoodList({
+  title,
+  hint,
+  className,
+  items,
+  allItems,
+  onChange,
+  placeholder,
+  label,
+  useSoon,
+  onUseSoonChange,
+}: FoodListProps) {
   const [typing, setTyping] = useState("");
 
   function add(event: FormEvent) {
@@ -286,19 +306,43 @@ export function FoodList({ title, hint, className, items, allItems, onChange, pl
           {title} {hint && <span className="hint">· {hint}</span>}
         </h3>
       )}
+      {items.length > 0 && onUseSoonChange && (
+        <p className="hint use-soon-hint">Tap anything that needs using up soon, and the plan will use it first.</p>
+      )}
       {items.length > 0 && (
         <ul className={className ? `items ${className}` : "items"}>
-          {items.map((item) => (
-            <li key={item}>
-              <span>{item}</span>
-              <button
-                aria-label={`Remove ${item}`}
-                onClick={() => onChange(items.filter((existing) => existing !== item))}
-              >
-                ×
-              </button>
-            </li>
-          ))}
+          {items.map((item) => {
+            const soon = useSoon?.includes(item) ?? false;
+            return (
+              <li key={item} className={soon ? "use-soon" : undefined}>
+                {onUseSoonChange ? (
+                  <button
+                    type="button"
+                    className="item-name"
+                    aria-pressed={soon}
+                    aria-label={soon ? `${item}, use soon. Tap to unmark.` : `${item}. Tap to mark use soon.`}
+                    onClick={() =>
+                      onUseSoonChange(soon ? useSoon!.filter((existing) => existing !== item) : [...(useSoon ?? []), item])
+                    }
+                  >
+                    {item}
+                    {soon && <span className="soon-tag">use soon</span>}
+                  </button>
+                ) : (
+                  <span>{item}</span>
+                )}
+                <button
+                  aria-label={`Remove ${item}`}
+                  onClick={() => {
+                    onChange(items.filter((existing) => existing !== item));
+                    if (soon) onUseSoonChange?.(useSoon!.filter((existing) => existing !== item));
+                  }}
+                >
+                  ×
+                </button>
+              </li>
+            );
+          })}
         </ul>
       )}
       <form className="add" onSubmit={add}>

@@ -37,10 +37,22 @@ export async function POST(request: Request, { params }: Context) {
           .map((group) => ({ ...group, day: switchDay(group.day) as PrepGroup["day"] }))
           .sort((a, b) => WEEKDAYS.indexOf(a.day) - WEEKDAYS.indexOf(b.day))
       : stored.plan.prepList;
+  // Food shared across meals is now used on the switched days.
+  const sharedIngredients = stored.plan.sharedIngredients?.map((shared) => ({
+    ...shared,
+    days: shared.days
+      .map((day) => switchDay(day) as (typeof WEEKDAYS)[number])
+      .sort((a, b) => WEEKDAYS.indexOf(a) - WEEKDAYS.indexOf(b)),
+  }));
   const cooked = Object.fromEntries(Object.entries(stored.cooked ?? {}).map(([day, answer]) => [switchDay(day), answer]));
 
   try {
-    await updatePlan({ ...stored, plan: { ...stored.plan, dinners, prepList }, cooked, moves: (stored.moves ?? 0) + 1 });
+    await updatePlan({
+      ...stored,
+      plan: { ...stored.plan, dinners, prepList, ...(sharedIngredients ? { sharedIngredients } : {}) },
+      cooked,
+      moves: (stored.moves ?? 0) + 1,
+    });
     return Response.json({ ok: true });
   } catch (error) {
     if (!(error instanceof StorageNotSetUpError)) console.error("Moving a dinner failed:", error);

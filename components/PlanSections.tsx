@@ -49,10 +49,13 @@ export function GroceryList({
   planId,
   groceryList,
   budget,
+  shared,
 }: {
   planId: string;
   groceryList: StoredPlan["plan"]["groceryList"];
   budget?: number | null;
+  // Food used in more than one meal. Plans made before this was added don't list it.
+  shared?: StoredPlan["plan"]["sharedIngredients"];
 }) {
   const total = groceryTotal(groceryList);
   return (
@@ -68,6 +71,20 @@ export function GroceryList({
         Tap items as they go in your cart.
         {total !== null && " Prices are estimates, so your store's may differ."}
       </p>
+      {shared && shared.length > 0 && (
+        <div className="shared-food">
+          <p className="shared-title">Nothing goes to waste</p>
+          <p className="hint">These are used in more than one meal, so none are left over:</p>
+          <ul>
+            {shared.map((item) => (
+              <li key={item.name}>
+                <span>{item.name}</span>
+                <span className="shared-days">{item.days.map((day) => day.slice(0, 3)).join(", ")}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       {groceryList.map((group) => (
         <div className="grocery-section" key={group.section}>
           <h3>{group.section}</h3>
