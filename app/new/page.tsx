@@ -12,12 +12,15 @@ import TabBar from "@/components/TabBar";
 import { syncFromAccount } from "@/lib/account-client";
 import {
   deviceHeaders,
+  getCurrentPlanId,
+  loadMadePlans,
   loadPantry,
   rememberMadePlan,
   saveOwnerKey,
   savePantry,
   setCurrentPlanId,
 } from "@/lib/device";
+import { RECENT_PLANS } from "@/lib/plan-schema";
 import { ratingsForNextPlan } from "@/lib/ratings";
 
 type Stage = "fridge" | "family" | "planning";
@@ -65,6 +68,10 @@ export default function NewPlan() {
           useSoon: useSoon.filter((item) => fridgeItems.includes(item)),
           pantryItems,
           feedback: ratingsForNextPlan(),
+          // Plans on a shared link aren't in her list, so the one she's using counts too.
+          recentPlans: [...new Set([getCurrentPlanId(), ...loadMadePlans().map((plan) => plan.id)])]
+            .filter((id): id is string => Boolean(id))
+            .slice(0, RECENT_PLANS),
           madeOn,
         }),
       });

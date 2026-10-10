@@ -59,6 +59,21 @@ export function ClockIcon({ size = 14 }: { size?: number }) {
   );
 }
 
+// Marks why a dinner was picked for this family.
+export function HeartIcon() {
+  return (
+    <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+      <path
+        d="M8 13.5S2.5 10.3 2.5 6.4A2.9 2.9 0 0 1 8 4.8a2.9 2.9 0 0 1 5.5 1.6c0 3.9-5.5 7.1-5.5 7.1Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export function ShareIcon() {
   return (
     <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">

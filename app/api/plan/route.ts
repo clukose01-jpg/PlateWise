@@ -1,7 +1,9 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { after } from "next/server";
+import { z } from "zod";
 import { apiKeyProblem, KEY_REJECTED, PLAN_EFFORT } from "@/lib/claude";
-import { FamilySchema } from "@/lib/plan-schema";
+import { learnFromPlans } from "@/lib/learned";
+import { FamilySchema, RECENT_PLANS } from "@/lib/plan-schema";
 import { newOwnerKey, savePlan, StorageNotSetUpError } from "@/lib/plans";
 import { logEvent } from "@/lib/events";
 import { makeSafePlan, type PlanFix, PlanSafetyError, SAFETY_CHECK_ON, type SafetyRound } from "@/lib/safe-plan";
@@ -11,6 +13,11 @@ import { writePlan } from "@/lib/write-plan";
 
 // Writing and double-checking a whole week can take a minute or two.
 export const maxDuration = 300;
+
+// Her answers, plus the plans she made recently, so the new plan learns from what she did with them.
+const PlanRequest = FamilySchema.extend({
+  recentPlans: z.array(z.string().max(40)).max(RECENT_PLANS).default([]),
+});
 
 const NOT_SAFE =
   "We couldn't make a plan we're sure is safe for your family's allergies this time. Please try again.";
@@ -25,14 +32,25 @@ export async function POST(request: Request) {
     return errorResponse(keyProblem, 500);
   }
 
-  const parsed = FamilySchema.safeParse(await request.json().catch(() => null));
+  const parsed = PlanRequest.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return errorResponse("Some answers didn't come through. Please check them and try again.", 400);
   }
-  const family = parsed.data;
+  const { recentPlans, ...answers } = parsed.data;
   const origin = requestOrigin(request);
 
   try {
+    const learned = await learnFromPlans(recentPlans);
+    // A dinner they rated a thumbs up isn't one they passed on, whatever happened that week.
+    const liked = new Set(answers.feedback.filter((r) => r.liked).map((r) => r.dish.trim().toLowerCase()));
+    const family = {
+      ...answers,
+      learned: learned && {
+        ...learned,
+        passedOn: learned.passedOn.filter((dish) => !liked.has(dish.trim().toLowerCase())),
+      },
+    };
+
     const generate = (fix?: PlanFix) => writePlan(family, PLAN_EFFORT, fix, priceArea(origin));
     const result = SAFETY_CHECK_ON ? await makeSafePlan(family, generate) : await generate();
     if (!result) {

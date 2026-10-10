@@ -667,6 +667,10 @@ legend.question {
   padding-left: 20px;
 }
 
+.planned-around .section-title:not(:first-child) {
+  margin-top: 16px;
+}
+
 .checked-note {
   margin: 10px 0 0;
   font-size: 15px;
@@ -1425,9 +1429,14 @@ button:disabled {
     font-size: 14px;
   }
 
-  .today-columns > .dinner .dinner-cost {
+  .today-columns > .dinner .dinner-cost,
+  .today-columns > .dinner .why {
     margin: 18px 26px 0;
     font-size: 17px;
+  }
+
+  .today-columns > .dinner .why svg {
+    margin-top: 5px;
   }
 
   .today-columns > .dinner .ingredients {
@@ -1953,6 +1962,21 @@ main.compare {
   color: var(--muted);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+}
+
+/* Why this dinner suits the family, like "A twist on the turkey tacos you all liked". */
+.why {
+  display: flex;
+  gap: 8px;
+  margin: 14px 20px 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.why svg {
+  flex-shrink: 0;
+  margin-top: 3px;
 }
 
 .dinner-cost {

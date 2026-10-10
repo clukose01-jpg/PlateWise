@@ -72,6 +72,10 @@ export type AdminStats = {
   lunchesShare: number | null;
   // Of families, how many marked fridge food "use soon" in their latest plan.
   useSoonShare: number | null;
+  // Of families, how many had their latest plan shaped by what they did with past plans, and how
+  // many have busy nights.
+  learnedShare: number | null;
+  busyNightsShare: number | null;
   budgets: {
     // Of families, how many set a budget, and the average one.
     share: number | null;
@@ -176,6 +180,8 @@ export async function adminStats(): Promise<AdminStats> {
   const cookTimes = new Map<number, number>();
   let withLunches = 0;
   let withUseSoon = 0;
+  let withLearned = 0;
+  let withBusyNights = 0;
   const budgets: number[] = [];
   for (const plan of newestByFamily.values()) {
     if (plan.family.budget) budgets.push(plan.family.budget);
@@ -185,6 +191,8 @@ export async function adminStats(): Promise<AdminStats> {
     cookTimes.set(plan.family.maxMinutes, (cookTimes.get(plan.family.maxMinutes) ?? 0) + 1);
     if (plan.family.lunches) withLunches++;
     if (plan.family.useSoon?.length) withUseSoon++;
+    if (plan.family.learned) withLearned++;
+    if (plan.family.learned?.busyNights.length) withBusyNights++;
   }
 
   // Where families are: from their plans, and from scans and swaps.
@@ -307,6 +315,8 @@ export async function adminStats(): Promise<AdminStats> {
     cookTimes: [...cookTimes.entries()].sort((a, b) => a[0] - b[0]).map(([minutes, count]) => ({ label: `${minutes} min`, count })),
     lunchesShare: newestByFamily.size ? withLunches / newestByFamily.size : null,
     useSoonShare: newestByFamily.size ? withUseSoon / newestByFamily.size : null,
+    learnedShare: newestByFamily.size ? withLearned / newestByFamily.size : null,
+    busyNightsShare: newestByFamily.size ? withBusyNights / newestByFamily.size : null,
     budgets: {
       share: newestByFamily.size ? budgets.length / newestByFamily.size : null,
       average: average(budgets),

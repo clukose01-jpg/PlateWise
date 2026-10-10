@@ -10,7 +10,7 @@ import ShareButton from "@/components/ShareButton";
 import TabBar from "@/components/TabBar";
 import TodayView from "@/components/TodayView";
 import { photosAreOn } from "@/lib/photo-settings";
-import { loadPlan, prepGroups } from "@/lib/plans";
+import { loadPlan, prepGroups, type StoredPlan } from "@/lib/plans";
 
 export const metadata: Metadata = {
   title: "This week's dinners · PlateWise",
@@ -24,6 +24,42 @@ type Props = {
 };
 
 type PlanTab = "today" | "week" | "groceries";
+
+// Up to 3 dishes, each once, in the order given.
+function firstDishes(dishes: string[]) {
+  const seen = new Set<string>();
+  return dishes
+    .filter((dish) => {
+      const key = dish.trim().toLowerCase();
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .slice(0, 3);
+}
+
+// "Tuesdays and Thursdays".
+function nights(days: string[]) {
+  const plural = days.map((day) => `${day}s`);
+  return plural.length > 1 ? `${plural.slice(0, -1).join(", ")} and ${plural.at(-1)}` : plural[0];
+}
+
+// What this plan learned from the family's ratings and what they did with past plans.
+function whatWeLearned(family: StoredPlan["family"]) {
+  const feedback = family.feedback ?? [];
+  const learned = family.learned;
+  const liked = firstDishes(feedback.filter((rating) => rating.liked).map((rating) => rating.dish));
+  const notForThem = firstDishes([
+    ...feedback.filter((rating) => !rating.liked).map((rating) => rating.dish),
+    ...(learned?.passedOn ?? []),
+  ]);
+  return [
+    liked.length ? `Your family liked ${liked.join(", ")}` : "",
+    notForThem.length ? `Steering away from ${notForThem.join(", ")}` : "",
+    learned?.busyNights.length ? `Busy ${nights(learned.busyNights)}, so quicker dinners those nights` : "",
+    learned?.missingIngredient ? "Sticking closer to food you already have" : "",
+  ].filter(Boolean);
+}
 
 export default async function PlanPage({ params, searchParams }: Props) {
   const { id } = await params;
@@ -43,6 +79,7 @@ export default async function PlanPage({ params, searchParams }: Props) {
       .filter((kid) => kid.refuses.trim())
       .map((kid) => `${kid.name.trim() || "One kid"} won't eat ${kid.refuses.trim()}`),
   ].filter(Boolean);
+  const learnedLines = whatWeLearned(family);
 
   return (
     <main>
@@ -78,18 +115,33 @@ export default async function PlanPage({ params, searchParams }: Props) {
           <div className="week-side">
             <ShareButton />
 
-            {plannedAround.length > 0 && (
+            {(plannedAround.length > 0 || learnedLines.length > 0) && (
               <section className="planned-around">
-                <h2 className="section-title">Planned around</h2>
-                <ul>
-                  {plannedAround.map((line) => (
-                    <li key={line}>{line}</li>
-                  ))}
-                </ul>
-                {safetyChecked && (
-                  <p className="checked-note">
-                    Every dinner was double-checked for these. Always check food labels too, since brands differ.
-                  </p>
+                {plannedAround.length > 0 && (
+                  <>
+                    <h2 className="section-title">Planned around</h2>
+                    <ul>
+                      {plannedAround.map((line) => (
+                        <li key={line}>{line}</li>
+                      ))}
+                    </ul>
+                    {safetyChecked && (
+                      <p className="checked-note">
+                        Every dinner was double-checked for these. Always check food labels too, since brands
+                        differ.
+                      </p>
+                    )}
+                  </>
+                )}
+                {learnedLines.length > 0 && (
+                  <>
+                    <h2 className="section-title">Learned from past weeks</h2>
+                    <ul>
+                      {learnedLines.map((line) => (
+                        <li key={line}>{line}</li>
+                      ))}
+                    </ul>
+                  </>
                 )}
               </section>
             )}

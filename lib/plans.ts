@@ -28,14 +28,19 @@ export type SavedPlan = {
   moves?: number;
   // Whether the family made each dinner, by weekday, from "We made it" / "We skipped it".
   cooked?: Partial<Record<string, Cooked>>;
+  // Dinners swapped out, so the next plan can learn from them. "quick" is "Running late?".
+  swappedAway?: SwappedAway[];
 };
 
-// Older plans stored prep as one flat list, had no night-before steps, and had no prices or
-// ingredient lists.
-export type StoredDinner = Omit<Plan["dinners"][number], "nightBefore" | "cost" | "ingredients"> & {
+export type SwappedAway = { day: string; dish: string; quick: boolean; at: string };
+
+// Older plans stored prep as one flat list, had no night-before steps, and had no prices,
+// ingredient lists or reasons.
+export type StoredDinner = Omit<Plan["dinners"][number], "nightBefore" | "cost" | "ingredients" | "why"> & {
   nightBefore?: string[];
   cost?: number;
   ingredients?: string[];
+  why?: string;
 };
 export type StoredPlan = Omit<SavedPlan, "plan"> & {
   plan: Omit<Plan, "prepList" | "dinners" | "groceryList" | "sharedIngredients"> & {

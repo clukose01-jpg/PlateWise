@@ -567,6 +567,10 @@ export default function AdminDashboard() {
                 <dd>{stats.lunchesShare === null ? "–" : `${Math.round(stats.lunchesShare * 100)}%`}</dd>
                 <dt>Families who marked food to use soon</dt>
                 <dd>{stats.useSoonShare === null ? "–" : `${Math.round(stats.useSoonShare * 100)}%`}</dd>
+                <dt>Families whose plan learned from past weeks</dt>
+                <dd>{stats.learnedShare === null ? "–" : `${Math.round(stats.learnedShare * 100)}%`}</dd>
+                <dt>Families with busy nights</dt>
+                <dd>{stats.busyNightsShare === null ? "–" : `${Math.round(stats.busyNightsShare * 100)}%`}</dd>
                 <dt>Families who set a budget</dt>
                 <dd>{stats.budgets.share === null ? "–" : `${Math.round(stats.budgets.share * 100)}%`}</dd>
                 <dt>Average budget</dt>

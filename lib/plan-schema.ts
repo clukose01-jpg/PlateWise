@@ -7,6 +7,24 @@ export const COOK_TIMES = [15, 20, 30, 45, 60] as const;
 // The most a "Running late?" dinner on the Today tab takes.
 export const QUICK_DINNER_MINUTES = 15;
 
+// How many of her recent plans a new plan learns from.
+export const RECENT_PLANS = 4;
+
+// What PlateWise learned from what a family did with their recent plans, beyond their ratings.
+// Worked out on the server from those plans; anything a device sends here is replaced.
+export const LearnedSchema = z.object({
+  // Dinners they skipped because they didn't sound good, or swapped for something else.
+  passedOn: z.array(z.string().max(120)).max(12),
+  // Dinners they made.
+  made: z.array(z.string().max(120)).max(12),
+  // Weeknights they were rushed ("Running late?", or skipped as too busy) in two or more weeks.
+  busyNights: z.array(z.enum(WEEKDAYS)).max(5),
+  // How many dinners they skipped because an ingredient was missing.
+  missingIngredient: z.number().int().min(0).max(50),
+});
+
+export type Learned = z.infer<typeof LearnedSchema>;
+
 // What she tells us. Limits keep one request from running up the AI bill.
 export const FamilySchema = z.object({
   // Up to 12 allergies, joined like "peanuts, shellfish".
@@ -36,6 +54,7 @@ export const FamilySchema = z.object({
     )
     .max(30)
     .default([]),
+  learned: LearnedSchema.optional(),
   madeOn: z.string().max(60),
 });
 
@@ -56,6 +75,8 @@ export const PlanSchema = z.object({
       steps: z.array(z.string()),
       // Things to do the night before, like moving meat from the freezer to the fridge.
       nightBefore: z.array(z.string()),
+      // Why it suits this family, like "Maya liked the turkey tacos last week". Can be empty.
+      why: z.string(),
     }),
   ),
   lunches: z.array(z.object({ day: z.enum(WEEKDAYS), name: z.string() })),

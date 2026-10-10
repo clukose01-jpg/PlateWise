@@ -92,6 +92,7 @@ async function swapDinner(
       // reads every dinner's ingredients, so these are checked too.
       cost: dinner.cost ?? regenerated?.cost ?? 0,
       ingredients: dinner.ingredients ?? regenerated?.ingredients ?? [],
+      why: dinner.why ?? "",
     };
   });
   const { input_tokens, output_tokens } = response.usage;
@@ -148,7 +149,9 @@ export async function POST(request: Request) {
     // and every dinner's ingredients (older plans get theirs filled in by the swap).
     const changed = (plan: Plan): Plan => ({
       ...plan,
-      dinners: plan.dinners.map((d) => (d.day === day ? d : { ...d, name: "", tip: "", steps: [], minutes: 0 })),
+      dinners: plan.dinners.map((d) =>
+        d.day === day ? d : { ...d, name: "", tip: "", steps: [], minutes: 0, why: "" },
+      ),
       lunches: [],
     });
     const result = SAFETY_CHECK_ON ? await makeSafePlan(family, generate, changed) : await generate();
@@ -157,12 +160,15 @@ export async function POST(request: Request) {
     }
     // A new dinner hasn't been made or skipped yet.
     const { [day]: _swappedOut, ...cooked } = stored.cooked ?? {};
+    const dish = stored.plan.dinners.find((dinner) => dinner.day === day)!.name;
     await updatePlan({
       ...stored,
       plan: result.plan,
       swaps: (stored.swaps ?? 0) + 1,
       quickSwaps: (stored.quickSwaps ?? 0) + (quick ? 1 : 0),
       cooked,
+      // The next plan learns from it: a swap means "not this", running late means a busy night.
+      swappedAway: [...(stored.swappedAway ?? []), { day, dish, quick, at: new Date().toISOString() }].slice(-20),
     });
     after(() =>
       logEvent({

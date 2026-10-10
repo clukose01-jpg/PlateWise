@@ -8,7 +8,7 @@ import { dollars, QUICK_DINNER_MINUTES } from "@/lib/plan-schema";
 import type { StoredPlan } from "@/lib/plans";
 import { type DinnerRating, loadRating, removeRating, saveRating, switchRatingDays } from "@/lib/ratings";
 import DishPhoto from "./DishPhoto";
-import { ClockIcon, MoveDayIcon, SwapIcon, ThumbIcon } from "./Illustrations";
+import { ClockIcon, HeartIcon, MoveDayIcon, SwapIcon, ThumbIcon } from "./Illustrations";
 
 // To the nearest 50 cents, like "$3" or "$2.50".
 function perPerson(cost: number, people: number) {
@@ -203,6 +203,12 @@ export default function DinnerCard({
       </summary>
       {showPhoto && <DishPhoto key={dinner.name} planId={planId} day={dinner.day} name={dinner.name} />}
       {changed && <p className="swapped">{changed}</p>}
+      {dinner.why && (
+        <p className="why">
+          <HeartIcon />
+          {dinner.why}
+        </p>
+      )}
       {cost !== null && (
         <p className="dinner-cost">
           About {dollars(cost)} for the family{people > 1 && `, or ${perPerson(cost, people)} a person`}.
