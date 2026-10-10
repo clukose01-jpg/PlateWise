@@ -414,6 +414,37 @@ export default function AdminDashboard() {
 
       {stats && totals && (
         <>
+          <section className="card admin-card wide test-card">
+            <h2 className="section-title">Is PlateWise working?</h2>
+            <p className="hint">
+              The test in your plan: a family makes at least 3 of the 5 dinners, and comes back the next week.
+              &quot;Made&quot; and &quot;skipped&quot; are counted from Oct 11, when those buttons were added.
+            </p>
+            <div className="stat-grid">
+              <Tile
+                label="Dinners made"
+                value={stats.test.made.toLocaleString()}
+                note={`${stats.test.skipped} skipped · ${stats.test.madeLast7} made in the last 7 days`}
+              />
+              <Tile
+                label="Weeks with 3+ dinners made"
+                value={stats.test.answeredWeeks ? `${stats.test.weeksThreePlus} of ${stats.test.answeredWeeks}` : "–"}
+                note={
+                  stats.test.finishedWeeks > stats.test.answeredWeeks
+                    ? `Weeks that are over. ${stats.test.finishedWeeks - stats.test.answeredWeeks} more had no answers.`
+                    : "Weeks that are over and have answers."
+                }
+              />
+              <Tile
+                label="Came back the next week"
+                value={
+                  stats.test.familiesOverAWeek ? `${stats.test.cameBack} of ${stats.test.familiesOverAWeek}` : "–"
+                }
+                note="Families who started over a week ago."
+              />
+            </div>
+          </section>
+
           <div className="stat-grid">
             <Tile label="Plans made" value={totals.plans.toLocaleString()} note={`${totals.plansLast7} in the last 7 days`} />
             <Tile
@@ -438,6 +469,33 @@ export default function AdminDashboard() {
               note={`${totals.blocked} stopped before anyone saw them`}
             />
           </div>
+
+          <section className="card admin-card wide">
+            <h2 className="section-title">Messages from testers</h2>
+            {stats.feedback.length === 0 ? (
+              <p className="quiet">
+                No messages yet. They come from the &quot;Tell us what you think&quot; box in the More tab.
+              </p>
+            ) : (
+              <ul className="message-list">
+                {stats.feedback.map((item) => (
+                  <li key={item.at}>
+                    <p className="message-meta">
+                      {dateAndTime(item.at)}
+                      {item.email && (
+                        <>
+                          {" · "}
+                          <a href={`mailto:${item.email}`}>{item.email}</a>
+                        </>
+                      )}
+                      {item.place && ` · ${item.place}`}
+                    </p>
+                    <p className="message-text">{item.text}</p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
 
           <DayChart times={stats.planTimes} />
 
@@ -481,6 +539,12 @@ export default function AdminDashboard() {
               hint="The time each person picked, on their own clock."
               items={stats.reminderTimes}
               empty="No reminders yet."
+            />
+            <BarList
+              title="Why dinners were skipped"
+              hint={'The reason picked after "We skipped it".'}
+              items={stats.skipReasons}
+              empty="No skipped dinners yet."
             />
             <section className="card admin-card">
               <h2 className="section-title">What people do</h2>

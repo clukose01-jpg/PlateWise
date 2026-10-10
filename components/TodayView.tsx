@@ -18,6 +18,7 @@ type Props = {
   madeOn: string;
   people: number;
   budget?: number | null;
+  cooked?: StoredPlan["cooked"];
   showPhoto?: boolean;
 };
 
@@ -42,6 +43,7 @@ export default function TodayView({
   madeOn,
   people,
   budget,
+  cooked,
   showPhoto,
 }: Props) {
   const [now, setNow] = useState<Date | null>(null);
@@ -147,6 +149,7 @@ export default function TodayView({
             dinner={tonight}
             index={dinnerIndex}
             people={people}
+            cooked={cooked?.[tonight.day]}
             startOpen
             showPhoto={showPhoto}
           />

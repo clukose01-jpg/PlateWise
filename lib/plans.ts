@@ -2,6 +2,7 @@ import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 import { mkdir, readFile, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { del, get, put } from "@vercel/blob";
+import type { Cooked } from "./cooked";
 import type { Family, GroceryItem, Plan, TestInfo } from "./plan-schema";
 import type { Origin } from "./visitor";
 
@@ -22,6 +23,8 @@ export type SavedPlan = {
   accountId?: string;
   safetyFixes?: number;
   swaps?: number;
+  // Whether the family made each dinner, by weekday, from "We made it" / "We skipped it".
+  cooked?: Partial<Record<string, Cooked>>;
 };
 
 // Older plans stored prep as one flat list, had no night-before steps, and had no prices or

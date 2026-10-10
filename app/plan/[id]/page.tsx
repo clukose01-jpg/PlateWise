@@ -67,6 +67,7 @@ export default async function PlanPage({ params, searchParams }: Props) {
           madeOn={family.madeOn}
           people={people}
           budget={family.budget}
+          cooked={saved.cooked}
           showPhoto={await photosAreOn()}
         />
       )}
@@ -100,7 +101,14 @@ export default async function PlanPage({ params, searchParams }: Props) {
             <section>
               <h2 className="section-title">Dinners</h2>
               {plan.dinners.map((dinner, i) => (
-                <DinnerCard key={dinner.day} planId={id} dinner={dinner} index={i} people={people} />
+                <DinnerCard
+                  key={dinner.day}
+                  planId={id}
+                  dinner={dinner}
+                  index={i}
+                  people={people}
+                  cooked={saved.cooked?.[dinner.day]}
+                />
               ))}
               <p className="hint">Tap a dinner to see how to make it, and rate it after you eat.</p>
             </section>

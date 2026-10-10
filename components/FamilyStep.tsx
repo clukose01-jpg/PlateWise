@@ -2,10 +2,11 @@
 
 import { type FormEvent, type KeyboardEvent, useEffect, useState } from "react";
 import { syncFromAccount } from "@/lib/account-client";
-import { isNoAllergy, loadFamily, saveFamily, toBudget } from "@/lib/device";
+import { isNoAllergy, loadFamily, loadMadePlans, type SavedFamily, saveFamily, toBudget } from "@/lib/device";
 import { COOK_TIMES } from "@/lib/plan-schema";
 import { countRatings } from "@/lib/ratings";
 import BudgetInput from "./BudgetInput";
+import FamilySummary from "./FamilySummary";
 
 export type FamilyAnswers = {
   allergies: string;
@@ -55,6 +56,8 @@ export default function FamilyStep({ error, onBack, onSubmit }: Props) {
   const [lunches, setLunches] = useState(false);
   const [budget, setBudget] = useState("");
   const [editingBudget, setEditingBudget] = useState(false);
+  // A family who has planned before sees last week's answers to confirm, instead of the whole form.
+  const [lastWeek, setLastWeek] = useState<SavedFamily | null>(null);
   const [ratingCount, setRatingCount] = useState(0);
 
   useEffect(() => {
@@ -69,6 +72,7 @@ export default function FamilyStep({ error, onBack, onSubmit }: Props) {
       setMaxMinutes(saved.maxMinutes);
       setLunches(saved.lunches);
       setBudget(saved.budget ? String(saved.budget) : "");
+      if (loadMadePlans().length > 0) setLastWeek(saved);
     });
   }, []);
 
@@ -112,6 +116,10 @@ export default function FamilyStep({ error, onBack, onSubmit }: Props) {
 
   function submit(event: FormEvent) {
     event.preventDefault();
+    finish();
+  }
+
+  function finish() {
     // Include anything still in a box that she didn't tap Add for.
     const allergyList = addAllergies(allergies, allergyTyping);
     const finished = kids
@@ -127,6 +135,36 @@ export default function FamilyStep({ error, onBack, onSubmit }: Props) {
     };
     saveFamily({ allergies: allergyList, adults, kids: finished, maxMinutes, lunches, budget: answers.budget });
     onSubmit(answers);
+  }
+
+  if (lastWeek) {
+    return (
+      <section className="card family same-as-last">
+        <h2>Same as last week?</h2>
+        <p>Here&apos;s what PlateWise remembers about your family. Check the allergies before you make your plan.</p>
+        <FamilySummary family={lastWeek} />
+        {error && (
+          <p className="error" role="alert">
+            {error}
+          </p>
+        )}
+        {ratingCount > 0 && (
+          <p className="hint ratings-used">
+            We&apos;ll use your ratings of {ratingCount} past dinner{ratingCount === 1 ? "" : "s"} to pick meals
+            you&apos;ll like.
+          </p>
+        )}
+        <button type="button" className="primary next-step" onClick={finish}>
+          Make my plan
+        </button>
+        <button type="button" className="secondary" onClick={() => setLastWeek(null)}>
+          Change answers
+        </button>
+        <button type="button" className="link" onClick={onBack}>
+          Back to the fridge
+        </button>
+      </section>
+    );
   }
 
   return (

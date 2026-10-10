@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { type Cooked, type CookedStatus, SKIP_REASONS, type SkipReason } from "@/lib/cooked";
 import { clearPlanTicks, deviceHeaders } from "@/lib/device";
 import { dollars } from "@/lib/plan-schema";
 import type { StoredPlan } from "@/lib/plans";
@@ -22,23 +23,64 @@ type Props = {
   index: number;
   // How many people are eating, for the cost per person.
   people: number;
+  // Whether the family made it, saved on the plan.
+  cooked?: Cooked | null;
   // The Today tab opens tonight's dinner straight away, with its picture if pictures are on.
   startOpen?: boolean;
   showPhoto?: boolean;
 };
 
-export default function DinnerCard({ planId, dinner, index, people, startOpen = false, showPhoto = false }: Props) {
+export default function DinnerCard({
+  planId,
+  dinner,
+  index,
+  people,
+  cooked = null,
+  startOpen = false,
+  showPhoto = false,
+}: Props) {
   const router = useRouter();
   const [rating, setRating] = useState<DinnerRating | null>(null);
   const [swapping, setSwapping] = useState(false);
   const [swapError, setSwapError] = useState<string | null>(null);
   const [justSwapped, setJustSwapped] = useState(false);
+  const [status, setStatus] = useState<CookedStatus | null>(cooked?.status ?? null);
+  const [reason, setReason] = useState<SkipReason | undefined>(cooked?.reason);
+  const [cookedError, setCookedError] = useState<string | null>(null);
   // Plans made before prices were added have no cost.
   const cost = dinner.cost && dinner.cost > 0 ? dinner.cost : null;
 
   useEffect(() => {
-    setRating(loadRating(planId, dinner.day));
-  }, [planId, dinner.day]);
+    const saved = loadRating(planId, dinner.day);
+    setRating(saved);
+    // Dinners rated before "We made it" existed were made.
+    if (saved && !cooked) setStatus("made");
+  }, [planId, dinner.day, cooked]);
+
+  // "We made it" or "We skipped it", saved on the plan so it counts for the whole family.
+  async function markCooked(next: CookedStatus, nextReason?: SkipReason) {
+    const before = { status, reason };
+    setStatus(next);
+    setReason(nextReason);
+    setCookedError(null);
+    // A skipped dinner wasn't eaten, so it isn't rated.
+    if (next === "skipped" && rating) {
+      removeRating(planId, dinner.day);
+      setRating(null);
+    }
+    try {
+      const response = await fetch(`/api/plan/${planId}/cooked`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ day: dinner.day, status: next, reason: nextReason }),
+      });
+      if (!response.ok) throw new Error((await response.json().catch(() => ({}))).error);
+    } catch (err) {
+      setStatus(before.status);
+      setReason(before.reason);
+      setCookedError(err instanceof Error && err.message ? err.message : "We couldn't save that. Please try again.");
+    }
+  }
 
   function rate(liked: boolean) {
     // Tapping the same choice again clears it.
@@ -74,6 +116,8 @@ export default function DinnerCard({ planId, dinner, index, people, startOpen = 
       // The old rating was for the old dinner, and the grocery and prep lists have changed.
       removeRating(planId, dinner.day);
       setRating(null);
+      setStatus(null);
+      setReason(undefined);
       clearPlanTicks(planId);
       setJustSwapped(true);
       router.refresh();
@@ -161,26 +205,74 @@ export default function DinnerCard({ planId, dinner, index, people, startOpen = 
       </div>
 
       <div className="feedback">
-        <p className="feedback-title">How was it?</p>
+        <p className="feedback-title">How did it go?</p>
         <div className="rate-buttons">
           <button
             type="button"
-            className={rating?.liked === true ? "thumb chosen" : "thumb"}
-            aria-pressed={rating?.liked === true}
-            onClick={() => rate(true)}
+            className={status === "made" ? "thumb chosen" : "thumb"}
+            aria-pressed={status === "made"}
+            onClick={() => status !== "made" && markCooked("made")}
           >
-            <ThumbIcon /> Liked it
+            We made it
           </button>
           <button
             type="button"
-            className={rating?.liked === false ? "thumb chosen" : "thumb"}
-            aria-pressed={rating?.liked === false}
-            onClick={() => rate(false)}
+            className={status === "skipped" ? "thumb chosen" : "thumb"}
+            aria-pressed={status === "skipped"}
+            onClick={() => status !== "skipped" && markCooked("skipped")}
           >
-            <ThumbIcon down /> Not for us
+            We skipped it
           </button>
         </div>
-        {rating && (
+        {cookedError && (
+          <p className="error" role="alert">
+            {cookedError}
+          </p>
+        )}
+
+        {status === "skipped" && (
+          <div className="skip-reasons">
+            <p className="hint">What happened? This helps make better plans.</p>
+            <div className="reason-pills">
+              {SKIP_REASONS.map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  className={reason === option ? "pill selected" : "pill"}
+                  aria-pressed={reason === option}
+                  onClick={() => markCooked("skipped", reason === option ? undefined : option)}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {status === "made" && (
+          <>
+            <p className="feedback-title liked-question">Did your family like it?</p>
+            <div className="rate-buttons">
+              <button
+                type="button"
+                className={rating?.liked === true ? "thumb chosen" : "thumb"}
+                aria-pressed={rating?.liked === true}
+                onClick={() => rate(true)}
+              >
+                <ThumbIcon /> Liked it
+              </button>
+              <button
+                type="button"
+                className={rating?.liked === false ? "thumb chosen" : "thumb"}
+                aria-pressed={rating?.liked === false}
+                onClick={() => rate(false)}
+              >
+                <ThumbIcon down /> Not for us
+              </button>
+            </div>
+          </>
+        )}
+        {status === "made" && rating && (
           <>
             <textarea
               value={rating.note}

@@ -129,7 +129,9 @@ export async function POST(request: Request) {
     if (!result) {
       return errorResponse("We couldn't swap that dinner this time. Please try again.", 502);
     }
-    await updatePlan({ ...stored, plan: result.plan, swaps: (stored.swaps ?? 0) + 1 });
+    // A new dinner hasn't been made or skipped yet.
+    const { [day]: _swappedOut, ...cooked } = stored.cooked ?? {};
+    await updatePlan({ ...stored, plan: result.plan, swaps: (stored.swaps ?? 0) + 1, cooked });
     after(() =>
       logEvent({
         type: "swap",

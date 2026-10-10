@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import AccountCard from "@/components/AccountCard";
+import FamilySummary from "@/components/FamilySummary";
+import FeedbackCard from "@/components/FeedbackCard";
 import { FoodList } from "@/components/FridgeStep";
 import { Logo } from "@/components/Illustrations";
 import InstallHelp from "@/components/InstallHelp";
@@ -79,28 +81,7 @@ export default function MorePage() {
         <section className="card">
           <h2 className="section-title">Your family</h2>
           {family ? (
-            <ul className="family-summary">
-              <li>
-                <strong>Allergies:</strong> {family.allergies.length ? family.allergies.join(", ") : "none"}
-              </li>
-              <li>
-                <strong>Eating:</strong> {family.adults} adult{family.adults === 1 ? "" : "s"}
-                {family.kids.length > 0 &&
-                  `, ${family.kids.length} kid${family.kids.length === 1 ? "" : "s"}`}
-              </li>
-              {family.kids.map((kid, i) => (
-                <li key={i}>
-                  <strong>{kid.name || `Kid ${i + 1}`}:</strong>{" "}
-                  {kid.refuses.length ? `won't eat ${kid.refuses.join(", ")}` : "no foods listed"}
-                </li>
-              ))}
-              <li>
-                <strong>Weeknight cooking:</strong> up to {family.maxMinutes} min
-              </li>
-              <li>
-                <strong>Lunches:</strong> {family.lunches ? "planned too" : "not planned"}
-              </li>
-            </ul>
+            <FamilySummary family={family} />
           ) : (
             <p className="quiet">You&apos;ll answer a few questions when you make your first plan.</p>
           )}
@@ -110,6 +91,8 @@ export default function MorePage() {
         </section>
 
         <ReminderSettings />
+
+        <FeedbackCard />
 
         <InstallHelp />
       </div>

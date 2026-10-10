@@ -19,6 +19,7 @@ export function weeklyEmail(stats: AdminStats, to: string, siteUrl: string): Ema
   const t = stats.totals;
   const rows: [string, string][] = [
     ["Plans made", `${t.plansLast7} (${t.plansPrev7} the week before)`],
+    ["Dinners made", `${stats.test.madeLast7} (${stats.test.skippedLast7} skipped)`],
     ["New families", String(t.newFamiliesLast7)],
     ["Families who came back", String(t.returningLast7)],
     ["New accounts", String(t.accountsLast7)],
@@ -32,6 +33,15 @@ export function weeklyEmail(stats: AdminStats, to: string, siteUrl: string): Ema
       ? "The allergy safety check didn't have to stop anything."
       : `The allergy safety check stopped ${plural(t.blockedLast7, "plan or swap", "plans or swaps")} before anyone saw it.`;
   const link = `${siteUrl}/admin`;
+  // The newest few messages from the More tab's feedback box, shortened.
+  const messages = stats.feedback
+    .filter((item) => Date.now() - Date.parse(item.at) < 7 * 24 * 60 * 60 * 1000)
+    .slice(0, 3)
+    .map((item) => (item.text.length > 200 ? `${item.text.slice(0, 200)}…` : item.text));
+  const messagesLine =
+    stats.feedbackLast7 === 0
+      ? "No new messages from testers."
+      : `${plural(stats.feedbackLast7, "new message", "new messages")} from testers${stats.feedbackLast7 > messages.length ? ", the newest:" : ":"}`;
 
   const text = [
     "Here's how PlateWise did in the last 7 days.",
@@ -41,6 +51,9 @@ export function weeklyEmail(stats: AdminStats, to: string, siteUrl: string): Ema
     `Where people were: ${places || "no places yet"}`,
     "",
     safety,
+    "",
+    messagesLine,
+    ...messages.map((message) => `- "${message}"`),
     "",
     `See everything: ${link}`,
   ].join("\n");
@@ -57,6 +70,8 @@ ${rows
 </table>
 <p><strong>Where people were:</strong> ${escape(places || "no places yet")}</p>
 <p>${safety}</p>
+<p>${messagesLine}</p>
+${messages.length ? `<ul>${messages.map((message) => `<li>${escape(message)}</li>`).join("")}</ul>` : ""}
 <p><a href="${link}" style="color:#4f7a4a;font-weight:600">See everything on the admin page</a></p>
 </div>`;
 

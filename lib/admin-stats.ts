@@ -1,5 +1,6 @@
 import type { Account } from "./accounts";
 import type { AppEvent } from "./events";
+import { allFeedback } from "./feedback";
 import type { SavedReminder } from "./reminders";
 import { groceryTotal } from "./plan-schema";
 import { DEFAULT_REMINDER_HOUR, hourLabel, REMINDER_HOURS } from "./reminder-times";
@@ -16,6 +17,23 @@ export type Count = { label: string; count: number };
 export type AdminStats = {
   generatedAt: string;
   trackingSince: string | null;
+  // The numbers the test in plan.md is judged by.
+  test: {
+    made: number;
+    skipped: number;
+    madeLast7: number;
+    skippedLast7: number;
+    // Plans whose week is over (6 days or older), how many had any answers, and how many had 3+ made.
+    finishedWeeks: number;
+    answeredWeeks: number;
+    weeksThreePlus: number;
+    // Families who started over a week ago, and how many made a plan in another week too.
+    familiesOverAWeek: number;
+    cameBack: number;
+  };
+  skipReasons: Count[];
+  feedback: { at: string; text: string; email: string | null; place: string | null }[];
+  feedbackLast7: number;
   totals: {
     plans: number;
     plansLast7: number;
@@ -206,11 +224,40 @@ export async function adminStats(): Promise<AdminStats> {
   const budgeted = priced.filter((plan) => plan.budget);
   const average = (values: number[]) => (values.length ? values.reduce((a, b) => a + b, 0) / values.length : null);
 
+  // Made and skipped dinners, from "We made it" / "We skipped it".
+  const answers = datedPlans.flatMap((plan) => Object.values(plan.cooked ?? {}).filter((a) => a !== undefined));
+  const skipReasons = new Map<string, number>();
+  for (const answer of answers) if (answer.status === "skipped") bump(skipReasons, answer.reason ?? "No reason given");
+  const finished = datedPlans.filter((plan) => !recent(plan.createdAt, 6));
+  const answered = finished.filter((plan) => Object.keys(plan.cooked ?? {}).length > 0);
+  const madeIn = (plan: StoredPlan) => Object.values(plan.cooked ?? {}).filter((a) => a?.status === "made").length;
+  const olderFamilies = [...firstPlan].filter(([, iso]) => !recent(iso, 7)).map(([family]) => family);
+  const feedback = await allFeedback().catch(() => []);
+
   const ratings = accounts.flatMap((account) => Object.values(account.data?.ratings ?? {}));
   const tracked = datedPlans.filter((plan) => plan.deviceId || plan.origin);
 
   return {
     generatedAt: new Date().toISOString(),
+    test: {
+      made: answers.filter((a) => a.status === "made").length,
+      skipped: answers.filter((a) => a.status === "skipped").length,
+      madeLast7: answers.filter((a) => a.status === "made" && recent(a.at, 7)).length,
+      skippedLast7: answers.filter((a) => a.status === "skipped" && recent(a.at, 7)).length,
+      finishedWeeks: finished.length,
+      answeredWeeks: answered.length,
+      weeksThreePlus: answered.filter((plan) => madeIn(plan) >= 3).length,
+      familiesOverAWeek: olderFamilies.length,
+      cameBack: olderFamilies.filter((family) => (weeks.get(family)?.size ?? 0) >= 2).length,
+    },
+    skipReasons: topCounts(skipReasons),
+    feedback: feedback.slice(0, 50).map((item) => ({
+      at: item.at,
+      text: item.text,
+      email: item.email ?? null,
+      place: placeName(item.origin),
+    })),
+    feedbackLast7: feedback.filter((item) => recent(item.at, 7)).length,
     trackingSince: tracked.length ? tracked[tracked.length - 1].createdAt! : null,
     totals: {
       plans: plans.length,
