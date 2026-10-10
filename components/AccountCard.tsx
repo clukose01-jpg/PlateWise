@@ -54,11 +54,14 @@ export default function AccountCard() {
       <section className="card account-card">
         <h2 className="section-title">Save everything to an account</h2>
         <p>
-          Log in with your email to keep your plans, pantry, family answers and ratings, and use them on any
-          phone or computer.
+          Make a free account with your email to keep your plans, pantry, family answers and ratings, and use
+          them on any phone or computer.
         </p>
-        <Link href="/login?next=/more" className="primary">
-          Log in with email
+        <Link href="/login?mode=signup&next=/more" className="primary">
+          Sign up
+        </Link>
+        <Link href="/login?next=/more" className="secondary">
+          I already have an account
         </Link>
       </section>
     );

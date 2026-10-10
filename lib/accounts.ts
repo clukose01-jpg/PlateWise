@@ -2,7 +2,7 @@ import { createHash, createHmac, randomInt, timingSafeEqual } from "node:crypto"
 import { z } from "zod";
 import { checkPassword, hashPassword } from "./passwords";
 import { loadPlan } from "./plans";
-import { sessionSecret } from "./session";
+import { sessionAccountId, sessionIssuedAt, sessionSecret } from "./session";
 import { readJson, writeJson } from "./store";
 
 // An account is a private file holding what each device would otherwise keep to itself: family
@@ -44,6 +44,9 @@ export type Account = {
   data: AccountData;
   // A salted fingerprint of her password, if she made one. Never sent to any device.
   passwordHash?: string;
+  // When she last changed her password (in seconds). Logins from before then no longer count, so
+  // a new password logs out her other devices.
+  sessionsFrom?: number;
 };
 
 export const EMPTY_DATA: AccountData = {
@@ -70,6 +73,15 @@ export function accountIdFor(email: string) {
 export async function loadAccount(id: string) {
   if (!/^[a-f0-9]{32}$/.test(id)) return null;
   return readJson<Account>(`accounts/${id}.json`);
+}
+
+// The logged-in account, or null if nobody is, or if the password changed since this device
+// logged in.
+export async function currentAccount(request: Request) {
+  const id = sessionAccountId(request);
+  const account = id ? await loadAccount(id) : null;
+  if (!account) return null;
+  return account.sessionsFrom && (sessionIssuedAt(request) ?? 0) < account.sessionsFrom ? null : account;
 }
 
 export async function saveAccountData(account: Account, data: AccountData) {
@@ -144,6 +156,26 @@ export async function withLivePlan(data: AccountData): Promise<{ data: AccountDa
   };
 }
 
+// A new account with a password, straight away. No code: the email isn't checked until she needs
+// one to reset her password, and resetting it logs everyone else out.
+export type SignUp = { result: "ok"; account: Account } | { result: "exists" };
+
+export async function signUp(email: string, password: string, device: AccountData): Promise<SignUp> {
+  const id = accountIdFor(email);
+  if (await loadAccount(id)) return { result: "exists" };
+  const now = new Date().toISOString();
+  const { data } = await withLivePlan(device);
+  const account: Account = {
+    id,
+    email: normalizeEmail(email),
+    createdAt: now,
+    updatedAt: now,
+    data: EMPTY_DATA,
+    passwordHash: await hashPassword(password),
+  };
+  return { result: "ok", account: await saveAccountData(account, data) };
+}
+
 export async function logIn(email: string, device: AccountData, known?: Account) {
   const id = accountIdFor(email);
   const existing = known ?? (await loadAccount(id));
@@ -153,13 +185,15 @@ export async function logIn(email: string, device: AccountData, known?: Account)
   return saveAccountData(account, data);
 }
 
-// Login codes: 6 digits, good for 10 minutes and 5 tries. Only a fingerprint of the code is saved.
+// Login codes: 6 digits, good for 10 minutes and 5 tries. Only a fingerprint of each code is saved.
+// Every code sent in the last 10 minutes works, since emails can arrive late and out of order after
+// she asks for a new one.
 const CODE_MINUTES = 10;
 const MAX_TRIES = 5;
 const SECONDS_BETWEEN_CODES = 30;
 const CODES_PER_HOUR = 5;
 
-type SavedCode = { codeHash: string; expiresAt: number; tries: number; sentAt: number[] };
+type SavedCode = { codes: { hash: string; expiresAt: number }[]; tries: number; sentAt: number[] };
 
 function codeFile(email: string) {
   return `login-codes/${accountIdFor(email)}.json`;
@@ -179,9 +213,9 @@ export async function newLoginCode(email: string) {
     throw new TooManyCodesError();
   }
   const code = String(randomInt(0, 1_000_000)).padStart(6, "0");
+  const stillGood = (saved?.codes ?? []).filter((c) => c.expiresAt > now);
   await writeJson(codeFile(email), {
-    codeHash: hashCode(email, code),
-    expiresAt: now + CODE_MINUTES * 60 * 1000,
+    codes: [...stillGood, { hash: hashCode(email, code), expiresAt: now + CODE_MINUTES * 60 * 1000 }],
     tries: 0,
     sentAt: [...recent, now],
   } satisfies SavedCode);
@@ -192,20 +226,32 @@ export type CodeCheck = "ok" | "wrong" | "expired";
 
 export async function checkLoginCode(email: string, code: string): Promise<CodeCheck> {
   const saved = await readJson<SavedCode>(codeFile(email));
-  if (!saved || saved.expiresAt < Date.now() || saved.tries >= MAX_TRIES) return "expired";
+  const now = Date.now();
+  // Codes saved before several could work at once had no list; they've long expired.
+  const good = (saved?.codes ?? []).filter((c) => c.expiresAt > now);
+  if (!saved || !good.length || saved.tries >= MAX_TRIES) return "expired";
   const given = Buffer.from(hashCode(email, code.trim()));
-  const expected = Buffer.from(saved.codeHash);
-  if (given.length === expected.length && timingSafeEqual(given, expected)) {
-    // Each code works once.
-    await writeJson(codeFile(email), { ...saved, codeHash: "", expiresAt: 0 });
+  const matches = good.some((c) => {
+    const expected = Buffer.from(c.hash);
+    return given.length === expected.length && timingSafeEqual(given, expected);
+  });
+  if (matches) {
+    // Once she's in, none of the codes work again.
+    await writeJson(codeFile(email), { ...saved, codes: [] });
     return "ok";
   }
   await writeJson(codeFile(email), { ...saved, tries: saved.tries + 1 });
   return saved.tries + 1 >= MAX_TRIES ? "expired" : "wrong";
 }
 
+// Saves a new password and logs out her other devices. The caller gives this device a new login.
 export async function setPassword(account: Account, password: string) {
-  const saved: Account = { ...account, passwordHash: await hashPassword(password), updatedAt: new Date().toISOString() };
+  const saved: Account = {
+    ...account,
+    passwordHash: await hashPassword(password),
+    sessionsFrom: Math.floor(Date.now() / 1000),
+    updatedAt: new Date().toISOString(),
+  };
   await writeJson(`accounts/${account.id}.json`, saved);
 }
 

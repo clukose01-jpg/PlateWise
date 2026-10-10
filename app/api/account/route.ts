@@ -1,14 +1,8 @@
 import { z } from "zod";
-import { AccountDataSchema, loadAccount, saveAccountData, withLivePlan } from "@/lib/accounts";
+import { AccountDataSchema, currentAccount, saveAccountData, withLivePlan } from "@/lib/accounts";
 import { errorResponse } from "@/lib/auth-routes";
-import { sessionAccountId } from "@/lib/session";
 
 const MAX_BODY_BYTES = 200_000;
-
-async function currentAccount(request: Request) {
-  const id = sessionAccountId(request);
-  return id ? loadAccount(id) : null;
-}
 
 // Everything saved to her account, for a device that just opened the app.
 export async function GET(request: Request) {

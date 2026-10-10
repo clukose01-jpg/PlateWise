@@ -1640,6 +1640,54 @@ main.compare {
   margin-top: 16px;
 }
 
+/* Log in or Sign up, at the top of the login card. */
+.auth-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 4px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+.auth-tabs button {
+  min-height: 44px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 650;
+}
+
+.auth-tabs button[aria-selected="true"] {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.auth-tabs + .question {
+  margin-top: 20px;
+}
+
+.signup-intro {
+  margin: 14px 0 0;
+}
+
+.login .hint + .primary {
+  margin-top: 12px;
+}
+
+.account-card .secondary {
+  margin-top: 10px;
+}
+
+.login-nudge .login-link {
+  margin: 12px 0 0;
+  font-size: 15px;
+  text-align: center;
+}
+
 /* Budget: the question, prices on the grocery list, and each dinner's cost */
 
 .money {

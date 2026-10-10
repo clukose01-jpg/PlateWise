@@ -35,15 +35,18 @@ export default function LoginNudge({ planId }: { planId: string }) {
   return (
     <section className="card login-nudge">
       <h2 className="section-title">Save your plans</h2>
-      <p>Log in with your email so your plans, pantry and ratings are saved, and open on any device.</p>
+      <p>Make a free account with your email so your plans, pantry and ratings are saved, and open on any device.</p>
       <div className="confirm-buttons">
-        <Link href={`/login?next=${encodeURIComponent(`/plan/${planId}?tab=week`)}`} className="primary">
-          Log in
+        <Link href={`/login?mode=signup&next=${encodeURIComponent(`/plan/${planId}?tab=week`)}`} className="primary">
+          Sign up
         </Link>
         <button type="button" className="secondary" onClick={notNow}>
           Not now
         </button>
       </div>
+      <p className="login-link">
+        Already have an account? <Link href={`/login?next=${encodeURIComponent(`/plan/${planId}?tab=week`)}`}>Log in</Link>
+      </p>
     </section>
   );
 }

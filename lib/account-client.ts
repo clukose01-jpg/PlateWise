@@ -140,6 +140,16 @@ if (typeof window !== "undefined") {
   });
 }
 
+// "exists" is set when she tried to sign up with an email that already has an account.
+export class AccountError extends Error {
+  constructor(
+    message: string,
+    readonly exists = false,
+  ) {
+    super(message);
+  }
+}
+
 async function postJson(url: string, body: unknown) {
   const response = await fetch(url, {
     method: "POST",
@@ -147,7 +157,9 @@ async function postJson(url: string, body: unknown) {
     body: JSON.stringify(body),
   });
   const result = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(result.error || "Something went wrong. Please try again.");
+  if (!response.ok) {
+    throw new AccountError(result.error || "Something went wrong. Please try again.", Boolean(result.exists));
+  }
   return result;
 }
 
@@ -180,6 +192,11 @@ export async function verifyCode(email: string, code: string): Promise<{ hasPass
   const result = await postJson("/api/auth/verify", { email, code, device: deviceData() });
   loggedIn(result);
   return { hasPassword: Boolean(result.hasPassword) };
+}
+
+// A new account with an email and password. What's on this device becomes the account's start.
+export async function signUp(email: string, password: string) {
+  loggedIn(await postJson("/api/auth/signup", { email, password, device: deviceData() }));
 }
 
 export async function logInWithPassword(email: string, password: string) {

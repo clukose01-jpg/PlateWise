@@ -24,7 +24,7 @@ export async function POST(request: Request) {
       return login.result === "locked"
         ? errorResponse("Too many wrong tries. Wait 15 minutes, or get a code by email.", 429)
         : // The same message whether or not the email has an account.
-          errorResponse("That email and password don't match. Try again, or get a code by email.", 401);
+          errorResponse("That email and password don't match. New here? Tap Sign up at the top.", 401);
     }
     return Response.json(
       { email: login.account.email, data: login.account.data, hasPassword: true },

@@ -6,13 +6,21 @@ import { type FormEvent, useEffect, useState } from "react";
 import BudgetInput from "@/components/BudgetInput";
 import { Logo } from "@/components/Illustrations";
 import TabBar from "@/components/TabBar";
-import { loginStatus, logInWithPassword, sendCode, setPassword, verifyCode } from "@/lib/account-client";
+import {
+  AccountError,
+  loginStatus,
+  logInWithPassword,
+  sendCode,
+  setPassword,
+  signUp,
+  verifyCode,
+} from "@/lib/account-client";
 import { loadBudget, saveBudget, toBudget } from "@/lib/device";
 
-// Email and password, or an emailed code the first time (or when she forgets her password).
-// After a code, she's offered a password so next time she doesn't need one. A new account is then
-// asked for a weekly grocery budget, which she can change later when she makes a plan.
-type Step = "loading" | "unavailable" | "already" | "password" | "code" | "new-password" | "budget";
+// Log in with email and password, or sign up with them: no code needed. The emailed code is for
+// when she forgets her password; after it, she makes a new one. A new account is then asked for a
+// weekly grocery budget, which she can change later when she makes a plan.
+type Step = "loading" | "unavailable" | "already" | "password" | "signup" | "code" | "new-password" | "budget";
 
 const MIN_PASSWORD_LENGTH = 8;
 
@@ -33,16 +41,26 @@ export default function LoginPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [exists, setExists] = useState(false);
 
   useEffect(() => {
+    // Links meant for new people open straight to Sign up.
+    const signingUp = new URLSearchParams(window.location.search).get("mode") === "signup";
     loginStatus().then((status) => {
       if (!status.enabled) setStep("unavailable");
       else if (status.email) {
         setEmail(status.email);
         setStep("already");
-      } else setStep("password");
+      } else setStep(signingUp ? "signup" : "password");
     });
   }, []);
+
+  function switchTo(next: "password" | "signup") {
+    setError(null);
+    setExists(false);
+    setPasswordText("");
+    setStep(next);
+  }
 
   async function run(action: () => Promise<void>) {
     setBusy(true);
@@ -94,8 +112,8 @@ export default function LoginPage() {
   }
 
   // New accounts get the budget question, unless she already set one on this device.
-  function finishSignUp() {
-    if (!hadPassword && loadBudget() === null) {
+  function finishSignUp(isNew = !hadPassword) {
+    if (isNew && loadBudget() === null) {
       setError(null);
       setStep("budget");
     } else {
@@ -108,6 +126,34 @@ export default function LoginPage() {
     saveBudget(toBudget(budget));
     router.push(nextPage());
   }
+
+  function createAccount(event: FormEvent) {
+    event.preventDefault();
+    if (password.length < MIN_PASSWORD_LENGTH) {
+      setError(`Use at least ${MIN_PASSWORD_LENGTH} characters for your password.`);
+      return;
+    }
+    run(async () => {
+      try {
+        await signUp(email.trim(), password);
+      } catch (err) {
+        setExists(err instanceof AccountError && err.exists);
+        throw err;
+      }
+      finishSignUp(true);
+    });
+  }
+
+  const tabs = (
+    <div className="auth-tabs" role="tablist" aria-label="Log in or sign up">
+      <button type="button" role="tab" aria-selected={step === "password"} onClick={() => switchTo("password")}>
+        Log in
+      </button>
+      <button type="button" role="tab" aria-selected={step === "signup"} onClick={() => switchTo("signup")}>
+        Sign up
+      </button>
+    </div>
+  );
 
   function savePassword(event: FormEvent) {
     event.preventDefault();
@@ -125,7 +171,7 @@ export default function LoginPage() {
     <main className="login">
       <header>
         <Logo />
-        <h1 className="plan-title">Log in</h1>
+        <h1 className="plan-title">{step === "signup" || step === "budget" ? "Sign up" : "Log in"}</h1>
         <p className="tagline">Save your plans, pantry, family answers and ratings, and use them on any device.</p>
       </header>
 
@@ -148,6 +194,7 @@ export default function LoginPage() {
 
       {step === "password" && (
         <form className="card" onSubmit={passwordLogIn}>
+          {tabs}
           <label className="question" htmlFor="login-email">
             Your email
           </label>
@@ -180,11 +227,58 @@ export default function LoginPage() {
             </p>
           )}
           <div className="code-option">
-            <p className="hint">First time here, or forgot your password?</p>
+            <p className="hint">Forgot your password?</p>
             <button type="button" className="secondary" onClick={emailCode} disabled={busy}>
-              Email me a code instead
+              Email me a code
             </button>
           </div>
+        </form>
+      )}
+
+      {step === "signup" && (
+        <form className="card" onSubmit={createAccount}>
+          {tabs}
+          <p className="hint signup-intro">New to PlateWise? Make a free account with your email and a password.</p>
+          <label className="question" htmlFor="signup-email">
+            Your email
+          </label>
+          <input
+            id="signup-email"
+            type="email"
+            inputMode="email"
+            autoComplete="username"
+            value={email}
+            onChange={(event) => {
+              setEmail(event.target.value);
+              setExists(false);
+            }}
+            placeholder="you@example.com"
+            required
+          />
+          <label className="question" htmlFor="signup-password">
+            Make a password
+          </label>
+          <input
+            id="signup-password"
+            type="password"
+            autoComplete="new-password"
+            value={password}
+            onChange={(event) => setPasswordText(event.target.value)}
+          />
+          <p className="hint">At least {MIN_PASSWORD_LENGTH} characters.</p>
+          <button type="submit" className="primary" disabled={busy || !email.trim() || !password}>
+            {busy ? "Making your account…" : "Create account"}
+          </button>
+          {error && (
+            <p className="error" role="alert">
+              {error}
+            </p>
+          )}
+          {exists && (
+            <button type="button" className="secondary" onClick={() => switchTo("password")}>
+              Log in instead
+            </button>
+          )}
         </form>
       )}
 
@@ -200,8 +294,8 @@ export default function LoginPage() {
             Enter the code
           </label>
           <p>
-            We sent a 6-digit code to <strong>{email}</strong>. It can take a minute, so check your spam folder
-            too.
+            We sent a 6-digit code to <strong>{email}</strong>. It can take a minute or two, so check your spam
+            folder too. If you asked for more than one, any of them works.
           </p>
           <input
             id="login-code"
@@ -272,7 +366,7 @@ export default function LoginPage() {
               {error}
             </p>
           )}
-          <button type="button" className="link" onClick={finishSignUp} disabled={busy}>
+          <button type="button" className="link" onClick={() => finishSignUp()} disabled={busy}>
             {hadPassword ? "Keep my old password" : "Skip for now"}
           </button>
         </form>

@@ -1,3 +1,4 @@
+import { after } from "next/server";
 import { z } from "zod";
 import { newLoginCode, normalizeEmail, TooManyCodesError } from "@/lib/accounts";
 import { errorResponse, loginIsSetUp } from "@/lib/auth-routes";
@@ -5,7 +6,9 @@ import { sendLoginCode } from "@/lib/email";
 
 const SendCode = z.object({ email: z.string().trim().max(200).email() });
 
-// Emails a 6-digit login code. It says the same thing whether or not the email has an account.
+// Emails a 6-digit login code. It says the same thing whether or not the email has an account. The
+// email goes out just after the reply, so the code screen shows straight away instead of waiting on
+// Gmail.
 export async function POST(request: Request) {
   if (!(await loginIsSetUp())) {
     return errorResponse("Logging in isn't set up yet.", 503);
@@ -17,7 +20,7 @@ export async function POST(request: Request) {
   const email = normalizeEmail(parsed.data.email);
   try {
     const code = await newLoginCode(email);
-    await sendLoginCode(email, code);
+    after(() => sendLoginCode(email, code).catch((error) => console.error("Sending login code failed:", error)));
     return Response.json({ ok: true });
   } catch (error) {
     if (error instanceof TooManyCodesError) {

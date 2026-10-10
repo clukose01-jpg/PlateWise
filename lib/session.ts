@@ -28,8 +28,8 @@ export function clearedSessionCookie() {
   return `${COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${secure}`;
 }
 
-// The logged-in account's id, or null.
-export function sessionAccountId(request: Request): string | null {
+// The logged-in account's id and when that login started (in seconds), or null.
+function readSession(request: Request): { accountId: string; issuedAt: number } | null {
   const secret = sessionSecret();
   if (!secret) return null;
   const cookie = (request.headers.get("cookie") ?? "")
@@ -43,5 +43,14 @@ export function sessionAccountId(request: Request): string | null {
   const given = Buffer.from(signature);
   if (given.length !== expected.length || !timingSafeEqual(given, expected)) return null;
   if (Number(expires) * 1000 < Date.now()) return null;
-  return accountId;
+  return { accountId, issuedAt: Number(expires) - ONE_YEAR_SECONDS };
+}
+
+// The logged-in account's id, or null. Use currentAccount() to also check the login is still valid.
+export function sessionAccountId(request: Request): string | null {
+  return readSession(request)?.accountId ?? null;
+}
+
+export function sessionIssuedAt(request: Request): number | null {
+  return readSession(request)?.issuedAt ?? null;
 }
