@@ -21,13 +21,15 @@ self.addEventListener("push", (event) => {
   );
 });
 
-// Tapping the reminder opens PlateWise, reusing an open window if there is one.
+// Tapping the reminder opens PlateWise, reusing an open window if there is one. The admin page
+// has its own home screen icon, so its window is left alone.
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
   const url = new URL(event.notification.data?.url ?? "/", self.location.origin).href;
+  const isAdmin = (client) => new URL(client.url).pathname.startsWith("/admin");
   event.waitUntil(
     self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((windows) => {
-      const open = windows.find((client) => client.url.startsWith(self.location.origin));
+      const open = windows.find((client) => client.url.startsWith(self.location.origin) && !isAdmin(client));
       if (open) return open.navigate(url).then((client) => client?.focus());
       return self.clients.openWindow(url);
     }),
