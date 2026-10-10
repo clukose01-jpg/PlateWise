@@ -3,13 +3,16 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useEffect, useState } from "react";
+import BudgetInput from "@/components/BudgetInput";
 import { Logo } from "@/components/Illustrations";
 import TabBar from "@/components/TabBar";
 import { loginStatus, logInWithPassword, sendCode, setPassword, verifyCode } from "@/lib/account-client";
+import { loadBudget, saveBudget, toBudget } from "@/lib/device";
 
 // Email and password, or an emailed code the first time (or when she forgets her password).
-// After a code, she's offered a password so next time she doesn't need one.
-type Step = "loading" | "unavailable" | "already" | "password" | "code" | "new-password";
+// After a code, she's offered a password so next time she doesn't need one. A new account is then
+// asked for a weekly grocery budget, which she can change later when she makes a plan.
+type Step = "loading" | "unavailable" | "already" | "password" | "code" | "new-password" | "budget";
 
 const MIN_PASSWORD_LENGTH = 8;
 
@@ -26,6 +29,7 @@ export default function LoginPage() {
   const [password, setPasswordText] = useState("");
   const [code, setCode] = useState("");
   const [hadPassword, setHadPassword] = useState(false);
+  const [budget, setBudget] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -89,6 +93,22 @@ export default function LoginPage() {
     });
   }
 
+  // New accounts get the budget question, unless she already set one on this device.
+  function finishSignUp() {
+    if (!hadPassword && loadBudget() === null) {
+      setError(null);
+      setStep("budget");
+    } else {
+      router.push(nextPage());
+    }
+  }
+
+  function saveBudgetAndGo(event: FormEvent) {
+    event.preventDefault();
+    saveBudget(toBudget(budget));
+    router.push(nextPage());
+  }
+
   function savePassword(event: FormEvent) {
     event.preventDefault();
     if (password.length < MIN_PASSWORD_LENGTH) {
@@ -97,7 +117,7 @@ export default function LoginPage() {
     }
     run(async () => {
       await setPassword(password);
-      router.push(nextPage());
+      finishSignUp();
     });
   }
 
@@ -252,8 +272,28 @@ export default function LoginPage() {
               {error}
             </p>
           )}
-          <button type="button" className="link" onClick={() => router.push(nextPage())} disabled={busy}>
+          <button type="button" className="link" onClick={finishSignUp} disabled={busy}>
             {hadPassword ? "Keep my old password" : "Skip for now"}
+          </button>
+        </form>
+      )}
+
+      {step === "budget" && (
+        <form className="card" onSubmit={saveBudgetAndGo}>
+          <h2 className="section-title">Weekly grocery budget?</h2>
+          <p>
+            Each plan will aim to keep the grocery list under it, and show what each dinner costs. You can change
+            it any time when you make a plan.
+          </p>
+          <label className="question" htmlFor="signup-budget">
+            Most you want to spend a week
+          </label>
+          <BudgetInput id="signup-budget" value={budget} onChange={setBudget} />
+          <button type="submit" className="primary" disabled={!toBudget(budget)}>
+            Save budget
+          </button>
+          <button type="button" className="link" onClick={() => router.push(nextPage())}>
+            Skip for now
           </button>
         </form>
       )}

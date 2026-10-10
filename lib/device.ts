@@ -183,6 +183,25 @@ export function saveFamily(family: SavedFamily) {
   write(FAMILY_KEY, family);
 }
 
+const MAX_BUDGET = 5000;
+
+// Whole dollars, or no budget if the box is empty or zero.
+export function toBudget(text: string): number | null {
+  const amount = Number(text);
+  return Number.isInteger(amount) && amount >= 1 ? Math.min(amount, MAX_BUDGET) : null;
+}
+
+export function loadBudget(): number | null {
+  return loadFamily()?.budget ?? null;
+}
+
+// Set when she makes an account, before she's answered the family questions, so the rest of the
+// answers start from the usual defaults.
+export function saveBudget(budget: number | null) {
+  const family = loadFamily() ?? { allergies: [], adults: 2, kids: [], maxMinutes: 30, lunches: false };
+  saveFamily({ ...family, budget });
+}
+
 // After a swap the grocery and prep lists change, so old ticks no longer line up.
 export function clearPlanTicks(planId: string) {
   try {

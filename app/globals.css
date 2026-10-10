@@ -1603,8 +1603,51 @@ main.compare {
   padding-left: 30px;
 }
 
-.money + .hint {
-  margin: 8px 0 0;
+.login .money + .primary {
+  margin-top: 16px;
+}
+
+/* In step 2 the budget is one small line, opened to change it. */
+.budget-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  margin-top: 16px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 15px;
+}
+
+.budget-row .link {
+  margin: 0;
+  padding: 2px 0;
+}
+
+.budget-row label {
+  width: 100%;
+  font-weight: 600;
+}
+
+.budget-edit {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.budget-edit .money {
+  flex: 1;
+}
+
+.budget-done {
+  padding: 0 18px;
+  border: none;
+  border-radius: 12px;
+  background: var(--button);
+  color: var(--accent-text);
+  font-weight: 650;
 }
 
 .grocery-total {

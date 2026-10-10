@@ -2,9 +2,10 @@
 
 import { type FormEvent, type KeyboardEvent, useEffect, useState } from "react";
 import { syncFromAccount } from "@/lib/account-client";
-import { isNoAllergy, loadFamily, saveFamily } from "@/lib/device";
+import { isNoAllergy, loadFamily, saveFamily, toBudget } from "@/lib/device";
 import { COOK_TIMES } from "@/lib/plan-schema";
 import { countRatings } from "@/lib/ratings";
+import BudgetInput from "./BudgetInput";
 
 export type FamilyAnswers = {
   allergies: string;
@@ -16,13 +17,6 @@ export type FamilyAnswers = {
 };
 
 const MAX_FOODS_PER_KID = 15;
-const MAX_BUDGET = 5000;
-
-// Whole dollars, or no budget if the box is empty or zero.
-function toBudget(text: string): number | null {
-  const amount = Number(text);
-  return Number.isInteger(amount) && amount >= 1 ? Math.min(amount, MAX_BUDGET) : null;
-}
 const MAX_ALLERGIES = 12;
 
 // While she's typing, each kid's foods are separate bubbles plus whatever is in the box.
@@ -60,6 +54,7 @@ export default function FamilyStep({ error, onBack, onSubmit }: Props) {
   const [maxMinutes, setMaxMinutes] = useState(30);
   const [lunches, setLunches] = useState(false);
   const [budget, setBudget] = useState("");
+  const [editingBudget, setEditingBudget] = useState(false);
   const [ratingCount, setRatingCount] = useState(0);
 
   useEffect(() => {
@@ -137,7 +132,7 @@ export default function FamilyStep({ error, onBack, onSubmit }: Props) {
   return (
     <form className="card family" onSubmit={submit}>
       <h2>About your family</h2>
-      <p>Four quick questions. This device will remember your answers for next week.</p>
+      <p>Three quick questions. This device will remember your answers for next week.</p>
 
       <label className="question" htmlFor="allergies">
         <span className="number">1</span>
@@ -269,30 +264,40 @@ export default function FamilyStep({ error, onBack, onSubmit }: Props) {
         </div>
       </fieldset>
 
-      <label className="question" htmlFor="budget">
-        <span className="number">4</span>
-        Grocery budget for the week?
-      </label>
-      <div className="money">
-        <span aria-hidden="true">$</span>
-        <input
-          id="budget"
-          inputMode="numeric"
-          value={budget}
-          onChange={(event) => setBudget(event.target.value.replace(/\D/g, "").slice(0, 4))}
-          placeholder="Leave blank for no limit"
-          aria-describedby="budget-hint"
-          enterKeyHint="done"
-        />
-      </div>
-      <p className="hint" id="budget-hint">
-        We&apos;ll aim to keep the grocery list under it, and show what each dinner costs.
-      </p>
-
       <label className="checkbox">
         <input type="checkbox" checked={lunches} onChange={(event) => setLunches(event.target.checked)} />
         Plan lunches too
       </label>
+
+      {/* Usually set when she makes an account, so here it's one small line she can change. */}
+      <div className="budget-row">
+        {editingBudget ? (
+          <>
+            <label htmlFor="budget">Weekly grocery budget</label>
+            <div className="budget-edit">
+              <BudgetInput
+                id="budget"
+                value={budget}
+                onChange={setBudget}
+                onDone={() => setEditingBudget(false)}
+                autoFocus
+              />
+              <button type="button" className="budget-done" onClick={() => setEditingBudget(false)}>
+                Done
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <span>
+              Weekly grocery budget: <strong>{toBudget(budget) ? `$${toBudget(budget)}` : "none"}</strong>
+            </span>
+            <button type="button" className="link" onClick={() => setEditingBudget(true)}>
+              {toBudget(budget) ? "Change" : "Add one"}
+            </button>
+          </>
+        )}
+      </div>
 
       {error && (
         <p className="error" role="alert">
