@@ -770,8 +770,42 @@ legend.question {
   flex-shrink: 0;
 }
 
-.dinner[open] .chevron {
+.dinner[open] .chevron,
+.fold[open] .chevron {
   transform: rotate(-135deg);
+}
+
+/* A card that opens when tapped, like the pantry on More. */
+.fold summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.fold summary::-webkit-details-marker {
+  display: none;
+}
+
+.fold-title {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+}
+
+.card.fold .fold-title .section-title {
+  margin: 0;
+}
+
+.fold-title .hint {
+  margin: 0;
+}
+
+.fold[open] summary {
+  margin-bottom: 12px;
 }
 
 .rated {

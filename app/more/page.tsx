@@ -65,8 +65,17 @@ export default function MorePage() {
 
         <PlanHistory />
 
-        <section className="card">
-          <h2 className="section-title">Your pantry</h2>
+        {/* Closed at first, since a full pantry pushes everything else far down. */}
+        <details className="card fold">
+          <summary>
+            <span className="fold-title">
+              <h2 className="section-title">Your pantry</h2>
+              <span className="hint">
+                {pantry.length === 0 ? "Nothing yet" : `${pantry.length} item${pantry.length === 1 ? "" : "s"}`}
+              </span>
+            </span>
+            <span className="chevron" aria-hidden="true" />
+          </summary>
           <p className="hint">Saved on this device and used in every plan. Remove anything you run out of.</p>
           <FoodList
             className="pantry"
@@ -76,7 +85,7 @@ export default function MorePage() {
             placeholder="Add pantry food"
             label="Add a pantry item"
           />
-        </section>
+        </details>
 
         <section className="card">
           <h2 className="section-title">Your family</h2>

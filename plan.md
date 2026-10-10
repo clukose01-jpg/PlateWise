@@ -55,7 +55,7 @@ These started out on the leave-out list, or weren't in the plan at all. Each was
 | Added | Why | What to watch for |
 |---|---|---|
 | Up to 8 kitchen photos | One photo missed too much in the first test runs. | Whether scans still miss food. |
-| Pantry remembered week to week | Your mom asked about the pantry. Staples barely change, so she shouldn't have to scan them every week. | Whether she keeps the pantry list up to date in the More tab. |
+| Pantry remembered week to week | Your mom asked about the pantry. Staples barely change, so she shouldn't have to scan them every week. On More, the pantry list stays closed until tapped, so a long list doesn't push everything else far down. | Whether she keeps the pantry list up to date in the More tab. |
 | Thumbs up or down, and a comment, on each dinner | So each new plan brings back favorites, avoids misses, and gets less experimental. | Whether people bother to rate dinners. |
 | Today tab, plus Week, Groceries, New plan and More tabs | Opening the app shows just tonight's dinner and what to do, so there's nothing to look for at 5pm. | Whether people use Today or still go to Week. |
 | Swap a dinner | Fix one night without remaking the whole week. | How often people swap. Lots of swaps means the first plan isn't fitting the family. |
