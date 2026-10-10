@@ -29,6 +29,7 @@ export type AdminStats = {
     reminders: number;
     swaps: number;
     scans: number;
+    photos: number;
     safetyFixed: number;
     blocked: number;
     blockedLast7: number;
@@ -225,6 +226,7 @@ export async function adminStats(): Promise<AdminStats> {
       reminders: reminders.length,
       swaps: plans.reduce((total, plan) => total + (plan.swaps ?? 0), 0),
       scans: events.filter((event) => event.type === "scan").length,
+      photos: events.filter((event) => event.type === "photo").length,
       safetyFixed: plans.filter((plan) => (plan.safetyFixes ?? 0) > 0).length,
       blocked: events.filter(isBlocked).length,
       blockedLast7: events.filter((event) => isBlocked(event) && recent(event.at, 7)).length,

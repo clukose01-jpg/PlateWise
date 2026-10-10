@@ -1,10 +1,12 @@
 "use client";
 
-// A private page for setting up the Gmail account that sends login codes, so it doesn't have to be
-// done in Vercel's settings. It needs the same passcode as the speed test page.
+// A private page for setting up the Gmail account that sends login codes, and the key that makes
+// dinner pictures, so neither has to be done in Vercel's settings. It needs the same passcode as the
+// speed test page.
 
 import { type FormEvent, useEffect, useState } from "react";
 import { Logo } from "@/components/Illustrations";
+import PhotoSetup from "@/components/PhotoSetup";
 
 export default function SetupPage() {
   const [code, setCode] = useState("");
@@ -61,12 +63,15 @@ export default function SetupPage() {
     <main className="login">
       <header>
         <Logo />
-        <h1 className="plan-title">Login email setup</h1>
-        <p className="tagline">The Gmail account that sends login codes. Only you have this page&apos;s link.</p>
+        <h1 className="plan-title">PlateWise setup</h1>
+        <p className="tagline">
+          The Gmail account that sends login codes, and dinner pictures. Only you have this page&apos;s link.
+        </p>
       </header>
 
       {done ? (
         <section className="card">
+          <h2 className="section-title">Login emails</h2>
           <p className="reminder-on">It works. Login is switched on.</p>
           <p>
             Google accepted the password, and we sent a test email to <strong>{user}</strong>. Families can now
@@ -75,6 +80,7 @@ export default function SetupPage() {
         </section>
       ) : (
         <form className="card" onSubmit={save}>
+          <h2 className="section-title">Login emails</h2>
           {saved && <p className="hint">A password is already saved. Saving a new one replaces it.</p>}
           <label className="question" htmlFor="gmail-user">
             Gmail address
@@ -111,6 +117,8 @@ export default function SetupPage() {
           {detail && <p className="hint">What Google said: {detail}</p>}
         </form>
       )}
+
+      <PhotoSetup code={code} />
     </main>
   );
 }

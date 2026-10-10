@@ -38,6 +38,35 @@ export async function deleteJson(name: string) {
   }
 }
 
+// Pictures and other files that aren't JSON.
+export async function readBytes(name: string): Promise<{ bytes: Buffer; contentType: string } | null> {
+  if (useBlob()) {
+    const result = await get(name, { access: "private", useCache: false });
+    if (!result?.stream) return null;
+    return {
+      bytes: Buffer.from(await new Response(result.stream).arrayBuffer()),
+      contentType: result.blob.contentType ?? "application/octet-stream",
+    };
+  }
+  try {
+    const bytes = await readFile(path.join(LOCAL_ROOT, name));
+    return { bytes, contentType: name.endsWith(".png") ? "image/png" : name.endsWith(".webp") ? "image/webp" : "image/jpeg" };
+  } catch {
+    return null;
+  }
+}
+
+export async function writeBytes(name: string, bytes: Buffer, contentType: string) {
+  if (useBlob()) {
+    await put(name, bytes, { access: "private", contentType, allowOverwrite: true });
+  } else if (process.env.VERCEL) {
+    throw new StorageNotSetUpError();
+  } else {
+    await mkdir(path.dirname(path.join(LOCAL_ROOT, name)), { recursive: true });
+    await writeFile(path.join(LOCAL_ROOT, name), bytes);
+  }
+}
+
 // Every file name under a folder, like "plans/". For the admin page.
 export async function listNames(prefix: string): Promise<string[]> {
   if (useBlob()) {

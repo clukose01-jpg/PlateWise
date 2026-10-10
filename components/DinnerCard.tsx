@@ -6,6 +6,7 @@ import { clearPlanTicks, deviceHeaders } from "@/lib/device";
 import { dollars } from "@/lib/plan-schema";
 import type { StoredPlan } from "@/lib/plans";
 import { type DinnerRating, loadRating, removeRating, saveRating } from "@/lib/ratings";
+import DishPhoto from "./DishPhoto";
 import { ClockIcon, SwapIcon, ThumbIcon } from "./Illustrations";
 
 // To the nearest 50 cents, like "$3" or "$2.50".
@@ -21,11 +22,12 @@ type Props = {
   index: number;
   // How many people are eating, for the cost per person.
   people: number;
-  // The Today tab opens tonight's dinner straight away.
+  // The Today tab opens tonight's dinner straight away, with its picture if pictures are on.
   startOpen?: boolean;
+  showPhoto?: boolean;
 };
 
-export default function DinnerCard({ planId, dinner, index, people, startOpen = false }: Props) {
+export default function DinnerCard({ planId, dinner, index, people, startOpen = false, showPhoto = false }: Props) {
   const router = useRouter();
   const [rating, setRating] = useState<DinnerRating | null>(null);
   const [swapping, setSwapping] = useState(false);
@@ -112,6 +114,7 @@ export default function DinnerCard({ planId, dinner, index, people, startOpen = 
         )}
         <span className="chevron" aria-hidden="true" />
       </summary>
+      {showPhoto && <DishPhoto key={dinner.name} planId={planId} day={dinner.day} name={dinner.name} />}
       {justSwapped && (
         <p className="swapped">New dinner! Your grocery list and Sunday prep were updated to match.</p>
       )}

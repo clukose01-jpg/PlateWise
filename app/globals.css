@@ -1239,6 +1239,15 @@ button:disabled {
     padding-left: 8px;
   }
 
+  .today-columns > .dinner .dish-photo-frame {
+    aspect-ratio: 16 / 9;
+  }
+
+  .today-columns > .dinner .dish-photo figcaption {
+    margin: 10px 26px 0;
+    font-size: 14px;
+  }
+
   .today-columns > .dinner .dinner-cost {
     margin: 18px 26px 0;
     font-size: 17px;
@@ -1724,6 +1733,79 @@ main.compare {
   margin: 14px 20px 0;
   font-size: 15px;
   color: var(--muted);
+}
+
+/* Tonight's dinner picture on the Today tab. */
+.dish-photo {
+  margin: 0;
+}
+
+.dish-photo-frame {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: var(--accent-soft);
+}
+
+.dish-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.dish-photo.loading img {
+  opacity: 0;
+}
+
+.dish-photo-wait {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  text-align: center;
+  font-size: 15px;
+  color: var(--muted);
+  animation: dish-photo-wait 1.6s ease-in-out infinite alternate;
+}
+
+@keyframes dish-photo-wait {
+  from {
+    opacity: 0.55;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dish-photo-wait {
+    animation: none;
+  }
+}
+
+.dish-photo figcaption {
+  margin: 8px 20px 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.photo-preview {
+  display: block;
+  width: 100%;
+  margin: 4px 0 16px;
+  border-radius: 12px;
+}
+
+.setup-steps {
+  margin: 0 0 4px;
+  padding-left: 20px;
+}
+
+.setup-steps li + li {
+  margin-top: 4px;
 }
 
 /* What tonight's dinner needs, above the steps. */

@@ -483,6 +483,8 @@ export default function AdminDashboard() {
                 <dd>{totals.swaps}</dd>
                 <dt>Fridge photo scans</dt>
                 <dd>{totals.scans}</dd>
+                <dt>Dinner pictures made</dt>
+                <dd>{totals.photos}</dd>
                 <dt>Dinners liked</dt>
                 <dd>{totals.liked}</dd>
                 <dt>Dinners not liked</dt>
