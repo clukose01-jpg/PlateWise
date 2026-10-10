@@ -69,7 +69,16 @@ These started out on the leave-out list, or weren't in the plan at all. Each was
 | Private admin page | Shows you how many families use PlateWise, roughly where they are (city, from their internet connection), their allergies, how many come back each week, and what the AI costs. It has its own home screen icon, and a summary email comes every Monday morning. | Add a short privacy note before a public launch that says you count approximate location. |
 | Grocery budget and estimated prices | Families want to know what the week costs. She sets a weekly budget when she makes an account, or from a small line in the family questions. The plan aims to stay under it, the grocery list shows prices and a total, and each dinner shows its cost for the family and per person. Prices are AI estimates for her state, not real store prices. | Whether people set a budget, and how close the estimate is to their receipt. Ask testers to compare the total with what they actually paid. If it's far off, real store prices (Kroger has a free price list) are the next step. |
 | Ingredient list for each dinner | Your mom wanted to see what tonight's dinner needs at a glance. Each dinner shows "What you need" above the steps, and the allergy check reads every ingredient. | Whether people still open the grocery list while cooking, or the ingredient list is enough. |
-| AI-made picture of tonight's dinner | A picture makes tonight's dinner easier to picture and more appealing. It's made by Google's image AI from the dish name and ingredients, once per dinner, at about 5 cents each. Turned on with a Google AI key on the setup page. | Whether the pictures look like what people actually cook, and whether any picture ever shows a food that isn't in the dinner. If one does, ask testers about it, since it could worry allergy families. |
+
+## Saved for later
+
+Started, then paused. Pick these up when you're ready.
+
+- **AI-made picture of tonight's dinner.** Already built, and switched off until a key is saved, so families don't see anything yet. It uses Google's "Nano Banana" picture AI, made once per dinner from the dish name and ingredients, at about 5 to 7 cents a picture. A caption says it's AI-made and to follow the ingredient list.
+  - To turn it on: in Google AI Studio, open Billing and add a card, and set a spending alert of about $5 a month. Then paste the Google AI key into the Dinner pictures box on the setup page and tap Save and test. Without a card, Google refuses to make pictures.
+  - Other options looked at: Higgsfield doesn't let other apps connect to it. fal.ai sells the same picture AI with prepaid credits, at about 8 cents a picture. Free stock photos often show a different dish, or foods that aren't in it.
+  - Once it's on, watch for any picture that shows a food that isn't in the dinner, since that could worry allergy families.
+- **Fridge photo speed test.** The private test page can compare scan settings, to see whether fridge scans can be made faster and cheaper without missing food. When that's done, the test page can be removed.
 
 ## 4. How you'll know it works
 
