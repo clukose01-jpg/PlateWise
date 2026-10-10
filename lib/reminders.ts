@@ -5,13 +5,14 @@ import { del, get, list, put } from "@vercel/blob";
 import webpush from "web-push";
 import { z } from "zod";
 import { prepGroups, type StoredPlan, StorageNotSetUpError, useBlob } from "./plans";
+import { DEFAULT_REMINDER_HOUR, isReminderHour } from "./reminder-times";
 
-// Reminders go out around 3pm in each phone's own time zone. Vercel's free plan runs each scheduled
-// job once a day within an hour, so there's one job for every hour of the day (see vercel.json).
-// Each run sends to the phones where it's between 3pm and 6pm and today's reminder hasn't gone yet,
-// so a late or skipped run is caught by the next one.
-export const REMINDER_HOUR = 15;
-const LAST_REMINDER_HOUR = 17;
+// Reminders go out at the hour each person picked (3pm unless they changed it), in their phone's
+// own time zone. Vercel's free plan runs each scheduled job once a day within an hour, so there's
+// one job for every hour of the day (see vercel.json). Each run sends to the phones whose hour has
+// come in the last 3 hours and whose reminder hasn't gone yet today, so a late or skipped run is
+// caught by the next one.
+const CATCH_UP_HOURS = 2;
 // Sign-ups from before time zones were saved were all in Eastern time.
 export const DEFAULT_TIME_ZONE = "America/New_York";
 
@@ -38,9 +39,15 @@ export type SavedReminder = {
   planId: string;
   savedAt: string;
   timeZone?: string;
+  // The hour she picked on the phone's clock, like 17 for 5pm. Older sign-ups don't have it: 3pm.
+  hour?: number;
   // The phone's local date (like 2026-10-14) of the last reminder sent, so it only gets one a day.
   lastSentOn?: string;
 };
+
+export function reminderHour(reminder: SavedReminder) {
+  return isReminderHour(reminder.hour) ? reminder.hour : DEFAULT_REMINDER_HOUR;
+}
 export type ReminderMessage = { title: string; body: string; url: string };
 
 // Online, each phone's sign-up is a private file in Vercel Blob storage; on your own computer, in .data.
@@ -63,15 +70,20 @@ async function writeReminder(reminder: SavedReminder) {
   }
 }
 
-// Turns reminders on, or updates which plan and time zone they follow. The app calls this each time
-// a plan opens, so it only writes when something changed.
-export async function saveReminder(subscription: Subscription, planId: string, timeZone: string) {
+// Turns reminders on, or updates which plan, time zone and hour they follow. The app calls this each
+// time a plan opens (without an hour, which keeps the one she picked), so it only writes when
+// something changed.
+export async function saveReminder(subscription: Subscription, planId: string, timeZone: string, hour?: number) {
   const existing = await loadReminder(subscription.endpoint);
-  if (existing && existing.planId === planId && existing.timeZone === timeZone) return;
+  const chosenHour = hour ?? existing?.hour;
+  if (existing && existing.planId === planId && existing.timeZone === timeZone && existing.hour === chosenHour) {
+    return;
+  }
   await writeReminder({
     subscription,
     planId,
     timeZone,
+    hour: chosenHour,
     savedAt: new Date().toISOString(),
     lastSentOn: existing?.lastSentOn,
   });
@@ -141,8 +153,8 @@ export function localNow(timeZone: string, date = new Date()) {
   };
 }
 
-export function isReminderTime(hour: number) {
-  return hour >= REMINDER_HOUR && hour <= LAST_REMINDER_HOUR;
+export function isReminderTime(hour: number, chosenHour = DEFAULT_REMINDER_HOUR) {
+  return hour >= chosenHour && hour <= chosenHour + CATCH_UP_HOURS;
 }
 
 const NEXT_DAY: Record<string, string> = {

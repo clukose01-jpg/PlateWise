@@ -1082,6 +1082,20 @@ legend.question {
   margin: 12px 0 0;
 }
 
+.reminder-time {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 16px;
+  font-weight: 600;
+}
+
+.reminder-time select {
+  width: auto;
+  min-width: 96px;
+}
+
 button:disabled {
   opacity: 0.6;
 }

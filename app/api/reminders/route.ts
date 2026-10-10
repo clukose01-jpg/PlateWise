@@ -8,12 +8,15 @@ import {
   SubscriptionSchema,
   TimeZoneSchema,
 } from "@/lib/reminders";
+import { isReminderHour } from "@/lib/reminder-times";
 
 const TurnOn = z.object({
   subscription: SubscriptionSchema,
   planId: z.string().max(40),
   // Older versions of the app didn't send it; those sign-ups were all in Eastern time.
   timeZone: TimeZoneSchema.catch(DEFAULT_TIME_ZONE),
+  // Only sent when she picks a time in the More tab; otherwise the saved time stays.
+  hour: z.number().refine(isReminderHour).optional(),
 });
 const TurnOff = z.object({ endpoint: z.string().max(1000) });
 
@@ -29,14 +32,15 @@ export async function GET() {
   return Response.json({ publicKey: process.env.VAPID_PUBLIC_KEY });
 }
 
-// Turns reminders on for a phone, or updates which plan and time zone they follow.
+// Turns reminders on for a phone, or updates which plan, time zone and hour they follow.
 export async function POST(request: Request) {
   const parsed = TurnOn.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return errorResponse("That didn't come through. Please try again.", 400);
   }
   try {
-    await saveReminder(parsed.data.subscription, parsed.data.planId, parsed.data.timeZone);
+    const { subscription, planId, timeZone, hour } = parsed.data;
+    await saveReminder(subscription, planId, timeZone, hour);
     return Response.json({ ok: true });
   } catch (error) {
     if (error instanceof StorageNotSetUpError) {

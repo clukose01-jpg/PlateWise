@@ -472,8 +472,14 @@ export default function AdminDashboard() {
             />
             <BarList
               title="Reminder time zones"
-              hint="Where the 3pm reminders go."
+              hint="Where the daily reminders go."
               items={stats.timeZones}
+              empty="No reminders yet."
+            />
+            <BarList
+              title="Reminder times"
+              hint="The time each person picked, on their own clock."
+              items={stats.reminderTimes}
               empty="No reminders yet."
             />
             <section className="card admin-card">

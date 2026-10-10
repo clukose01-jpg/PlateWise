@@ -6,6 +6,7 @@ import {
   localNow,
   markReminderSent,
   pushIsSetUp,
+  reminderHour,
   reminderMessage,
   sendReminder,
 } from "@/lib/reminders";
@@ -29,7 +30,7 @@ export async function GET(request: Request) {
   for (const reminder of await allReminders()) {
     const timeZone = reminder.timeZone ?? DEFAULT_TIME_ZONE;
     const local = localNow(timeZone, now);
-    if (!force && !isReminderTime(local.hour)) {
+    if (!force && !isReminderTime(local.hour, reminderHour(reminder))) {
       results.notTimeYet++;
       continue;
     }

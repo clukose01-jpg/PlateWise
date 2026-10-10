@@ -2,6 +2,7 @@ import type { Account } from "./accounts";
 import type { AppEvent } from "./events";
 import type { SavedReminder } from "./reminders";
 import { groceryTotal } from "./plan-schema";
+import { DEFAULT_REMINDER_HOUR, hourLabel, REMINDER_HOURS } from "./reminder-times";
 import type { StoredPlan } from "./plans";
 import { listNames, readMany } from "./store";
 import type { Origin } from "./visitor";
@@ -44,6 +45,7 @@ export type AdminStats = {
   places: Count[];
   placesLast7: Count[];
   timeZones: Count[];
+  reminderTimes: Count[];
   allergies: Count[];
   refusals: Count[];
   cookTimes: Count[];
@@ -241,6 +243,10 @@ export async function adminStats(): Promise<AdminStats> {
     places,
     placesLast7: familiesPerPlace(placeFamiliesLast7, 5),
     timeZones: topCounts(timeZones),
+    reminderTimes: REMINDER_HOURS.map((hour) => ({
+      label: hourLabel(hour),
+      count: reminders.filter((reminder) => (reminder.hour ?? DEFAULT_REMINDER_HOUR) === hour).length,
+    })).filter((time) => time.count > 0),
     allergies: topCounts(allergies),
     refusals: topCounts(refusals),
     cookTimes: [...cookTimes.entries()].sort((a, b) => a[0] - b[0]).map(([minutes, count]) => ({ label: `${minutes} min`, count })),

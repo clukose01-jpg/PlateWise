@@ -1,6 +1,9 @@
-// Turning the daily reminder on and off from a phone or computer.
+import { DEFAULT_REMINDER_HOUR, isReminderHour } from "./reminder-times";
+
+// Turning the daily reminder on and off from a phone or computer, and picking its time.
 
 const REMINDERS_ON_KEY = "platewise.remindersOn";
+const REMINDER_HOUR_KEY = "platewise.reminderHour";
 
 export function pushSupported() {
   return typeof window !== "undefined" && "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
@@ -23,13 +26,31 @@ function setRemindersOn(on: boolean) {
   }
 }
 
+// The hour she picked on this device, like 17 for 5pm. 3pm until she changes it.
+export function savedReminderHour(): number {
+  try {
+    const hour = Number(localStorage.getItem(REMINDER_HOUR_KEY));
+    return isReminderHour(hour) ? hour : DEFAULT_REMINDER_HOUR;
+  } catch {
+    return DEFAULT_REMINDER_HOUR;
+  }
+}
+
+function rememberReminderHour(hour: number) {
+  try {
+    localStorage.setItem(REMINDER_HOUR_KEY, String(hour));
+  } catch {
+    // Not remembered; the picker will just show 3pm next time.
+  }
+}
+
 // The key arrives as base64url text; the browser wants raw bytes.
 function keyBytes(base64url: string) {
   const base64 = (base64url + "=".repeat((4 - (base64url.length % 4)) % 4)).replace(/-/g, "+").replace(/_/g, "/");
   return Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
 }
 
-// Like "America/Chicago". Reminders come at 3pm wherever the device is.
+// Like "America/Chicago". Reminders come at the hour she picked, wherever the device is.
 function deviceTimeZone() {
   return Intl.DateTimeFormat().resolvedOptions().timeZone;
 }
@@ -46,7 +67,7 @@ async function postJson(url: string, method: string, body: unknown) {
   return result;
 }
 
-export async function turnOnReminders(planId: string) {
+export async function turnOnReminders(planId: string, hour: number) {
   const permission = await Notification.requestPermission();
   if (permission !== "granted") {
     throw new Error("Notifications are blocked. Allow them for PlateWise in your device's settings, then try again.");
@@ -68,8 +89,24 @@ export async function turnOnReminders(planId: string) {
     subscription: subscription.toJSON(),
     planId,
     timeZone: deviceTimeZone(),
+    hour,
   });
+  rememberReminderHour(hour);
   setRemindersOn(true);
+}
+
+// With reminders on, saves the new time right away. With them off, it's used when she turns them on.
+export async function changeReminderHour(planId: string | null, hour: number) {
+  const subscription = remindersOn() && planId ? await currentSubscription() : null;
+  if (subscription) {
+    await postJson("/api/reminders", "POST", {
+      subscription: subscription.toJSON(),
+      planId,
+      timeZone: deviceTimeZone(),
+      hour,
+    });
+  }
+  rememberReminderHour(hour);
 }
 
 export async function turnOffReminders() {
