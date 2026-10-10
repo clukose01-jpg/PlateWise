@@ -2,7 +2,7 @@
 // contain them (wheat in soy sauce and bread), and foods the kids won't eat. A food written as a
 // safe version, like "gluten-free pasta" or "dairy-free cheese", or one being avoided, like
 // "no onions", doesn't count.
-import type { Family, Plan } from "./plan-schema";
+import { type Family, itemName, type Plan } from "./plan-schema";
 
 // A food word to look for. `except` lists words that make it safe right before it, like "coconut milk".
 export type Food = string | { word: string; except: string[] };
@@ -193,7 +193,9 @@ export function planText(plan: Plan): { where: string; text: string }[] {
     ]),
     ...plan.lunches.map((l) => ({ where: `${l.day} lunch`, text: l.name })),
     ...plan.prepList.flatMap((p) => p.steps.map((text) => ({ where: `Sunday prep for ${p.day}`, text }))),
-    ...plan.groceryList.flatMap((g) => g.items.map((text) => ({ where: `Grocery list (${g.section})`, text }))),
+    ...plan.groceryList.flatMap((g) =>
+      g.items.map((item) => ({ where: `Grocery list (${g.section})`, text: itemName(item) })),
+    ),
   ];
 }
 

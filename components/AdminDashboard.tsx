@@ -489,8 +489,23 @@ export default function AdminDashboard() {
                 <dd>{totals.disliked}</dd>
                 <dt>Families who want lunches</dt>
                 <dd>{stats.lunchesShare === null ? "–" : `${Math.round(stats.lunchesShare * 100)}%`}</dd>
+                <dt>Families who set a budget</dt>
+                <dd>{stats.budgets.share === null ? "–" : `${Math.round(stats.budgets.share * 100)}%`}</dd>
+                <dt>Average budget</dt>
+                <dd>{stats.budgets.average === null ? "–" : money(stats.budgets.average)}</dd>
+                <dt>Average grocery list</dt>
+                <dd>{stats.budgets.averageGroceries === null ? "–" : money(stats.budgets.averageGroceries)}</dd>
+                <dt>Plans over budget</dt>
+                <dd>
+                  {stats.budgets.plansWithBudget
+                    ? `${stats.budgets.overBudget} of ${stats.budgets.plansWithBudget}`
+                    : "–"}
+                </dd>
               </dl>
-              <p className="hint">Likes only count families who log in. Swaps and scans are counted from Oct 9, when this page was added.</p>
+              <p className="hint">
+                Likes only count families who log in. Swaps and scans are counted from Oct 9, and budgets and
+                grocery prices from Oct 10, when they were added.
+              </p>
             </section>
           </div>
 

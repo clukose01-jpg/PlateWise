@@ -6,7 +6,7 @@ import { newOwnerKey, savePlan, StorageNotSetUpError } from "@/lib/plans";
 import { logEvent } from "@/lib/events";
 import { makeSafePlan, type PlanFix, PlanSafetyError, SAFETY_CHECK_ON, type SafetyRound } from "@/lib/safe-plan";
 import { sessionAccountId } from "@/lib/session";
-import { requestDeviceId, requestOrigin } from "@/lib/visitor";
+import { priceArea, requestDeviceId, requestOrigin } from "@/lib/visitor";
 import { writePlan } from "@/lib/write-plan";
 
 // Writing and double-checking a whole week can take a minute or two.
@@ -30,9 +30,10 @@ export async function POST(request: Request) {
     return errorResponse("Some answers didn't come through. Please check them and try again.", 400);
   }
   const family = parsed.data;
+  const origin = requestOrigin(request);
 
   try {
-    const generate = (fix?: PlanFix) => writePlan(family, PLAN_EFFORT, fix);
+    const generate = (fix?: PlanFix) => writePlan(family, PLAN_EFFORT, fix, priceArea(origin));
     const result = SAFETY_CHECK_ON ? await makeSafePlan(family, generate) : await generate();
     if (!result) {
       return errorResponse("We couldn't make a plan this time. Please try again.", 502);
@@ -45,7 +46,7 @@ export async function POST(request: Request) {
       test: result.test,
       safetyChecked: SAFETY_CHECK_ON,
       ownerKeyHash,
-      origin: requestOrigin(request),
+      origin,
       deviceId: requestDeviceId(request),
       accountId: sessionAccountId(request) ?? undefined,
       safetyFixes:

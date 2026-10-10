@@ -3,24 +3,36 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { clearPlanTicks, deviceHeaders } from "@/lib/device";
+import { dollars } from "@/lib/plan-schema";
 import type { StoredPlan } from "@/lib/plans";
 import { type DinnerRating, loadRating, removeRating, saveRating } from "@/lib/ratings";
 import { ClockIcon, SwapIcon, ThumbIcon } from "./Illustrations";
+
+// To the nearest 50 cents, like "$3" or "$2.50".
+function perPerson(cost: number, people: number) {
+  const each = Math.round((cost / people) * 2) / 2;
+  if (each < 1) return "under $1";
+  return Number.isInteger(each) ? `$${each}` : `$${each.toFixed(2)}`;
+}
 
 type Props = {
   planId: string;
   dinner: StoredPlan["plan"]["dinners"][number];
   index: number;
+  // How many people are eating, for the cost per person.
+  people: number;
   // The Today tab opens tonight's dinner straight away.
   startOpen?: boolean;
 };
 
-export default function DinnerCard({ planId, dinner, index, startOpen = false }: Props) {
+export default function DinnerCard({ planId, dinner, index, people, startOpen = false }: Props) {
   const router = useRouter();
   const [rating, setRating] = useState<DinnerRating | null>(null);
   const [swapping, setSwapping] = useState(false);
   const [swapError, setSwapError] = useState<string | null>(null);
   const [justSwapped, setJustSwapped] = useState(false);
+  // Plans made before prices were added have no cost.
+  const cost = dinner.cost && dinner.cost > 0 ? dinner.cost : null;
 
   useEffect(() => {
     setRating(loadRating(planId, dinner.day));
@@ -87,6 +99,7 @@ export default function DinnerCard({ planId, dinner, index, startOpen = false }:
           <span className="dish">{dinner.name}</span>
           <span className="minutes">
             <ClockIcon /> {dinner.minutes} min
+            {cost !== null && <> · about {dollars(cost)}</>}
           </span>
         </span>
         {rating && (
@@ -101,6 +114,11 @@ export default function DinnerCard({ planId, dinner, index, startOpen = false }:
       </summary>
       {justSwapped && (
         <p className="swapped">New dinner! Your grocery list and Sunday prep were updated to match.</p>
+      )}
+      {cost !== null && (
+        <p className="dinner-cost">
+          About {dollars(cost)} for the family{people > 1 && `, or ${perPerson(cost, people)} a person`}.
+        </p>
       )}
       {dinner.tip && (
         <p className="tip">

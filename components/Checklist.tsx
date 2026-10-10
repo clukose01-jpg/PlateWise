@@ -2,8 +2,17 @@
 
 import { useEffect, useRef, useState } from "react";
 
-// A list she can tick off at the store. Ticks are remembered on this device only.
-export default function Checklist({ items, storageKey }: { items: string[]; storageKey: string }) {
+// A list she can tick off at the store. Ticks are remembered on this device only. "asides" are
+// shown at the end of each line, like a grocery item's price.
+export default function Checklist({
+  items,
+  asides,
+  storageKey,
+}: {
+  items: string[];
+  asides?: (string | null)[];
+  storageKey: string;
+}) {
   const [checked, setChecked] = useState<number[]>([]);
   // The latest ticks, so quick taps in a row each build on the one before.
   const latest = useRef<number[]>([]);
@@ -42,6 +51,7 @@ export default function Checklist({ items, storageKey }: { items: string[]; stor
           <label className={ticked.includes(i) ? "done" : undefined}>
             <input type="checkbox" checked={ticked.includes(i)} onChange={() => toggle(i)} />
             <span>{item}</span>
+            {asides?.[i] && <span className="aside">{asides[i]}</span>}
           </label>
         </li>
       ))}

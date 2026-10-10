@@ -22,6 +22,12 @@ export function requestOrigin(request: Request): Origin | undefined {
   return origin.country || origin.city ? origin : undefined;
 }
 
+// Where to estimate grocery prices for: the state, for families in the US. Elsewhere the plan
+// uses typical US prices, since everything is shown in dollars.
+export function priceArea(origin: Origin | undefined): string | undefined {
+  return origin?.country === "US" && origin.region ? `${origin.region}, US` : undefined;
+}
+
 export const DEVICE_HEADER = "x-platewise-device";
 
 export function requestDeviceId(request: Request): string | undefined {

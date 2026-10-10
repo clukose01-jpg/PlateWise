@@ -23,6 +23,7 @@ const FamilySchema = z.object({
   kids: z.array(z.object({ name: z.string().max(60), refuses: z.array(z.string().max(100)).max(20) })).max(8),
   maxMinutes: z.number().int().min(10).max(120),
   lunches: z.boolean(),
+  budget: z.number().int().min(1).max(5000).nullish().catch(null),
 });
 
 export const AccountDataSchema = z.object({

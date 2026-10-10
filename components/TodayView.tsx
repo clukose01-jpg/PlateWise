@@ -16,6 +16,8 @@ type Props = {
   prepGroups: PrepGroup[];
   createdAt?: string;
   madeOn: string;
+  people: number;
+  budget?: number | null;
 };
 
 function NewPlanNudge({ title, text }: { title: string; text: string }) {
@@ -31,7 +33,7 @@ function NewPlanNudge({ title, text }: { title: string; text: string }) {
 }
 
 // Shows what matters today. It runs on her phone, so "today" is her day, not the server's.
-export default function TodayView({ planId, plan, prepGroups, createdAt, madeOn }: Props) {
+export default function TodayView({ planId, plan, prepGroups, createdAt, madeOn, people, budget }: Props) {
   const [now, setNow] = useState<Date | null>(null);
 
   useEffect(() => {
@@ -77,7 +79,7 @@ export default function TodayView({ planId, plan, prepGroups, createdAt, madeOn 
         <p className="tagline today-date">{dateLabel}</p>
         {madeForComingWeek ? (
           <>
-            <GroceryList planId={planId} groceryList={plan.groceryList} />
+            <GroceryList planId={planId} groceryList={plan.groceryList} budget={budget} />
             <p className="hint center">Tomorrow is prep day.</p>
           </>
         ) : (
@@ -130,7 +132,7 @@ export default function TodayView({ planId, plan, prepGroups, createdAt, madeOn 
       {/* On a computer, tonight's recipe fills the left and the rest sits beside it. */}
       <div className="today-columns">
         {tonight ? (
-          <DinnerCard planId={planId} dinner={tonight} index={dinnerIndex} startOpen />
+          <DinnerCard planId={planId} dinner={tonight} index={dinnerIndex} people={people} startOpen />
         ) : (
           <p className="quiet">No dinner is planned for tonight.</p>
         )}

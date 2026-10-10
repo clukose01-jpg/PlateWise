@@ -46,7 +46,6 @@ Everything else (the grocery list and the prep list) is there to make that plan 
 | Payments and subscription | First find out whether she uses it. Ask about price in conversation instead. |
 | App Store and Google Play | A web link is free. Your canvas already says to wait for proof that people want it. |
 | Voice agent | You answer questions personally for now. |
-| Grocery budget cap | Your customer profile says saving money is a bonus, not her main problem. |
 | Weekend meals and breakfast | The pain is weeknights at 5pm. |
 
 ## Added after testing
@@ -68,6 +67,7 @@ These started out on the leave-out list, or weren't in the plan at all. Each was
 | Delete a plan | To restart a week that didn't fit the family. | How often people delete a plan and make a new one. |
 | Optional login with email and password | So plans, family answers, pantry and ratings follow her to any phone or computer. The first login uses an emailed code, then a password after that. | How many testers make an account, and whether anyone gets stuck logging in. |
 | Private admin page | Shows you how many families use PlateWise, roughly where they are (city, from their internet connection), their allergies, how many come back each week, and what the AI costs. It has its own home screen icon, and a summary email comes every Monday morning. | Add a short privacy note before a public launch that says you count approximate location. |
+| Grocery budget and estimated prices | Families want to know what the week costs. She can set a weekly budget, the plan aims to stay under it, the grocery list shows prices and a total, and each dinner shows its cost for the family and per person. Prices are AI estimates for her state, not real store prices. | Whether people set a budget, and how close the estimate is to their receipt. Ask testers to compare the total with what they actually paid. If it's far off, real store prices (Kroger has a free price list) are the next step. |
 
 ## 4. How you'll know it works
 

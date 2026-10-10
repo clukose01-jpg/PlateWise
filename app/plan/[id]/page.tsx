@@ -34,6 +34,7 @@ export default async function PlanPage({ params, searchParams }: Props) {
   const tab: PlanTab = query.tab === "week" || query.tab === "groceries" ? query.tab : "today";
   const testMode = "test" in query;
   const prep = prepGroups(plan);
+  const people = family.adults + family.kids.length;
 
   const plannedAround = [
     family.allergies && `Allergies: ${family.allergies}`,
@@ -63,6 +64,8 @@ export default async function PlanPage({ params, searchParams }: Props) {
           prepGroups={prep}
           createdAt={createdAt}
           madeOn={family.madeOn}
+          people={people}
+          budget={family.budget}
         />
       )}
 
@@ -95,7 +98,7 @@ export default async function PlanPage({ params, searchParams }: Props) {
             <section>
               <h2 className="section-title">Dinners</h2>
               {plan.dinners.map((dinner, i) => (
-                <DinnerCard key={dinner.day} planId={id} dinner={dinner} index={i} />
+                <DinnerCard key={dinner.day} planId={id} dinner={dinner} index={i} people={people} />
               ))}
               <p className="hint">Tap a dinner to see how to make it, and rate it after you eat.</p>
             </section>
@@ -130,7 +133,7 @@ export default async function PlanPage({ params, searchParams }: Props) {
       {tab === "groceries" && (
         <>
           <div className="groceries-layout">
-            <GroceryList planId={id} groceryList={plan.groceryList} />
+            <GroceryList planId={id} groceryList={plan.groceryList} budget={family.budget} />
             <PrepList planId={id} groups={prep} />
           </div>
           <p className="hint center">Always check food labels for allergens.</p>

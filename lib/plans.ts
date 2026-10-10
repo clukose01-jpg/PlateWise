@@ -2,7 +2,7 @@ import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 import { mkdir, readFile, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { del, get, put } from "@vercel/blob";
-import type { Family, Plan, TestInfo } from "./plan-schema";
+import type { Family, GroceryItem, Plan, TestInfo } from "./plan-schema";
 import type { Origin } from "./visitor";
 
 export type SavedPlan = {
@@ -24,12 +24,16 @@ export type SavedPlan = {
   swaps?: number;
 };
 
-// Older plans stored prep as one flat list and had no night-before steps.
-type StoredDinner = Omit<Plan["dinners"][number], "nightBefore"> & { nightBefore?: string[] };
+// Older plans stored prep as one flat list, had no night-before steps, and had no prices.
+export type StoredDinner = Omit<Plan["dinners"][number], "nightBefore" | "cost"> & {
+  nightBefore?: string[];
+  cost?: number;
+};
 export type StoredPlan = Omit<SavedPlan, "plan"> & {
-  plan: Omit<Plan, "prepList" | "dinners"> & {
+  plan: Omit<Plan, "prepList" | "dinners" | "groceryList"> & {
     prepList: Plan["prepList"] | string[];
     dinners: StoredDinner[];
+    groceryList: { section: string; items: (GroceryItem | string)[] }[];
   };
 };
 

@@ -12,9 +12,17 @@ export type FamilyAnswers = {
   kids: { name: string; refuses: string }[];
   maxMinutes: number;
   lunches: boolean;
+  budget: number | null;
 };
 
 const MAX_FOODS_PER_KID = 15;
+const MAX_BUDGET = 5000;
+
+// Whole dollars, or no budget if the box is empty or zero.
+function toBudget(text: string): number | null {
+  const amount = Number(text);
+  return Number.isInteger(amount) && amount >= 1 ? Math.min(amount, MAX_BUDGET) : null;
+}
 const MAX_ALLERGIES = 12;
 
 // While she's typing, each kid's foods are separate bubbles plus whatever is in the box.
@@ -51,6 +59,7 @@ export default function FamilyStep({ error, onBack, onSubmit }: Props) {
   const [kids, setKids] = useState<KidDraft[]>([EMPTY_KID]);
   const [maxMinutes, setMaxMinutes] = useState(30);
   const [lunches, setLunches] = useState(false);
+  const [budget, setBudget] = useState("");
   const [ratingCount, setRatingCount] = useState(0);
 
   useEffect(() => {
@@ -64,6 +73,7 @@ export default function FamilyStep({ error, onBack, onSubmit }: Props) {
       setKids(saved.kids.length ? saved.kids.map((kid) => ({ ...kid, typing: "" })) : [EMPTY_KID]);
       setMaxMinutes(saved.maxMinutes);
       setLunches(saved.lunches);
+      setBudget(saved.budget ? String(saved.budget) : "");
     });
   }, []);
 
@@ -118,15 +128,16 @@ export default function FamilyStep({ error, onBack, onSubmit }: Props) {
       kids: finished.map((kid) => ({ name: kid.name, refuses: kid.refuses.join(", ") })),
       maxMinutes,
       lunches,
+      budget: toBudget(budget),
     };
-    saveFamily({ allergies: allergyList, adults, kids: finished, maxMinutes, lunches });
+    saveFamily({ allergies: allergyList, adults, kids: finished, maxMinutes, lunches, budget: answers.budget });
     onSubmit(answers);
   }
 
   return (
     <form className="card family" onSubmit={submit}>
       <h2>About your family</h2>
-      <p>Three quick questions. This device will remember your answers for next week.</p>
+      <p>Four quick questions. This device will remember your answers for next week.</p>
 
       <label className="question" htmlFor="allergies">
         <span className="number">1</span>
@@ -257,6 +268,26 @@ export default function FamilyStep({ error, onBack, onSubmit }: Props) {
           ))}
         </div>
       </fieldset>
+
+      <label className="question" htmlFor="budget">
+        <span className="number">4</span>
+        Grocery budget for the week?
+      </label>
+      <div className="money">
+        <span aria-hidden="true">$</span>
+        <input
+          id="budget"
+          inputMode="numeric"
+          value={budget}
+          onChange={(event) => setBudget(event.target.value.replace(/\D/g, "").slice(0, 4))}
+          placeholder="Leave blank for no limit"
+          aria-describedby="budget-hint"
+          enterKeyHint="done"
+        />
+      </div>
+      <p className="hint" id="budget-hint">
+        We&apos;ll aim to keep the grocery list under it, and show what each dinner costs.
+      </p>
 
       <label className="checkbox">
         <input type="checkbox" checked={lunches} onChange={(event) => setLunches(event.target.checked)} />

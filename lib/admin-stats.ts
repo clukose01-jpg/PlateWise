@@ -1,6 +1,7 @@
 import type { Account } from "./accounts";
 import type { AppEvent } from "./events";
 import type { SavedReminder } from "./reminders";
+import { groceryTotal } from "./plan-schema";
 import type { StoredPlan } from "./plans";
 import { listNames, readMany } from "./store";
 import type { Origin } from "./visitor";
@@ -46,6 +47,15 @@ export type AdminStats = {
   refusals: Count[];
   cookTimes: Count[];
   lunchesShare: number | null;
+  budgets: {
+    // Of families, how many set a budget, and the average one.
+    share: number | null;
+    average: number | null;
+    // Of plans with prices: the average grocery list, and how many came out over budget.
+    averageGroceries: number | null;
+    plansWithBudget: number;
+    overBudget: number;
+  };
   recentPlans: {
     createdAt: string;
     place: string | null;
@@ -140,7 +150,9 @@ export async function adminStats(): Promise<AdminStats> {
   const refusals = new Map<string, number>();
   const cookTimes = new Map<number, number>();
   let withLunches = 0;
+  const budgets: number[] = [];
   for (const plan of newestByFamily.values()) {
+    if (plan.family.budget) budgets.push(plan.family.budget);
     for (const allergy of new Set(terms(plan.family.allergies ?? ""))) bump(allergies, allergy);
     const foods = new Set(plan.family.kids.flatMap((kid) => terms(kid.refuses ?? "")));
     for (const food of foods) bump(refusals, food);
@@ -186,6 +198,11 @@ export async function adminStats(): Promise<AdminStats> {
       .filter((plan) => typeof plan.test?.costUsd === "number" && (!days || recent(plan.createdAt, days)))
       .reduce((total, plan) => total + (plan.test.costUsd as number), 0);
 
+  const totals = datedPlans.map((plan) => ({ total: groceryTotal(plan.plan.groceryList), budget: plan.family.budget }));
+  const priced = totals.filter((plan) => plan.total !== null);
+  const budgeted = priced.filter((plan) => plan.budget);
+  const average = (values: number[]) => (values.length ? values.reduce((a, b) => a + b, 0) / values.length : null);
+
   const ratings = accounts.flatMap((account) => Object.values(account.data?.ratings ?? {}));
   const tracked = datedPlans.filter((plan) => plan.deviceId || plan.origin);
 
@@ -226,6 +243,13 @@ export async function adminStats(): Promise<AdminStats> {
     refusals: topCounts(refusals),
     cookTimes: [...cookTimes.entries()].sort((a, b) => a[0] - b[0]).map(([minutes, count]) => ({ label: `${minutes} min`, count })),
     lunchesShare: newestByFamily.size ? withLunches / newestByFamily.size : null,
+    budgets: {
+      share: newestByFamily.size ? budgets.length / newestByFamily.size : null,
+      average: average(budgets),
+      averageGroceries: average(priced.map((plan) => plan.total!)),
+      plansWithBudget: budgeted.length,
+      overBudget: budgeted.filter((plan) => plan.total! > plan.budget! + 0.5).length,
+    },
     recentPlans: datedPlans.slice(0, 15).map((plan) => ({
       createdAt: plan.createdAt!,
       place: placeName(plan.origin),

@@ -15,14 +15,14 @@ import { type Family, type Plan, PlanSchema, type TestInfo, WEEKDAYS } from "@/l
 import { loadPlan, type StoredPlan, StorageNotSetUpError, updatePlan } from "@/lib/plans";
 import { logEvent } from "@/lib/events";
 import { describeFix, makeSafePlan, type PlanFix, PlanSafetyError, SAFETY_CHECK_ON } from "@/lib/safe-plan";
-import { requestDeviceId, requestOrigin } from "@/lib/visitor";
+import { priceArea, requestDeviceId, requestOrigin } from "@/lib/visitor";
 
 export const maxDuration = 300;
 
 const SwapRequest = z.object({ planId: z.string().max(40), day: z.enum(WEEKDAYS) });
 
 function buildSwapPrompt(family: Family, stored: StoredPlan, day: string, dish: string) {
-  return `${buildPlanPrompt(family)}
+  return `${buildPlanPrompt(family, priceArea(stored.origin))}
 
 This is the plan you made for them:
 ${JSON.stringify(stored.plan)}
@@ -63,15 +63,16 @@ async function swapDinner(
   const newDinner = generated?.dinners.find((dinner) => dinner.day === day);
   if (response.stop_reason === "refusal" || !generated || !newDinner) return null;
 
-  const dinners = stored.plan.dinners.map((dinner) =>
-    dinner.day === day
-      ? newDinner
-      : {
-          ...dinner,
-          nightBefore:
-            generated.dinners.find((g) => g.day === dinner.day)?.nightBefore ?? dinner.nightBefore ?? [],
-        },
-  );
+  const dinners = stored.plan.dinners.map((dinner) => {
+    if (dinner.day === day) return newDinner;
+    const regenerated = generated.dinners.find((g) => g.day === dinner.day);
+    return {
+      ...dinner,
+      nightBefore: regenerated?.nightBefore ?? dinner.nightBefore ?? [],
+      // Plans made before prices were added get them now, since the grocery list is redone anyway.
+      cost: dinner.cost ?? regenerated?.cost ?? 0,
+    };
+  });
   const { input_tokens, output_tokens } = response.usage;
   return {
     plan: { ...stored.plan, dinners, prepList: generated.prepList, groceryList: generated.groceryList },

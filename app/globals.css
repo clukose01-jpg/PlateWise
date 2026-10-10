@@ -1257,6 +1257,7 @@ button:disabled {
   }
 
   .grocery > h2,
+  .grocery > .grocery-total,
   .grocery > .hint,
   .prep > h2 {
     column-span: all;
@@ -1580,6 +1581,72 @@ main.compare {
 
 .login input + .primary {
   margin-top: 16px;
+}
+
+/* Budget: the question, prices on the grocery list, and each dinner's cost */
+
+.money {
+  position: relative;
+}
+
+.money span {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.money input:not([type="radio"]):not([type="checkbox"]) {
+  padding-left: 30px;
+}
+
+.money + .hint {
+  margin: 8px 0 0;
+}
+
+.grocery-total {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 12px;
+  margin: -4px 0 6px;
+}
+
+.grocery-sum {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 650;
+}
+
+.budget {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.budget.under {
+  color: var(--green);
+}
+
+.budget.over {
+  color: var(--notice);
+}
+
+.checklist .aside {
+  margin-left: auto;
+  padding-left: 8px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.dinner-cost {
+  margin: 14px 20px 0;
+  font-size: 15px;
+  color: var(--muted);
 }
 
 /* Admin page */

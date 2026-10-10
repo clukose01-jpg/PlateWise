@@ -18,6 +18,7 @@ function describeFamily(family: Family) {
     ...(kidLines.length ? ["- Kids:", ...kidLines] : []),
     `- Allergies: ${family.allergies.trim() || "none"}`,
     `- Longest she'll cook on a weeknight: ${family.maxMinutes} minutes`,
+    ...(family.budget ? [`- Grocery budget this week: $${family.budget}`] : []),
     `- Fresh food already in the fridge or freezer: ${family.fridgeItems.join(", ") || "nothing listed"}`,
     `- Already in the pantry: ${family.pantryItems.join(", ") || "nothing listed"}`,
   ].join("\n");
@@ -34,7 +35,9 @@ function describeFeedback(family: Family) {
     .join("\n");
 }
 
-export function buildPlanPrompt(family: Family) {
+// "area" is where to estimate prices for, like "NJ, US".
+export function buildPlanPrompt(family: Family, area?: string) {
+  const where = area ? `at a typical supermarket in ${area}` : "at a typical US supermarket";
   return `You're planning a week of dinners for a busy working parent. She shops once and preps on Sunday, so on weeknights there's nothing left to decide.
 
 About the family:
@@ -57,6 +60,7 @@ Make this plan:
    - Keep it varied: don't serve the same main ingredient on back-to-back nights.
    - Stick to meals kids usually like, made from ingredients any ordinary supermarket sells.
    - Give 3 to 6 short steps in plain words, and say when a step uses Sunday's prep.
+   - "cost" is about what the dinner's ingredients cost ${where}, in US dollars, counting only the amounts it uses, including food she already has.
    - Add a tip when it helps a picky eater, like serving the sauce on the side. Otherwise leave the tip empty.
    - In nightBefore, list anything to do the night before, like moving meat from the freezer to the fridge or soaking beans. Leave it empty if there's nothing.${
      family.feedback.length
@@ -78,5 +82,16 @@ Make this plan:
    - Write each step as one short action of a few words, like "Chop 1 onion" or "Marinate the chicken". Put each action in its own step instead of joining several in one sentence.
    - Only prep ahead what stays safe and fresh until the day it's eaten. For later in the week, add a step to freeze it, or leave it for that day.
 
-4. One grocery list for a single trip: everything the plan needs that isn't already in her fridge, freezer or pantry, with amounts for this household. Group it by store section: Produce, Meat and fish, Dairy and eggs, Bakery, Pantry, Frozen. Leave out empty sections. Assume she already has salt, pepper and cooking oil.`;
+4. One grocery list for a single trip: everything the plan needs that isn't already in her fridge, freezer or pantry, with amounts for this household. Group it by store section: Produce, Meat and fish, Dairy and eggs, Bakery, Pantry, Frozen. Leave out empty sections. Assume she already has salt, pepper and cooking oil.
+   - Give each item's name with its amount, like "2 lb chicken thighs".
+   - "price" is about what that item costs ${where}, in US dollars, for what she'd actually buy, like a whole bag or jar.${
+     family.budget
+       ? `
+
+5. Her grocery budget this week is $${family.budget}. Keep the grocery list's total, the sum of its prices, at or under it.
+   - Use what she already has first, pick budget-friendly ingredients, and use the same ingredients in more than one meal.
+   - Never break an allergy, kid or cooking-time rule to save money.
+   - If the week can't fit the budget, get as close to it as you can.`
+       : ""
+   }`;
 }

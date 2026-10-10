@@ -9,6 +9,8 @@ export async function writePlan(
   family: Family,
   effort: Effort,
   fix?: PlanFix,
+  // Where to estimate grocery prices for, like "NJ, US".
+  area?: string,
 ): Promise<{ plan: Plan; test: TestInfo } | null> {
   const started = Date.now();
   const stream = createClient().beta.messages.stream({
@@ -17,7 +19,7 @@ export async function writePlan(
     betas: [FALLBACK_BETA],
     fallbacks: "default",
     output_config: { effort, format: betaZodOutputFormat(PlanSchema) },
-    messages: [{ role: "user", content: buildPlanPrompt(family) + (fix ? describeFix(fix) : "") }],
+    messages: [{ role: "user", content: buildPlanPrompt(family, area) + (fix ? describeFix(fix) : "") }],
   });
   const response = await stream.finalMessage();
 

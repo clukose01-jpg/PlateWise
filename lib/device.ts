@@ -120,6 +120,7 @@ export type SavedFamily = {
   kids: SavedKid[];
   maxMinutes: number;
   lunches: boolean;
+  budget?: number | null;
 };
 
 // Answers saved before foods were separate bubbles stored them as one line, like "fish, mushrooms".
@@ -174,6 +175,7 @@ export function loadFamily(): SavedFamily | null {
       : [],
     maxMinutes: typeof saved.maxMinutes === "number" ? saved.maxMinutes : 30,
     lunches: saved.lunches === true,
+    budget: typeof saved.budget === "number" && saved.budget > 0 ? saved.budget : null,
   };
 }
 
