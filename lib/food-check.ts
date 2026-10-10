@@ -188,6 +188,7 @@ export function planText(plan: Plan): { where: string; text: string }[] {
     ...plan.dinners.flatMap((d) => [
       { where: `${d.day} dinner`, text: d.name },
       { where: `${d.day} tip`, text: d.tip },
+      ...(d.ingredients ?? []).map((text) => ({ where: `${d.day} ingredients`, text })),
       ...d.steps.map((text) => ({ where: `${d.day} steps`, text })),
       ...(d.nightBefore ?? []).map((text) => ({ where: `${d.day} night before`, text })),
     ]),

@@ -1239,6 +1239,40 @@ button:disabled {
     padding-left: 8px;
   }
 
+  .today-columns > .dinner .dinner-cost {
+    margin: 18px 26px 0;
+    font-size: 17px;
+  }
+
+  .today-columns > .dinner .ingredients {
+    margin: 22px 26px 0;
+  }
+
+  .today-columns > .dinner .ingredients ul {
+    columns: 2 240px;
+    column-gap: 32px;
+    font-size: 20px;
+    line-height: 1.5;
+  }
+
+  .today-columns > .dinner .ingredients li {
+    break-inside: avoid;
+    margin-bottom: 6px;
+  }
+
+  .today-columns > .dinner .ingredients h3,
+  .today-columns > .dinner .steps-title {
+    font-size: 15px;
+  }
+
+  .today-columns > .dinner .steps-title {
+    margin: 26px 26px 0;
+  }
+
+  .today-columns > .dinner .steps-title + .steps {
+    padding-top: 10px;
+  }
+
   .today-columns > .dinner .swap,
   .today-columns > .dinner .feedback {
     margin-inline: 26px;
@@ -1690,6 +1724,43 @@ main.compare {
   margin: 14px 20px 0;
   font-size: 15px;
   color: var(--muted);
+}
+
+/* What tonight's dinner needs, above the steps. */
+.ingredients {
+  margin: 16px 20px 0;
+}
+
+.ingredients h3,
+.steps-title {
+  margin: 0 0 6px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.ingredients ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.ingredients li {
+  margin-bottom: 4px;
+}
+
+.ingredients li::marker {
+  color: var(--accent);
+}
+
+.steps-title {
+  margin: 18px 20px 0;
+}
+
+.steps-title + .steps {
+  padding-top: 8px;
 }
 
 /* Admin page */

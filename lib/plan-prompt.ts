@@ -59,6 +59,7 @@ Make this plan:
    - Use the fresh food she already has first, using it early in the week, and build on what's in her pantry.
    - Keep it varied: don't serve the same main ingredient on back-to-back nights.
    - Stick to meals kids usually like, made from ingredients any ordinary supermarket sells.
+   - In "ingredients", list everything the dinner uses with amounts for this household, like "1 lb chicken thighs" or "2 cups rice", including food she already has. Say when Sunday's prep already readied it, like "2 cups rice (cooked Sunday)". Leave out salt, pepper and cooking oil.
    - Give 3 to 6 short steps in plain words, and say when a step uses Sunday's prep.
    - "cost" is about what the dinner's ingredients cost ${where}, in US dollars, counting only the amounts it uses, including food she already has.
    - Add a tip when it helps a picky eater, like serving the sauce on the side. Otherwise leave the tip empty.

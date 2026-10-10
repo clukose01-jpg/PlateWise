@@ -45,6 +45,8 @@ export const PlanSchema = z.object({
       minutes: z.number().int(),
       // About what the dinner's ingredients cost, in dollars, for the whole family.
       cost: z.number(),
+      // Everything the dinner uses, with amounts, like "1 lb chicken thighs".
+      ingredients: z.array(z.string()),
       tip: z.string(),
       steps: z.array(z.string()),
       // Things to do the night before, like moving meat from the freezer to the fridge.

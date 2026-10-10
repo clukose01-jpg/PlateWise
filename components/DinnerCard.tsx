@@ -120,11 +120,23 @@ export default function DinnerCard({ planId, dinner, index, people, startOpen = 
           About {dollars(cost)} for the family{people > 1 && `, or ${perPerson(cost, people)} a person`}.
         </p>
       )}
+      {dinner.ingredients?.length ? (
+        <div className="ingredients">
+          <h3>What you need</h3>
+          <ul>
+            {dinner.ingredients.map((ingredient, j) => (
+              <li key={j}>{ingredient}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
       {dinner.tip && (
         <p className="tip">
           <strong>Tip:</strong> {dinner.tip}
         </p>
       )}
+      {/* Plans made before ingredient lists were added just show the steps, as before. */}
+      {dinner.ingredients?.length ? <h3 className="steps-title">Steps</h3> : null}
       <ol className="steps">
         {dinner.steps.map((step, j) => (
           <li key={j}>{step}</li>

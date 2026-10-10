@@ -69,8 +69,10 @@ async function swapDinner(
     return {
       ...dinner,
       nightBefore: regenerated?.nightBefore ?? dinner.nightBefore ?? [],
-      // Plans made before prices were added get them now, since the grocery list is redone anyway.
+      // Plans made before prices and ingredient lists were added get them now. The safety check
+      // reads every dinner's ingredients, so these are checked too.
       cost: dinner.cost ?? regenerated?.cost ?? 0,
+      ingredients: dinner.ingredients ?? regenerated?.ingredients ?? [],
     };
   });
   const { input_tokens, output_tokens } = response.usage;
@@ -116,7 +118,8 @@ export async function POST(request: Request) {
 
   try {
     const generate = (fix?: PlanFix) => swapDinner(family, stored, day, fix);
-    // Only what the swap changed needs checking: the new dinner, the night-before steps and the lists.
+    // Only what the swap changed needs checking: the new dinner, the night-before steps, the lists,
+    // and every dinner's ingredients (older plans get theirs filled in by the swap).
     const changed = (plan: Plan): Plan => ({
       ...plan,
       dinners: plan.dinners.map((d) => (d.day === day ? d : { ...d, name: "", tip: "", steps: [], minutes: 0 })),

@@ -24,10 +24,12 @@ export type SavedPlan = {
   swaps?: number;
 };
 
-// Older plans stored prep as one flat list, had no night-before steps, and had no prices.
-export type StoredDinner = Omit<Plan["dinners"][number], "nightBefore" | "cost"> & {
+// Older plans stored prep as one flat list, had no night-before steps, and had no prices or
+// ingredient lists.
+export type StoredDinner = Omit<Plan["dinners"][number], "nightBefore" | "cost" | "ingredients"> & {
   nightBefore?: string[];
   cost?: number;
+  ingredients?: string[];
 };
 export type StoredPlan = Omit<SavedPlan, "plan"> & {
   plan: Omit<Plan, "prepList" | "dinners" | "groceryList"> & {

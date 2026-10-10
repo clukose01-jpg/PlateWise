@@ -26,7 +26,7 @@ ${kids.length ? `Foods the kids won't eat:\n${kids.join("\n")}` : "The kids eat 
 The plan:
 ${JSON.stringify(plan, null, 1)}
 
-Check every dinner name, tip, step and night-before step, every lunch, every Sunday prep step and every grocery item. Report each place where:
+Check every dinner name, ingredient, tip, step and night-before step, every lunch, every Sunday prep step and every grocery item. Report each place where:
 1. A food contains one of the family's allergens. Include hidden sources in common store-bought foods: regular soy sauce, teriyaki sauce, and most bread, buns, tortillas, pasta, noodles, crackers and breadcrumbs contain wheat; pesto usually has nuts and cheese; Worcestershire sauce and Caesar dressing have fish; mayonnaise and aioli have egg; butter, ranch and many sauces have milk; hummus and tahini have sesame.
 2. A dinner or lunch uses a food a kid won't eat.
 
