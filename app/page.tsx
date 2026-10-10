@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { Logo } from "@/components/Illustrations";
 import { syncFromAccount } from "@/lib/account-client";
 import { getCurrentPlanId } from "@/lib/device";
 
@@ -18,9 +17,12 @@ export default function Home() {
     });
   }, [router]);
 
+  // Looks like the phone's own opening screen (the app icon and name in the middle), so
+  // opening the app doesn't jump from one picture to another.
   return (
     <main className="splash">
-      <Logo />
+      <img src="/icons/icon-512.png" alt="" width={144} height={144} />
+      <span>PlateWise</span>
     </main>
   );
 }

@@ -1143,10 +1143,25 @@ legend.question {
   display: none;
 }
 
+/* Fills the screen, with the icon where the phone's own opening screen puts it. */
 .splash {
-  min-height: 60vh;
-  display: grid;
-  place-items: center;
+  position: fixed;
+  inset: 0;
+  max-width: none;
+  padding: 0 0 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+}
+
+.splash img {
+  border-radius: 32px;
+}
+
+.splash span {
+  font-size: 22px;
 }
 
 /* Today */
