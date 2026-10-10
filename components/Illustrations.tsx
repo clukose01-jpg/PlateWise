@@ -50,9 +50,9 @@ export function PotDrawing() {
   );
 }
 
-export function ClockIcon() {
+export function ClockIcon({ size = 14 }: { size?: number }) {
   return (
-    <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+    <svg viewBox="0 0 16 16" width={size} height={size} aria-hidden="true">
       <circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" strokeWidth="1.5" />
       <path d="M8 4.5V8l2.5 1.5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
     </svg>
@@ -132,6 +132,17 @@ export function TabIcon({ name }: { name: "today" | "week" | "groceries" | "new"
           <circle cx="18.5" cy="12" r="1.3" fill="currentColor" />
         </>
       )}
+    </svg>
+  );
+}
+
+// A calendar with an arrow, for moving a dinner to another day.
+export function MoveDayIcon() {
+  return (
+    <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
+      <rect x="3" y="4.5" width="14" height="12" rx="2" fill="none" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M3 8.5h14M7 3v3M13 3v3" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      <path d="M7.5 12.5h5M10.5 10.5l2 2-2 2" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }

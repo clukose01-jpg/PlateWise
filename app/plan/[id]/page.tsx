@@ -108,6 +108,9 @@ export default async function PlanPage({ params, searchParams }: Props) {
                   index={i}
                   people={people}
                   cooked={saved.cooked?.[dinner.day]}
+                  otherDinners={plan.dinners
+                    .filter((other) => other.day !== dinner.day)
+                    .map((other) => ({ day: other.day, name: other.name, nightBefore: other.nightBefore }))}
                 />
               ))}
               <p className="hint">Tap a dinner to see how to make it, and rate it after you eat.</p>

@@ -4,6 +4,9 @@ export const WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
 
 export const COOK_TIMES = [15, 20, 30, 45, 60] as const;
 
+// The most a "Running late?" dinner on the Today tab takes.
+export const QUICK_DINNER_MINUTES = 15;
+
 // What she tells us. Limits keep one request from running up the AI bill.
 export const FamilySchema = z.object({
   // Up to 12 allergies, joined like "peanuts, shellfish".

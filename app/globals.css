@@ -782,6 +782,58 @@ legend.question {
   margin: 8px 0 0;
 }
 
+.change-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Picking which day to switch a dinner with. */
+.move-days {
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+}
+
+.move-days .hint:first-child {
+  margin: 0 0 8px;
+}
+
+.move-days ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.move-days li + li {
+  margin-top: 6px;
+}
+
+.move-day {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  background: var(--card);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+}
+
+.move-day-name {
+  font-weight: 650;
+  color: var(--accent);
+}
+
+.move-day-dish {
+  font-size: 15px;
+}
+
 .swapped {
   margin: 16px 16px 0;
   padding: 10px 14px;

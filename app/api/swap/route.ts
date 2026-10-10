@@ -11,7 +11,14 @@ import {
   MODEL,
 } from "@/lib/claude";
 import { buildPlanPrompt } from "@/lib/plan-prompt";
-import { type Family, type Plan, PlanSchema, type TestInfo, WEEKDAYS } from "@/lib/plan-schema";
+import {
+  type Family,
+  type Plan,
+  PlanSchema,
+  QUICK_DINNER_MINUTES,
+  type TestInfo,
+  WEEKDAYS,
+} from "@/lib/plan-schema";
 import { loadPlan, type StoredPlan, StorageNotSetUpError, updatePlan } from "@/lib/plans";
 import { logEvent } from "@/lib/events";
 import { describeFix, makeSafePlan, type PlanFix, PlanSafetyError, SAFETY_CHECK_ON } from "@/lib/safe-plan";
@@ -19,13 +26,24 @@ import { priceArea, requestDeviceId, requestOrigin } from "@/lib/visitor";
 
 export const maxDuration = 300;
 
-const SwapRequest = z.object({ planId: z.string().max(40), day: z.enum(WEEKDAYS) });
+// "quick" is the Today tab's "Running late?": something faster from what she already has.
+const SwapRequest = z.object({ planId: z.string().max(40), day: z.enum(WEEKDAYS), quick: z.boolean().optional() });
 
-function buildSwapPrompt(family: Family, stored: StoredPlan, day: string, dish: string) {
-  return `${buildPlanPrompt(family, priceArea(stored.origin))}
+function buildSwapPrompt(family: Family, stored: StoredPlan, day: string, dish: string, quick: boolean) {
+  const plan = `${buildPlanPrompt(family, priceArea(stored.origin))}
 
 This is the plan you made for them:
-${JSON.stringify(stored.plan)}
+${JSON.stringify(stored.plan)}`;
+  if (quick) {
+    return `${plan}
+
+They're running late tonight and need something faster than "${dish}" on ${day}. Make the plan again with only that change:
+- Pick a new ${day} dinner that follows every rule above and takes ${QUICK_DINNER_MINUTES} minutes or less, with no Sunday prep, no thawing and nothing to do the night before.
+- Make it only from food she already has: her fridge, freezer and pantry above, and this week's groceries, especially what was bought for "${dish}". Nothing new to buy.
+- Keep every other dinner and lunch exactly as it is.
+- Update the Sunday prep list, the night-before steps and the grocery list so they match the new week.`;
+  }
+  return `${plan}
 
 They'd like a different dinner on ${day} instead of "${dish}". Make the plan again with only that change:
 - Pick a new ${day} dinner that follows every rule above. Don't use "${dish}" or anything close to it, and don't repeat another dinner already in the week.
@@ -39,6 +57,7 @@ async function swapDinner(
   family: Family,
   stored: StoredPlan,
   day: string,
+  quick: boolean,
   fix?: PlanFix,
 ): Promise<{ plan: Plan; test: TestInfo } | null> {
   const started = Date.now();
@@ -53,7 +72,7 @@ async function swapDinner(
     messages: [
       {
         role: "user",
-        content: buildSwapPrompt(family, stored, day, oldDinner.name) + (fix ? describeFix(fix) : ""),
+        content: buildSwapPrompt(family, stored, day, oldDinner.name, quick) + (fix ? describeFix(fix) : ""),
       },
     ],
   });
@@ -103,6 +122,7 @@ export async function POST(request: Request) {
     return errorResponse("That swap didn't come through. Please try again.", 400);
   }
   const { planId, day } = parsed.data;
+  const quick = parsed.data.quick ?? false;
 
   const stored = await loadPlan(planId);
   if (!stored?.plan.dinners.some((dinner) => dinner.day === day)) {
@@ -117,7 +137,7 @@ export async function POST(request: Request) {
   };
 
   try {
-    const generate = (fix?: PlanFix) => swapDinner(family, stored, day, fix);
+    const generate = (fix?: PlanFix) => swapDinner(family, stored, day, quick, fix);
     // Only what the swap changed needs checking: the new dinner, the night-before steps, the lists,
     // and every dinner's ingredients (older plans get theirs filled in by the swap).
     const changed = (plan: Plan): Plan => ({
@@ -131,7 +151,13 @@ export async function POST(request: Request) {
     }
     // A new dinner hasn't been made or skipped yet.
     const { [day]: _swappedOut, ...cooked } = stored.cooked ?? {};
-    await updatePlan({ ...stored, plan: result.plan, swaps: (stored.swaps ?? 0) + 1, cooked });
+    await updatePlan({
+      ...stored,
+      plan: result.plan,
+      swaps: (stored.swaps ?? 0) + 1,
+      quickSwaps: (stored.quickSwaps ?? 0) + (quick ? 1 : 0),
+      cooked,
+    });
     after(() =>
       logEvent({
         type: "swap",

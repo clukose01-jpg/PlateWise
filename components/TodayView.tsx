@@ -150,6 +150,10 @@ export default function TodayView({
             index={dinnerIndex}
             people={people}
             cooked={cooked?.[tonight.day]}
+            otherDinners={plan.dinners
+              .filter((other) => other.day !== tonight.day)
+              .map((other) => ({ day: other.day, name: other.name, nightBefore: other.nightBefore }))}
+            runningLate
             startOpen
             showPhoto={showPhoto}
           />

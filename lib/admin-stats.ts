@@ -47,6 +47,8 @@ export type AdminStats = {
     withPassword: number;
     reminders: number;
     swaps: number;
+    quickSwaps: number;
+    moves: number;
     scans: number;
     photos: number;
     safetyFixed: number;
@@ -274,6 +276,8 @@ export async function adminStats(): Promise<AdminStats> {
       withPassword: accounts.filter((account) => account.passwordHash).length,
       reminders: reminders.length,
       swaps: plans.reduce((total, plan) => total + (plan.swaps ?? 0), 0),
+      quickSwaps: plans.reduce((total, plan) => total + (plan.quickSwaps ?? 0), 0),
+      moves: plans.reduce((total, plan) => total + (plan.moves ?? 0), 0),
       scans: events.filter((event) => event.type === "scan").length,
       photos: events.filter((event) => event.type === "photo").length,
       safetyFixed: plans.filter((plan) => (plan.safetyFixes ?? 0) > 0).length,

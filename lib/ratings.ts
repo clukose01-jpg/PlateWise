@@ -62,6 +62,18 @@ export function removeRating(planId: string, day: string) {
   writeAll(ratings);
 }
 
+// After two dinners switch days, their ratings go with them.
+export function switchRatingDays(planId: string, a: string, b: string) {
+  const ratings = readAll();
+  const ratingA = ratings[ratingKey(planId, a)];
+  const ratingB = ratings[ratingKey(planId, b)];
+  delete ratings[ratingKey(planId, a)];
+  delete ratings[ratingKey(planId, b)];
+  if (ratingA) ratings[ratingKey(planId, b)] = { ...ratingA, day: b };
+  if (ratingB) ratings[ratingKey(planId, a)] = { ...ratingB, day: a };
+  writeAll(ratings);
+}
+
 export function countRatings(): number {
   return Object.keys(readAll()).length;
 }

@@ -23,6 +23,9 @@ export type SavedPlan = {
   accountId?: string;
   safetyFixes?: number;
   swaps?: number;
+  // "Running late?" swaps on the Today tab, and dinners moved to another day.
+  quickSwaps?: number;
+  moves?: number;
   // Whether the family made each dinner, by weekday, from "We made it" / "We skipped it".
   cooked?: Partial<Record<string, Cooked>>;
 };

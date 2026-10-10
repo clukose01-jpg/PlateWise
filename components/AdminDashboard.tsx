@@ -551,6 +551,10 @@ export default function AdminDashboard() {
               <dl className="admin-facts">
                 <dt>Dinners swapped</dt>
                 <dd>{totals.swaps}</dd>
+                <dt>Of those, &quot;running late&quot;</dt>
+                <dd>{totals.quickSwaps}</dd>
+                <dt>Dinners moved to another day</dt>
+                <dd>{totals.moves}</dd>
                 <dt>Fridge photo scans</dt>
                 <dd>{totals.scans}</dd>
                 <dt>Dinner pictures made</dt>

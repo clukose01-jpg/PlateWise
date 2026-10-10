@@ -202,6 +202,24 @@ export function saveBudget(budget: number | null) {
   saveFamily({ ...family, budget });
 }
 
+// After two dinners switch days, the ticks on their Sunday prep and night-before steps go with them.
+export function switchDayTicks(planId: string, a: string, b: string) {
+  try {
+    for (const kind of ["prep", "nightBefore"]) {
+      const keyA = `platewise.${planId}.${kind}.${a}`;
+      const keyB = `platewise.${planId}.${kind}.${b}`;
+      const ticksA = localStorage.getItem(keyA);
+      const ticksB = localStorage.getItem(keyB);
+      if (ticksB === null) localStorage.removeItem(keyA);
+      else localStorage.setItem(keyA, ticksB);
+      if (ticksA === null) localStorage.removeItem(keyB);
+      else localStorage.setItem(keyB, ticksA);
+    }
+  } catch {
+    // Ticks just won't follow.
+  }
+}
+
 // After a swap the grocery and prep lists change, so old ticks no longer line up.
 export function clearPlanTicks(planId: string) {
   try {
