@@ -106,8 +106,8 @@ export default function PrivacyPage() {
               and random, so they can&apos;t be guessed.
             </li>
             <li>
-              The person who makes PlateWise can look at what&apos;s saved to keep the app running and fix
-              problems, and reads the messages you send.
+              The PlateWise admin can look at what&apos;s saved to keep the app running and fix problems, and
+              reads the messages you send.
             </li>
           </ul>
         </section>

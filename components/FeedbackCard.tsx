@@ -6,7 +6,7 @@ import { deviceHeaders, getCurrentPlanId } from "@/lib/device";
 
 const MAX_LENGTH = 2000;
 
-// The Profile tab's box for telling the person who makes PlateWise what's confusing, broken or missing.
+// The Profile tab's box for telling the PlateWise admin what's confusing, broken or missing.
 export default function FeedbackCard() {
   const [text, setText] = useState("");
   const [email, setEmail] = useState("");
@@ -43,7 +43,7 @@ export default function FeedbackCard() {
   return (
     <form className="card feedback-box" onSubmit={send}>
       <h2 className="section-title">Tell us what you think</h2>
-      <p>Something confusing or broken, or an idea? It goes straight to the person who makes PlateWise.</p>
+      <p>Something confusing or broken, or an idea? It goes straight to the PlateWise admin.</p>
       <label className="visually-hidden" htmlFor="feedback-text">
         Your message
       </label>
