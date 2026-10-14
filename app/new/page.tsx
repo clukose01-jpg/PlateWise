@@ -106,9 +106,11 @@ export default function NewPlan() {
 
       {cleared && stage === "fridge" && (
         <p className="cleared-notice" role="status">
-          {cleared === "deleted"
-            ? "Your plan was deleted. Make a new one below."
-            : "That plan was removed from this device. Make a new one below."}
+          {cleared === "account"
+            ? "Your account and the plans you made were deleted."
+            : cleared === "deleted"
+              ? "Your plan was deleted. Make a new one below."
+              : "That plan was removed from this device. Make a new one below."}
         </p>
       )}
 

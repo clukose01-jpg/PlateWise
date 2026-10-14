@@ -329,6 +329,52 @@ button {
   margin-left: 0;
 }
 
+/* The privacy note. */
+.privacy {
+  max-width: 760px;
+}
+
+.privacy ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.privacy li + li {
+  margin-top: 10px;
+}
+
+.privacy p {
+  margin: 0 0 10px;
+}
+
+.privacy .hint {
+  margin: 14px 0 0;
+}
+
+/* "Delete my account" and the privacy link, at the bottom of the account card. */
+.delete-account {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.danger-link.left {
+  margin: 0;
+  padding: 4px 0;
+}
+
+/* The two answers stack, so "Yes, delete my account" fits on one line. */
+.delete-account .confirm-buttons {
+  flex-direction: column;
+}
+
+.privacy-link {
+  display: inline-block;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
 .link.inline {
   display: inline;
   margin: 0;

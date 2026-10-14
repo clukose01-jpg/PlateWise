@@ -1,9 +1,11 @@
 import { createHash, createHmac, randomInt, timingSafeEqual } from "node:crypto";
 import { z } from "zod";
 import { checkPassword, hashPassword } from "./passwords";
-import { loadPlan } from "./plans";
+import type { Feedback } from "./feedback";
+import { deletePlan, isOwner, loadPlan } from "./plans";
+import { allReminders, deleteReminder } from "./reminders";
 import { sessionAccountId, sessionIssuedAt, sessionSecret } from "./session";
-import { readJson, writeJson } from "./store";
+import { deleteFolder, deleteJson, listNames, readJson, writeJson } from "./store";
 
 // An account is a private file holding what each device would otherwise keep to itself: family
 // answers, pantry, ratings, which plan is current, the keys that delete her plans, and her plans.
@@ -298,4 +300,37 @@ export async function logInWithPassword(email: string, password: string, device:
   }
   if (recent.length) await writeJson(attemptsFile(email), { wrong: [] } satisfies Attempts);
   return { result: "ok", account: await logIn(email, device, account) };
+}
+
+// "Delete my account": the account, every plan she made (for anyone she shared it with too) with
+// its dinner pictures and reminders, her messages from the feedback box, and any login codes.
+// Anonymous counts on the admin page, like "a fridge scan in Newark", stay. The device sends the
+// plans it made too, in case any never reached the account.
+export async function deleteAccount(account: Account, deviceOwnerKeys: Record<string, string>) {
+  const ownerKeys = { ...account.data.ownerKeys, ...deviceOwnerKeys };
+  const ids = new Set([...account.data.plans.map((plan) => plan.id), ...Object.keys(ownerKeys)]);
+  const deleted = new Set<string>();
+  for (const id of ids) {
+    const plan = await loadPlan(id);
+    if (!plan) continue;
+    // Only plans she made: a plan someone shared with her stays theirs.
+    const hers = plan.accountId === account.id || (ownerKeys[id] ? isOwner(plan, ownerKeys[id]) : false);
+    if (!hers) continue;
+    await deletePlan(id);
+    await deleteFolder(`photos/${id}/`);
+    deleted.add(id);
+  }
+  for (const reminder of await allReminders()) {
+    if (deleted.has(reminder.planId)) await deleteReminder(reminder.subscription.endpoint);
+  }
+  for (const name of await listNames("feedback/")) {
+    const message = await readJson<Feedback>(name).catch(() => null);
+    if (message && (message.email === account.email || (message.planId && deleted.has(message.planId)))) {
+      await deleteJson(name);
+    }
+  }
+  await deleteJson(codeFile(account.email));
+  await deleteJson(attemptsFile(account.email));
+  await deleteJson(`accounts/${account.id}.json`);
+  return { plans: deleted.size };
 }

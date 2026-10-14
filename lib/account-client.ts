@@ -262,6 +262,24 @@ export async function setPassword(password: string) {
   await postJson("/api/auth/password", { password });
 }
 
+// Deletes her account and the plans she made, then clears everything PlateWise saved on this
+// device. The admin passcode, if this is the admin's device, stays.
+export async function deleteAccount() {
+  if (saveTimer) clearTimeout(saveTimer);
+  saveTimer = null;
+  await postJson("/api/auth/delete-account", { ownerKeys: deviceData().ownerKeys });
+  try {
+    for (const key of Object.keys(localStorage)) {
+      if (key.startsWith("platewise.") && key !== "platewise.adminCode") localStorage.removeItem(key);
+    }
+    sessionStorage.removeItem(NEW_ACCOUNT_KEY);
+  } catch {
+    // Nothing more to clear.
+  }
+  pulling = null;
+  setAccountEmail(null);
+}
+
 // Logging out takes her things off this device; they stay saved in her account.
 export async function logOut() {
   if (saveTimer) {

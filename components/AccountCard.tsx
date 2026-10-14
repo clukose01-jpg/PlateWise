@@ -3,13 +3,16 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useEffect, useState } from "react";
-import { type LoginStatus, loginStatus, logOut, saveName, setPassword } from "@/lib/account-client";
+import { deleteAccount, type LoginStatus, loginStatus, logOut, saveName, setPassword } from "@/lib/account-client";
+import { turnOffReminders } from "@/lib/push-client";
 
 // On the Profile tab: log in to save everything, or see who's logged in. Hidden until login is set up.
 export default function AccountCard() {
   const router = useRouter();
   const [status, setStatus] = useState<LoginStatus | null>(null);
   const [confirming, setConfirming] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [editingPassword, setEditingPassword] = useState(false);
   const [password, setPasswordText] = useState("");
@@ -61,6 +64,20 @@ export default function AccountCard() {
     }
   }
 
+  async function confirmDelete() {
+    setBusy(true);
+    setDeleteError(null);
+    try {
+      await deleteAccount();
+      // This phone stops asking for reminders too.
+      await turnOffReminders().catch(() => {});
+      router.push("/new?cleared=account");
+    } catch (err) {
+      setDeleteError(err instanceof Error && err.message ? err.message : "Something went wrong. Please try again.");
+      setBusy(false);
+    }
+  }
+
   async function confirmLogOut() {
     setBusy(true);
     await logOut().catch(() => {});
@@ -80,6 +97,9 @@ export default function AccountCard() {
         </Link>
         <Link href="/login?next=/more" className="secondary">
           I already have an account
+        </Link>
+        <Link href="/privacy" className="privacy-link">
+          What we save and why
         </Link>
       </section>
     );
@@ -206,6 +226,37 @@ export default function AccountCard() {
           Log out
         </button>
       )}
+      <div className="delete-account">
+        {confirmingDelete ? (
+          <>
+            <p>
+              <strong>Delete your account?</strong> This deletes your name, email and password, your saved family
+              answers, pantry and ratings, and every plan you made, including for anyone you shared it with. It
+              can&apos;t be undone.
+            </p>
+            <div className="confirm-buttons">
+              <button type="button" className="danger" onClick={confirmDelete} disabled={busy}>
+                {busy ? "Deleting…" : "Yes, delete my account"}
+              </button>
+              <button type="button" className="secondary" onClick={() => setConfirmingDelete(false)} disabled={busy}>
+                Cancel
+              </button>
+            </div>
+            {deleteError && (
+              <p className="error" role="alert">
+                {deleteError}
+              </p>
+            )}
+          </>
+        ) : (
+          <button type="button" className="danger-link left" onClick={() => setConfirmingDelete(true)}>
+            Delete my account
+          </button>
+        )}
+        <Link href="/privacy" className="privacy-link">
+          What we save and why
+        </Link>
+      </div>
     </section>
   );
 }

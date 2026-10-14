@@ -1,4 +1,4 @@
-import { mkdir, readdir, readFile, unlink, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, rm, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { del, get, list, put } from "@vercel/blob";
 import { StorageNotSetUpError, useBlob } from "./plans";
@@ -35,6 +35,20 @@ export async function deleteJson(name: string) {
     await del(name);
   } else {
     await unlink(path.join(LOCAL_ROOT, name)).catch(() => {});
+  }
+}
+
+// Deletes every file in a folder, like a plan's dinner pictures.
+export async function deleteFolder(prefix: string) {
+  if (useBlob()) {
+    let cursor: string | undefined;
+    do {
+      const page = await list({ prefix, cursor, limit: 1000 });
+      if (page.blobs.length) await del(page.blobs.map((blob) => blob.url));
+      cursor = page.hasMore ? page.cursor : undefined;
+    } while (cursor);
+  } else {
+    await rm(path.join(LOCAL_ROOT, prefix), { recursive: true, force: true });
   }
 }
 

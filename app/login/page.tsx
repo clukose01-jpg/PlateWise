@@ -293,6 +293,9 @@ export default function LoginPage() {
               Log in instead
             </button>
           )}
+          <Link href="/privacy" className="privacy-link">
+            What we save and why
+          </Link>
         </form>
       )}
 
