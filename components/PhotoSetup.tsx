@@ -1,7 +1,6 @@
 "use client";
 
 import { type FormEvent, useEffect, useState } from "react";
-import { HIGGSFIELD_MODEL } from "@/lib/photo-models";
 
 type Provider = "higgsfield" | "google";
 type Status = { on: boolean; provider: Provider | null; fromVercel: boolean };
@@ -15,12 +14,14 @@ export default function PhotoSetup({ code }: { code: string }) {
   const [apiKey, setApiKey] = useState("");
   const [keyId, setKeyId] = useState("");
   const [keySecret, setKeySecret] = useState("");
-  const [model, setModel] = useState(HIGGSFIELD_MODEL);
+  // Empty: Higgsfield's usual picture models, the first one it has.
+  const [model, setModel] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [detail, setDetail] = useState<{ provider: Provider; text: string } | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [justSaved, setJustSaved] = useState(false);
+  const [savedModel, setSavedModel] = useState<string | null>(null);
   const [turnedOff, setTurnedOff] = useState(false);
 
   useEffect(() => {
@@ -32,6 +33,7 @@ export default function PhotoSetup({ code }: { code: string }) {
         setStatus(result);
         if (result.provider) setProvider(result.provider);
         if (result.provider === "higgsfield" && result.model) setModel(result.model);
+        if (result.provider === "higgsfield") setSavedModel(result.model ?? null);
       })
       .catch(() => {});
   }, [code]);
@@ -73,6 +75,10 @@ export default function PhotoSetup({ code }: { code: string }) {
     setKeySecret("");
     setPreview(result.preview);
     setJustSaved(true);
+    if (provider === "higgsfield") {
+      setSavedModel(result.model ?? null);
+      setModel(result.model ?? "");
+    }
     setTurnedOff(false);
     setStatus({ on: true, provider, fromVercel: false });
   }
@@ -173,7 +179,7 @@ export default function PhotoSetup({ code }: { code: string }) {
                 placeholder="Paste the Secret"
               />
               <label className="question" htmlFor="higgsfield-model">
-                Picture model
+                Picture model (optional)
               </label>
               <input
                 id="higgsfield-model"
@@ -182,10 +188,11 @@ export default function PhotoSetup({ code }: { code: string }) {
                 spellCheck={false}
                 value={model}
                 onChange={(event) => setModel(event.target.value)}
+                placeholder="Leave empty for Seedream 4"
               />
               <p className="hint">
-                Flux Kontext Max makes realistic photos. Leave it, or paste another picture model&apos;s name from
-                Higgsfield&apos;s catalog.
+                {savedModel ? `Using ${savedModel}. ` : ""}Leave it empty to use Seedream 4, which makes realistic
+                photos, or paste another picture model&apos;s name from Higgsfield&apos;s catalog.
               </p>
             </>
           ) : (

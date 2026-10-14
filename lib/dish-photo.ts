@@ -1,4 +1,4 @@
-import { HIGGSFIELD_MODEL } from "./photo-models";
+import { HIGGSFIELD_MODELS } from "./photo-models";
 import type { PhotoKey } from "./photo-settings";
 
 // Makes a picture of a dinner, with Google's image AI ("Nano Banana") or Higgsfield's, whichever has
@@ -10,7 +10,6 @@ import type { PhotoKey } from "./photo-settings";
 
 const GOOGLE_API = process.env.GOOGLE_AI_BASE_URL ?? "https://generativelanguage.googleapis.com";
 const HIGGSFIELD_API = process.env.HIGGSFIELD_BASE_URL ?? "https://api.higgsfield.ai";
-export { HIGGSFIELD_MODEL } from "./photo-models";
 // How long to wait for Higgsfield before giving up on a picture.
 const HIGGSFIELD_WAIT_MS = 100_000;
 const MODELS = [
@@ -20,7 +19,7 @@ const MODELS = [
   "gemini-2.5-flash-image",
 ];
 // Roughly what one picture costs, for the admin page's AI cost. Higgsfield's price depends on the
-// model; this is about what Flux Kontext Max costs.
+// model, and is listed in Higgsfield Cloud; this is a rough guess on the high side.
 export const PICTURE_COST_USD = { google: 0.05, higgsfield: 0.08 } as const;
 
 export class PictureError extends Error {}
@@ -61,7 +60,7 @@ export function dishPrompt(name: string, ingredients: string[]) {
 
 export function makePicture(key: PhotoKey, prompt: string): Promise<Picture> {
   return key.provider === "higgsfield"
-    ? makeHiggsfieldPicture(key.apiKey, prompt, key.model || HIGGSFIELD_MODEL)
+    ? makeHiggsfieldPicture(key.apiKey, prompt, key.model)
     : makeGooglePicture(key.apiKey, prompt, key.model);
 }
 
@@ -105,8 +104,23 @@ function higgsfieldMessage(status: number, json: HiggsfieldRequest | null) {
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-// credentials is "KEY_ID:KEY_SECRET", the way Higgsfield's console gives them.
-async function makeHiggsfieldPicture(credentials: string, prompt: string, model: string): Promise<Picture> {
+// The model the setup page named, or the first of Higgsfield's usual picture models that it has.
+async function makeHiggsfieldPicture(credentials: string, prompt: string, model?: string): Promise<Picture> {
+  const models = model ? [model] : HIGGSFIELD_MODELS;
+  for (const [i, name] of models.entries()) {
+    try {
+      return await askHiggsfield(credentials, prompt, name);
+    } catch (error) {
+      // Higgsfield doesn't have this one: try the next.
+      const missing = error instanceof PictureError && error.message.startsWith("Higgsfield doesn't have that picture model");
+      if (!missing || i === models.length - 1) throw error;
+    }
+  }
+  throw new PictureError("Higgsfield doesn't have that picture model.");
+}
+
+// credentials is the key from Higgsfield Cloud: one code, or "KEY_ID:KEY_SECRET".
+async function askHiggsfield(credentials: string, prompt: string, model: string): Promise<Picture> {
   const headers = {
     Authorization: `Key ${credentials}`,
     "Content-Type": "application/json",

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { compareAllowed } from "@/lib/compare-access";
-import { HIGGSFIELD_MODEL, makePicture, PICTURE_COST_USD, PictureError } from "@/lib/dish-photo";
+import { makePicture, PICTURE_COST_USD, PictureError } from "@/lib/dish-photo";
 import { logEvent } from "@/lib/events";
 import { type PhotoKey, photoKey, removePhotoKey, savePhotoKey } from "@/lib/photo-settings";
 import { sessionSecret } from "@/lib/session";
@@ -45,7 +45,7 @@ function higgsfieldAdvice(message: string) {
     return "Higgsfield says there's no money on the account yet. In the Higgsfield console, add some to your balance, then try again.";
   }
   if (/doesn't have that picture model/.test(message)) {
-    return "Higgsfield doesn't know that picture model. Check its name in Higgsfield's catalog, or leave the model box as it was.";
+    return "Higgsfield doesn't know that picture model. Check its name in Higgsfield's catalog, or leave the model box empty.";
   }
   if (/safety filter/.test(message)) return "Higgsfield's safety filter stopped the test picture. Try again.";
   return "Higgsfield didn't make the test picture.";
@@ -112,8 +112,9 @@ export async function POST(request: Request) {
         { status: 400 },
       );
     }
-    const model = body.model?.replace(/^\/+/, "") || HIGGSFIELD_MODEL;
-    if (!/^[\w.\-/]+$/.test(model)) {
+    // Empty means: the first of Higgsfield's usual picture models that it has.
+    const model = body.model?.replace(/^\/+/, "") || undefined;
+    if (model && !/^[\w.\-/]+$/.test(model)) {
       return Response.json({ error: "That model name doesn't look right. Leave the box as it was to use the usual one." }, { status: 400 });
     }
     key = { provider: "higgsfield", apiKey: credentials, model };
