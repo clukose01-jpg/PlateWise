@@ -9,7 +9,7 @@ const FeedbackRequest = z.object({
   planId: z.string().max(40).nullable().optional(),
 });
 
-// The More tab's "Tell us what you think" box. It goes to the admin page.
+// The Profile tab's "Tell us what you think" box. It goes to the admin page.
 export async function POST(request: Request) {
   const parsed = FeedbackRequest.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {

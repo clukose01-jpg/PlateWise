@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { type FormEvent, useEffect, useState } from "react";
 import { type LoginStatus, loginStatus, logOut, saveName, setPassword } from "@/lib/account-client";
 
-// On the More tab: log in to save everything, or see who's logged in. Hidden until login is set up.
+// On the Profile tab: log in to save everything, or see who's logged in. Hidden until login is set up.
 export default function AccountCard() {
   const router = useRouter();
   const [status, setStatus] = useState<LoginStatus | null>(null);

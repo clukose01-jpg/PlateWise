@@ -33,7 +33,7 @@ export function weeklyEmail(stats: AdminStats, to: string, siteUrl: string): Ema
       ? "The allergy safety check didn't have to stop anything."
       : `The allergy safety check stopped ${plural(t.blockedLast7, "plan or swap", "plans or swaps")} before anyone saw it.`;
   const link = `${siteUrl}/admin`;
-  // The newest few messages from the More tab's feedback box, shortened.
+  // The newest few messages from the Profile tab's feedback box, shortened.
   const messages = stats.feedback
     .filter((item) => Date.now() - Date.parse(item.at) < 7 * 24 * 60 * 60 * 1000)
     .slice(0, 3)

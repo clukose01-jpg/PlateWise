@@ -474,7 +474,7 @@ export default function AdminDashboard() {
             <h2 className="section-title">Messages from testers</h2>
             {stats.feedback.length === 0 ? (
               <p className="quiet">
-                No messages yet. They come from the &quot;Tell us what you think&quot; box in the More tab.
+                No messages yet. They come from the &quot;Tell us what you think&quot; box in the Profile tab.
               </p>
             ) : (
               <ul className="message-list">

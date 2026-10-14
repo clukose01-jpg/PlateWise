@@ -6,7 +6,7 @@ import { deviceHeaders, getCurrentPlanId } from "@/lib/device";
 
 const MAX_LENGTH = 2000;
 
-// The More tab's box for telling the person who makes PlateWise what's confusing, broken or missing.
+// The Profile tab's box for telling the person who makes PlateWise what's confusing, broken or missing.
 export default function FeedbackCard() {
   const [text, setText] = useState("");
   const [email, setEmail] = useState("");

@@ -142,9 +142,8 @@ export function TabIcon({ name }: { name: "today" | "week" | "groceries" | "new"
       )}
       {name === "more" && (
         <>
-          <circle cx="5.5" cy="12" r="1.3" fill="currentColor" />
-          <circle cx="12" cy="12" r="1.3" fill="currentColor" />
-          <circle cx="18.5" cy="12" r="1.3" fill="currentColor" />
+          <circle cx="12" cy="8.5" r="3.8" {...common} />
+          <path d="M4.5 20.5c0-4 3.4-6.5 7.5-6.5s7.5 2.5 7.5 6.5" {...common} />
         </>
       )}
     </svg>

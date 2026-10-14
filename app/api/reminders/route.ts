@@ -15,7 +15,7 @@ const TurnOn = z.object({
   planId: z.string().max(40),
   // Older versions of the app didn't send it; those sign-ups were all in Eastern time.
   timeZone: TimeZoneSchema.catch(DEFAULT_TIME_ZONE),
-  // Only sent when she picks a time in the More tab; otherwise the saved time stays.
+  // Only sent when she picks a time in the Profile tab; otherwise the saved time stays.
   hour: z.number().refine(isReminderHour).optional(),
 });
 const TurnOff = z.object({ endpoint: z.string().max(1000) });

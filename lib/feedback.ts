@@ -2,7 +2,7 @@ import { randomBytes } from "node:crypto";
 import { listNames, readMany, writeJson } from "./store";
 import type { Origin } from "./visitor";
 
-// What testers type in the More tab's feedback box, for the admin page. One small file each.
+// What testers type in the Profile tab's feedback box, for the admin page. One small file each.
 export type Feedback = {
   text: string;
   at: string;

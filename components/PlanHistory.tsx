@@ -7,7 +7,7 @@ import { getCurrentPlanId, loadMadePlans, type PlanRef } from "@/lib/device";
 
 const SHOWN = 10;
 
-// On the More tab: the plans she's made, newest first, so she can look back at an old week.
+// On the Profile tab: the plans she's made, newest first, so she can look back at an old week.
 export default function PlanHistory() {
   const [plans, setPlans] = useState<PlanRef[]>([]);
   const [current, setCurrent] = useState<string | null>(null);

@@ -27,7 +27,7 @@ export default function TabBar({ active, planId }: Props) {
     { id: "week", label: "Week", href: planTab("week") },
     { id: "groceries", label: "Groceries", href: planTab("groceries") },
     { id: "new", label: "New plan", href: "/new" },
-    { id: "more", label: "More", href: "/more" },
+    { id: "more", label: "Profile", href: "/more" },
   ];
 
   return (

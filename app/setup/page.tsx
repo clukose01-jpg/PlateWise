@@ -75,7 +75,7 @@ export default function SetupPage() {
           <p className="reminder-on">It works. Login is switched on.</p>
           <p>
             Google accepted the password, and we sent a test email to <strong>{user}</strong>. Families can now
-            log in from the More tab.
+            log in from the Profile tab.
           </p>
         </section>
       ) : (

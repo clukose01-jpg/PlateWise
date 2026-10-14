@@ -39,7 +39,7 @@ export default function MorePage() {
       <header>
         <Logo />
         <AccountBadge />
-        <h1 className="plan-title">More</h1>
+        <h1 className="plan-title">Your profile</h1>
       </header>
 
       {/* On a computer, these cards flow into columns. */}
