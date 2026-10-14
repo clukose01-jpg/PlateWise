@@ -1590,6 +1590,7 @@ button:disabled {
   .grocery > .grocery-total,
   .grocery > .shared-food,
   .grocery > .hint,
+  .grocery > .send-list,
   .prep > h2 {
     column-span: all;
   }
@@ -2035,6 +2036,25 @@ main.compare {
   align-items: baseline;
   gap: 2px 12px;
   margin: -4px 0 6px;
+}
+
+/* Without signal, the plan opens from the copy saved on the device. */
+.offline-note {
+  margin: 0 0 16px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--accent-soft);
+  font-size: 15px;
+}
+
+/* "Send list" on the Groceries tab. */
+.send-list {
+  margin: 4px 0 16px;
+}
+
+.send-list .hint {
+  margin: 8px 0 0;
+  text-align: center;
 }
 
 .grocery-sum {

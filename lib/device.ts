@@ -1,6 +1,7 @@
 // Things remembered on this device (phone or computer): the current plan, the pantry and the family
 // answers. When she's logged in, changes also save to her account.
 import { isSyncedKey, scheduleAccountSave } from "./account-client";
+import { forgetOfflinePages } from "./offline";
 
 const CURRENT_PLAN_KEY = "platewise.currentPlan";
 const OWNER_KEYS_KEY = "platewise.ownerKeys";
@@ -96,6 +97,7 @@ export function rememberMadePlan(plan: PlanRef) {
 
 // After a plan is deleted or removed: forget its ticks and key, and stop opening to it.
 export function forgetPlan(planId: string) {
+  forgetOfflinePages();
   clearPlanTicks(planId);
   const keys = ownerKeys();
   delete keys[planId];

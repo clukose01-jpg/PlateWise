@@ -2,6 +2,8 @@
 // everything works the same logged out; when she's logged in, each change is also saved to her
 // account, and opening the app brings in changes made on her other devices.
 
+import { forgetOfflinePages } from "./offline";
+
 const ACCOUNT_KEY = "platewise.account";
 const NAME_KEY = "platewise.accountName";
 // Set for the rest of the visit after she signs up, so the top of the screen says "Welcome"
@@ -278,6 +280,7 @@ export async function deleteAccount() {
   }
   pulling = null;
   setAccountEmail(null);
+  forgetOfflinePages();
 }
 
 // Logging out takes her things off this device; they stay saved in her account.
@@ -289,4 +292,5 @@ export async function logOut() {
   await postJson("/api/auth/logout", {});
   clearData();
   setAccountEmail(null);
+  forgetOfflinePages();
 }

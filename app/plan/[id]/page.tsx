@@ -4,6 +4,7 @@ import DeletePlan from "@/components/DeletePlan";
 import DinnerCard from "@/components/DinnerCard";
 import LoginNudge from "@/components/LoginNudge";
 import MissingPlan from "@/components/MissingPlan";
+import OfflineNote from "@/components/OfflineNote";
 import { Logo } from "@/components/Illustrations";
 import { GroceryList, PrepList } from "@/components/PlanSections";
 import RememberPlan from "@/components/RememberPlan";
@@ -95,6 +96,8 @@ export default async function PlanPage({ params, searchParams }: Props) {
         )}
         {tab === "groceries" && <h1 className="plan-title">Groceries and prep</h1>}
       </header>
+
+      <OfflineNote />
 
       {tab === "today" && (
         <TodayView

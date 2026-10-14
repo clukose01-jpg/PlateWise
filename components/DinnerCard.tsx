@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { type Cooked, type CookedStatus, SKIP_REASONS, type SkipReason } from "@/lib/cooked";
 import { clearPlanTicks, deviceHeaders, switchDayTicks } from "@/lib/device";
+import { savePlanForOffline } from "@/lib/offline";
 import { dollars, QUICK_DINNER_MINUTES } from "@/lib/plan-schema";
 import type { StoredPlan } from "@/lib/plans";
 import { type DinnerRating, loadRating, removeRating, saveRating, switchRatingDays } from "@/lib/ratings";
@@ -135,6 +136,7 @@ export default function DinnerCard({
           : "New dinner! Your grocery list and Sunday prep were updated to match.",
       );
       router.refresh();
+      savePlanForOffline(planId);
     } catch (err) {
       setSwapError(
         err instanceof Error && err.message ? err.message : "Something went wrong. Please try again.",
@@ -164,6 +166,7 @@ export default function DinnerCard({
         : "";
       setChanged(`Switched with ${other.day}: ${dinner.name} is on ${other.day} now.${nightBefore}`);
       router.refresh();
+      savePlanForOffline(planId);
     } catch (err) {
       setSwapError(err instanceof Error && err.message ? err.message : "Something went wrong. Please try again.");
     } finally {

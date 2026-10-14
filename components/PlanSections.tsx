@@ -1,6 +1,7 @@
 import { dollars, groceryTotal, itemName, itemPrice, WEEKDAYS } from "@/lib/plan-schema";
 import type { StoredPlan } from "@/lib/plans";
 import Checklist from "./Checklist";
+import SendList from "./SendList";
 
 export type PrepGroup = { day: string; steps: string[] };
 
@@ -71,6 +72,10 @@ export function GroceryList({
         Tap items as they go in your cart.
         {total !== null && " Prices are estimates, so your store's may differ."}
       </p>
+      <SendList
+        planId={planId}
+        sections={groceryList.map((group) => ({ section: group.section, items: group.items.map(itemName) }))}
+      />
       {shared && shared.length > 0 && (
         <div className="shared-food">
           <p className="shared-title">Nothing goes to waste</p>

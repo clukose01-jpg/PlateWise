@@ -117,7 +117,7 @@ export default function PrivacyPage() {
           <ul>
             <li>
               On your device: your answers, pantry, ratings and list of plans, so the app works without an
-              account.
+              account, and a copy of your current plan&apos;s pages, so they open without signal.
             </li>
             <li>
               In PlateWise&apos;s private storage: your plans, and your account if you made one, until you delete
