@@ -67,8 +67,8 @@ export default function DinnerCard({
     setReason(cooked?.reason);
   }, [planId, dinner.day, dinner.name, cooked]);
 
-  // "We made it" or "We skipped it", saved on the plan so it counts for the whole family. null
-  // clears it, for a tap by mistake.
+  // "We made it" or "We skipped it", saved on the plan so it counts for the whole family. Tapping
+  // the chosen answer again clears it (null), for a tap by mistake.
   async function markCooked(next: CookedStatus | null, nextReason?: SkipReason) {
     const before = { status, reason };
     setStatus(next);
@@ -310,11 +310,6 @@ export default function DinnerCard({
             We skipped it
           </button>
         </div>
-        {status && (
-          <button type="button" className="link left undo-cooked" onClick={() => markCooked(null)}>
-            Tapped by mistake? Undo
-          </button>
-        )}
         {cookedError && (
           <p className="error" role="alert">
             {cookedError}

@@ -329,11 +329,6 @@ button {
   margin-left: 0;
 }
 
-.link.undo-cooked {
-  margin-top: 10px;
-  font-size: 14px;
-}
-
 .link.inline {
   display: inline;
   margin: 0;
