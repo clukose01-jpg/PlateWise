@@ -44,8 +44,6 @@ export default function MorePage() {
 
       {/* On a computer, these cards flow into columns. */}
       <div className="more-layout">
-        <AccountCard />
-
         <section className="card">
           <h2 className="section-title">Favorite dinners</h2>
           {favorites.length === 0 ? (
@@ -106,6 +104,9 @@ export default function MorePage() {
         <FeedbackCard />
 
         <InstallHelp />
+
+        {/* Last, since it's needed least often. */}
+        <AccountCard />
       </div>
 
       <TabBar active="more" />
