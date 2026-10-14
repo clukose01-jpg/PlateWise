@@ -211,6 +211,36 @@ header > a {
   color: var(--muted);
 }
 
+/* What PlateWise does, under the headline for someone opening it for the first time. */
+.intro-points {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+}
+
+.intro-points li {
+  position: relative;
+  padding-left: 28px;
+  font-weight: 600;
+}
+
+.intro-points li + li {
+  margin-top: 6px;
+}
+
+/* A check mark. */
+.intro-points li::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 4px;
+  width: 6px;
+  height: 12px;
+  border: solid var(--accent);
+  border-width: 0 2.5px 2.5px 0;
+  transform: rotate(45deg);
+}
+
 .plan-title {
   margin-top: 20px;
 }
@@ -373,6 +403,20 @@ button {
   margin-top: 12px;
   color: var(--muted);
   font-size: 14px;
+}
+
+/* "About PlateWise", at the bottom of Profile. */
+.about p {
+  margin: 0 0 10px;
+}
+
+.about p:last-child {
+  margin-bottom: 0;
+}
+
+/* "Tell us what you think" in About jumps here. */
+#feedback {
+  scroll-margin-top: 16px;
 }
 
 .link.inline {

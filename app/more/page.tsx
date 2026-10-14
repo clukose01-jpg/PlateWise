@@ -105,8 +105,24 @@ export default function MorePage() {
 
         <InstallHelp />
 
-        {/* Last, since it's needed least often. */}
+        {/* Last, since they're needed least often. */}
         <AccountCard />
+
+        <section className="card about">
+          <h2 className="section-title">About PlateWise</h2>
+          <p>
+            PlateWise plans a week of family dinners in a few minutes. Tell it what&apos;s in your kitchen and
+            who&apos;s eating, and it plans dinners everyone can eat, with one grocery list. It learns what your
+            family likes each week.
+          </p>
+          <p className="hint">
+            It&apos;s new and still being tested with families, so{" "}
+            <a href="#feedback" className="link inline">
+              tell us what you think
+            </a>
+            .
+          </p>
+        </section>
       </div>
 
       <TabBar active="more" />

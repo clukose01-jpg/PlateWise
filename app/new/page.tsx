@@ -33,10 +33,17 @@ export default function NewPlan() {
   const [pantryItems, setPantryItems] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [cleared, setCleared] = useState<string | null>(null);
+  const [firstVisit, setFirstVisit] = useState(false);
 
   // Pantry staples are remembered on this device, so next week she only photographs the fridge.
   useEffect(() => {
-    syncFromAccount().then(() => setPantryItems(loadPantry()));
+    // No plans on this device (or, once synced, in her account) means she's new here.
+    const isNew = () => !getCurrentPlanId() && loadMadePlans().length === 0;
+    setFirstVisit(isNew());
+    syncFromAccount().then(() => {
+      setPantryItems(loadPantry());
+      setFirstVisit(isNew());
+    });
     // Arriving here right after deleting or removing a plan.
     setCleared(new URLSearchParams(window.location.search).get("cleared"));
   }, []);
@@ -100,6 +107,14 @@ export default function NewPlan() {
           <>
             <h1 className="hero">Dinner, decided.</h1>
             <p className="tagline">Plan the whole week of dinners in a few minutes.</p>
+            {/* What she gets, for someone opening a link they were sent. */}
+            {firstVisit && (
+              <ul className="intro-points">
+                <li>Dinners the whole family will eat, picky kids included</li>
+                <li>Planned around allergies</li>
+                <li>One grocery list for the week, and it learns what you like</li>
+              </ul>
+            )}
           </>
         )}
       </header>

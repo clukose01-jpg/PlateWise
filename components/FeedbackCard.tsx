@@ -41,7 +41,7 @@ export default function FeedbackCard() {
   }
 
   return (
-    <form className="card feedback-box" onSubmit={send}>
+    <form id="feedback" className="card feedback-box" onSubmit={send}>
       <h2 className="section-title">Tell us what you think</h2>
       <p>Something confusing or broken, or an idea? It goes straight to the PlateWise admin.</p>
       <label className="visually-hidden" htmlFor="feedback-text">
