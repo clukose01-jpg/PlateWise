@@ -11,7 +11,7 @@ export async function GET(request: Request) {
   // If her current plan was deleted on another device, open to her newest plan that still exists.
   const { data, changed } = await withLivePlan(account.data);
   if (changed) await saveAccountData(account, data);
-  return Response.json({ email: account.email, data });
+  return Response.json({ email: account.email, name: account.name ?? null, data });
 }
 
 // Saves this device's copy after a change, like a new rating or pantry item.

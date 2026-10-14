@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useEffect, useState } from "react";
-import { type LoginStatus, loginStatus, logOut, setPassword } from "@/lib/account-client";
+import { type LoginStatus, loginStatus, logOut, saveName, setPassword } from "@/lib/account-client";
 
 // On the More tab: log in to save everything, or see who's logged in. Hidden until login is set up.
 export default function AccountCard() {
@@ -15,6 +15,9 @@ export default function AccountCard() {
   const [password, setPasswordText] = useState("");
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [passwordSaved, setPasswordSaved] = useState(false);
+  const [editingName, setEditingName] = useState(false);
+  const [nameText, setNameText] = useState("");
+  const [nameError, setNameError] = useState<string | null>(null);
 
   useEffect(() => {
     loginStatus().then(setStatus);
@@ -38,6 +41,21 @@ export default function AccountCard() {
       setPasswordText("");
     } catch (err) {
       setPasswordError(err instanceof Error && err.message ? err.message : "Something went wrong. Please try again.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function saveNewName(event: FormEvent) {
+    event.preventDefault();
+    setBusy(true);
+    setNameError(null);
+    try {
+      const name = await saveName(nameText);
+      setStatus((current) => current && { ...current, name });
+      setEditingName(false);
+    } catch (err) {
+      setNameError(err instanceof Error && err.message ? err.message : "Something went wrong. Please try again.");
     } finally {
       setBusy(false);
     }
@@ -70,6 +88,55 @@ export default function AccountCard() {
   return (
     <section className="card account-card">
       <h2 className="section-title">Your account</h2>
+      {editingName ? (
+        <form className="password-form" onSubmit={saveNewName}>
+          <label className="question" htmlFor="account-name">
+            Your first name
+          </label>
+          <input
+            id="account-name"
+            type="text"
+            autoComplete="given-name"
+            maxLength={40}
+            value={nameText}
+            onChange={(event) => setNameText(event.target.value)}
+          />
+          <div className="confirm-buttons">
+            <button type="submit" className="primary" disabled={busy || !nameText.trim()}>
+              {busy ? "Saving…" : "Save"}
+            </button>
+            <button type="button" className="secondary" onClick={() => setEditingName(false)} disabled={busy}>
+              Cancel
+            </button>
+          </div>
+          {nameError && (
+            <p className="error" role="alert">
+              {nameError}
+            </p>
+          )}
+        </form>
+      ) : (
+        <p className="account-name">
+          {status.name ? (
+            <>
+              Hi, <strong>{status.name}</strong>!
+            </>
+          ) : (
+            "Add your first name, and PlateWise will say hi at the top of the screen."
+          )}{" "}
+          <button
+            type="button"
+            className="link inline"
+            onClick={() => {
+              setNameText(status.name ?? "");
+              setNameError(null);
+              setEditingName(true);
+            }}
+          >
+            {status.name ? "Change name" : "Add your name"}
+          </button>
+        </p>
+      )}
       <p>
         Logged in as <strong>{status.email}</strong>. Your plans, pantry, family answers and ratings save to your
         account, so they show up on any device you log into.

@@ -47,7 +47,16 @@ export type Account = {
   // When she last changed her password (in seconds). Logins from before then no longer count, so
   // a new password logs out her other devices.
   sessionsFrom?: number;
+  // Her first name, for "Welcome back". Accounts made before this was added don't have one.
+  name?: string;
 };
+
+export const MAX_NAME_LENGTH = 40;
+
+// One line, no extra spaces, and short enough to fit at the top of the screen.
+export function cleanName(name: string) {
+  return name.replace(/\s+/g, " ").trim().slice(0, MAX_NAME_LENGTH);
+}
 
 export const EMPTY_DATA: AccountData = {
   family: null,
@@ -160,7 +169,7 @@ export async function withLivePlan(data: AccountData): Promise<{ data: AccountDa
 // one to reset her password, and resetting it logs everyone else out.
 export type SignUp = { result: "ok"; account: Account } | { result: "exists" };
 
-export async function signUp(email: string, password: string, device: AccountData): Promise<SignUp> {
+export async function signUp(email: string, password: string, device: AccountData, name = ""): Promise<SignUp> {
   const id = accountIdFor(email);
   if (await loadAccount(id)) return { result: "exists" };
   const now = new Date().toISOString();
@@ -172,6 +181,7 @@ export async function signUp(email: string, password: string, device: AccountDat
     updatedAt: now,
     data: EMPTY_DATA,
     passwordHash: await hashPassword(password),
+    name: cleanName(name) || undefined,
   };
   return { result: "ok", account: await saveAccountData(account, data) };
 }
@@ -242,6 +252,13 @@ export async function checkLoginCode(email: string, code: string): Promise<CodeC
   }
   await writeJson(codeFile(email), { ...saved, tries: saved.tries + 1 });
   return saved.tries + 1 >= MAX_TRIES ? "expired" : "wrong";
+}
+
+// Adds or changes her first name. An empty name removes it.
+export async function setName(account: Account, name: string) {
+  const saved: Account = { ...account, name: cleanName(name) || undefined, updatedAt: new Date().toISOString() };
+  await writeJson(`accounts/${account.id}.json`, saved);
+  return saved;
 }
 
 // Saves a new password and logs out her other devices. The caller gives this device a new login.

@@ -3,6 +3,12 @@
 // account, and opening the app brings in changes made on her other devices.
 
 const ACCOUNT_KEY = "platewise.account";
+const NAME_KEY = "platewise.accountName";
+// Set for the rest of the visit after she signs up, so the top of the screen says "Welcome"
+// instead of "Welcome back".
+const NEW_ACCOUNT_KEY = "platewise.newAccount";
+// Sent when who's logged in, or their name, changes, so the account badge can update.
+export const ACCOUNT_CHANGED = "platewise:account";
 
 // The saved things that belong to her account, and where each lives on the device.
 const SYNCED = {
@@ -47,6 +53,35 @@ function setAccountEmail(email: string | null) {
     else localStorage.removeItem(ACCOUNT_KEY);
   } catch {
     // Not remembered.
+  }
+  if (!email) setAccountName(null);
+  window.dispatchEvent(new Event(ACCOUNT_CHANGED));
+}
+
+// Her first name, if she gave one.
+export function accountName(): string | null {
+  try {
+    return localStorage.getItem(NAME_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function setAccountName(name: string | null) {
+  try {
+    if (name) localStorage.setItem(NAME_KEY, name);
+    else localStorage.removeItem(NAME_KEY);
+  } catch {
+    // Not remembered.
+  }
+  window.dispatchEvent(new Event(ACCOUNT_CHANGED));
+}
+
+export function isNewAccount() {
+  try {
+    return sessionStorage.getItem(NEW_ACCOUNT_KEY) === "1";
+  } catch {
+    return false;
   }
 }
 
@@ -99,8 +134,9 @@ export function syncFromAccount(): Promise<void> {
         return;
       }
       if (!response.ok) return;
-      const { data } = await response.json();
+      const { data, name } = await response.json();
       applyData(data);
+      setAccountName(name ?? null);
     } catch {
       // Offline: use what's on the device.
     }
@@ -163,16 +199,22 @@ async function postJson(url: string, body: unknown) {
   return result;
 }
 
-export type LoginStatus = { enabled: boolean; email: string | null; hasPassword: boolean };
+export type LoginStatus = { enabled: boolean; email: string | null; name: string | null; hasPassword: boolean };
 
 export async function loginStatus(): Promise<LoginStatus> {
   try {
     const status = await fetch("/api/auth/status", { cache: "no-store" }).then((r) => r.json());
-    // Keep the device's note of who's logged in matched with the server.
+    // Keep the device's note of who's logged in, and their name, matched with the server.
     if (status.email !== accountEmail()) setAccountEmail(status.email);
-    return { enabled: Boolean(status.enabled), email: status.email ?? null, hasPassword: Boolean(status.hasPassword) };
+    if (status.email && (status.name ?? null) !== accountName()) setAccountName(status.name ?? null);
+    return {
+      enabled: Boolean(status.enabled),
+      email: status.email ?? null,
+      name: status.name ?? null,
+      hasPassword: Boolean(status.hasPassword),
+    };
   } catch {
-    return { enabled: false, email: accountEmail(), hasPassword: false };
+    return { enabled: false, email: accountEmail(), name: accountName(), hasPassword: false };
   }
 }
 
@@ -180,9 +222,10 @@ export async function sendCode(email: string) {
   await postJson("/api/auth/send-code", { email });
 }
 
-function loggedIn(result: { email: string; data: Partial<AccountData> }) {
+function loggedIn(result: { email: string; name?: string | null; data: Partial<AccountData> }) {
   applyData(result.data);
   setAccountEmail(result.email);
+  setAccountName(result.name ?? null);
   pulling = Promise.resolve();
 }
 
@@ -195,8 +238,20 @@ export async function verifyCode(email: string, code: string): Promise<{ hasPass
 }
 
 // A new account with an email and password. What's on this device becomes the account's start.
-export async function signUp(email: string, password: string) {
-  loggedIn(await postJson("/api/auth/signup", { email, password, device: deviceData() }));
+export async function signUp(email: string, password: string, name: string) {
+  loggedIn(await postJson("/api/auth/signup", { email, password, name, device: deviceData() }));
+  try {
+    sessionStorage.setItem(NEW_ACCOUNT_KEY, "1");
+  } catch {
+    // Says "Welcome back" instead.
+  }
+}
+
+// Adds or changes her first name.
+export async function saveName(name: string) {
+  const result = await postJson("/api/auth/name", { name });
+  setAccountName(result.name ?? null);
+  return (result.name ?? null) as string | null;
 }
 
 export async function logInWithPassword(email: string, password: string) {

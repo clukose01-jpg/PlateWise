@@ -23,6 +23,7 @@ import { loadBudget, saveBudget, toBudget } from "@/lib/device";
 type Step = "loading" | "unavailable" | "already" | "password" | "signup" | "code" | "new-password" | "budget";
 
 const MIN_PASSWORD_LENGTH = 8;
+const MAX_NAME_LENGTH = 40;
 
 // Only go back to a page on this site.
 function nextPage() {
@@ -34,6 +35,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [step, setStep] = useState<Step>("loading");
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [password, setPasswordText] = useState("");
   const [code, setCode] = useState("");
   const [hadPassword, setHadPassword] = useState(false);
@@ -135,7 +137,7 @@ export default function LoginPage() {
     }
     run(async () => {
       try {
-        await signUp(email.trim(), password);
+        await signUp(email.trim(), password, name.trim());
       } catch (err) {
         setExists(err instanceof AccountError && err.exists);
         throw err;
@@ -239,6 +241,18 @@ export default function LoginPage() {
         <form className="card" onSubmit={createAccount}>
           {tabs}
           <p className="hint signup-intro">New to PlateWise? Make a free account with your email and a password.</p>
+          <label className="question" htmlFor="signup-name">
+            Your first name
+          </label>
+          <input
+            id="signup-name"
+            type="text"
+            autoComplete="given-name"
+            maxLength={MAX_NAME_LENGTH}
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            required
+          />
           <label className="question" htmlFor="signup-email">
             Your email
           </label>
@@ -266,7 +280,7 @@ export default function LoginPage() {
             onChange={(event) => setPasswordText(event.target.value)}
           />
           <p className="hint">At least {MIN_PASSWORD_LENGTH} characters.</p>
-          <button type="submit" className="primary" disabled={busy || !email.trim() || !password}>
+          <button type="submit" className="primary" disabled={busy || !name.trim() || !email.trim() || !password}>
             {busy ? "Making your account…" : "Create account"}
           </button>
           {error && (

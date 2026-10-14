@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import AccountBadge from "@/components/AccountBadge";
 import DeletePlan from "@/components/DeletePlan";
 import DinnerCard from "@/components/DinnerCard";
 import LoginNudge from "@/components/LoginNudge";
@@ -86,6 +87,7 @@ export default async function PlanPage({ params, searchParams }: Props) {
       <RememberPlan id={id} />
       <header>
         <Logo />
+        <AccountBadge />
         {tab === "week" && (
           <>
             <h1 className="plan-title">Your week of dinners</h1>

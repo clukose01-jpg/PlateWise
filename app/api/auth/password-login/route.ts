@@ -27,7 +27,7 @@ export async function POST(request: Request) {
           errorResponse("That email and password don't match. New here? Tap Sign up at the top.", 401);
     }
     return Response.json(
-      { email: login.account.email, data: login.account.data, hasPassword: true },
+      { email: login.account.email, name: login.account.name ?? null, data: login.account.data, hasPassword: true },
       { headers: { "Set-Cookie": sessionCookie(login.account.id) } },
     );
   } catch (error) {

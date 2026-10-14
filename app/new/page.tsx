@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import AccountBadge from "@/components/AccountBadge";
 import FamilyStep, { type FamilyAnswers } from "@/components/FamilyStep";
 import FridgeStep from "@/components/FridgeStep";
 import { Logo } from "@/components/Illustrations";
@@ -95,6 +96,7 @@ export default function NewPlan() {
     <main className="new-plan">
       <header>
         <Logo />
+        <AccountBadge />
         {stage === "fridge" && (
           <>
             <h1 className="hero">Dinner, decided.</h1>

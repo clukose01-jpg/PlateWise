@@ -7,6 +7,8 @@ import { sessionCookie } from "@/lib/session";
 const SignUpRequest = z.object({
   email: z.string().trim().max(200).email(),
   password: z.string().max(200),
+  // Her first name, for "Welcome back". Older versions of the app didn't send it.
+  name: z.string().max(200).default(""),
   // What's on this device already, so nothing is lost when she makes the account.
   device: AccountDataSchema.catch(EMPTY_DATA),
 });
@@ -29,7 +31,7 @@ export async function POST(request: Request) {
     return errorResponse("Pick a password other than your email.", 400);
   }
   try {
-    const result = await signUp(email, password, parsed.data.device);
+    const result = await signUp(email, password, parsed.data.device, parsed.data.name);
     if (result.result === "exists") {
       return Response.json(
         { error: "There's already an account with this email. Log in instead.", exists: true },
@@ -37,7 +39,7 @@ export async function POST(request: Request) {
       );
     }
     return Response.json(
-      { email: result.account.email, data: result.account.data, hasPassword: true },
+      { email: result.account.email, name: result.account.name ?? null, data: result.account.data, hasPassword: true },
       { headers: { "Set-Cookie": sessionCookie(result.account.id) } },
     );
   } catch (error) {

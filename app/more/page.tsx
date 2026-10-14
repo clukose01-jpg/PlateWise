@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import AccountBadge from "@/components/AccountBadge";
 import AccountCard from "@/components/AccountCard";
 import FamilySummary from "@/components/FamilySummary";
 import FeedbackCard from "@/components/FeedbackCard";
@@ -37,6 +38,7 @@ export default function MorePage() {
     <main>
       <header>
         <Logo />
+        <AccountBadge />
         <h1 className="plan-title">More</h1>
       </header>
 

@@ -7,6 +7,7 @@ export async function GET(request: Request) {
   return Response.json({
     enabled: await loginIsSetUp(),
     email: account?.email ?? null,
+    name: account?.name ?? null,
     hasPassword: Boolean(account?.passwordHash),
   });
 }
