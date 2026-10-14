@@ -67,17 +67,13 @@ export default function DinnerCard({
     setReason(cooked?.reason);
   }, [planId, dinner.day, dinner.name, cooked]);
 
-  // "We made it" or "We skipped it", saved on the plan so it counts for the whole family.
-  async function markCooked(next: CookedStatus, nextReason?: SkipReason) {
+  // "We made it" or "We skipped it", saved on the plan so it counts for the whole family. null
+  // clears it, for a tap by mistake.
+  async function markCooked(next: CookedStatus | null, nextReason?: SkipReason) {
     const before = { status, reason };
     setStatus(next);
     setReason(nextReason);
     setCookedError(null);
-    // A skipped dinner wasn't eaten, so it isn't rated.
-    if (next === "skipped" && rating) {
-      removeRating(planId, dinner.day);
-      setRating(null);
-    }
     try {
       const response = await fetch(`/api/plan/${planId}/cooked`, {
         method: "POST",
@@ -85,6 +81,11 @@ export default function DinnerCard({
         body: JSON.stringify({ day: dinner.day, status: next, reason: nextReason }),
       });
       if (!response.ok) throw new Error((await response.json().catch(() => ({}))).error);
+      // A dinner that was skipped, or not made yet, wasn't eaten, so it isn't rated.
+      if (next !== "made" && rating) {
+        removeRating(planId, dinner.day);
+        setRating(null);
+      }
     } catch (err) {
       setStatus(before.status);
       setReason(before.reason);
@@ -296,7 +297,7 @@ export default function DinnerCard({
             type="button"
             className={status === "made" ? "thumb chosen" : "thumb"}
             aria-pressed={status === "made"}
-            onClick={() => status !== "made" && markCooked("made")}
+            onClick={() => markCooked(status === "made" ? null : "made")}
           >
             We made it
           </button>
@@ -304,11 +305,16 @@ export default function DinnerCard({
             type="button"
             className={status === "skipped" ? "thumb chosen" : "thumb"}
             aria-pressed={status === "skipped"}
-            onClick={() => status !== "skipped" && markCooked("skipped")}
+            onClick={() => markCooked(status === "skipped" ? null : "skipped")}
           >
             We skipped it
           </button>
         </div>
+        {status && (
+          <button type="button" className="link left undo-cooked" onClick={() => markCooked(null)}>
+            Tapped by mistake? Undo
+          </button>
+        )}
         {cookedError && (
           <p className="error" role="alert">
             {cookedError}
