@@ -6,7 +6,6 @@ import AccountBadge from "@/components/AccountBadge";
 import FamilyStep, { type FamilyAnswers } from "@/components/FamilyStep";
 import FridgeStep from "@/components/FridgeStep";
 import { Logo } from "@/components/Illustrations";
-import LoginLink from "@/components/LoginLink";
 import PlanningWait from "@/components/PlanningWait";
 import StepBar from "@/components/StepBar";
 import TabBar from "@/components/TabBar";
@@ -101,7 +100,6 @@ export default function NewPlan() {
           <>
             <h1 className="hero">Dinner, decided.</h1>
             <p className="tagline">Plan the whole week of dinners in a few minutes.</p>
-            <LoginLink />
           </>
         )}
       </header>
