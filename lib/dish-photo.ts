@@ -94,10 +94,12 @@ async function makeGooglePicture(apiKey: string, prompt: string, preferredModel?
 type HiggsfieldRequest = { status?: string; request_id?: string; images?: { url?: string }[]; detail?: unknown };
 
 function higgsfieldMessage(status: number, json: HiggsfieldRequest | null) {
-  const detail = typeof json?.detail === "string" ? json.detail : json?.detail ? JSON.stringify(json.detail) : "";
-  if (status === 401) return "Higgsfield says that key isn't right.";
-  if (status === 403) return "Higgsfield says there isn't enough money on the account.";
-  if (status === 404) return "Higgsfield doesn't have that picture model.";
+  const detail = (typeof json?.detail === "string" ? json.detail : json?.detail ? JSON.stringify(json.detail) : "").slice(0, 200);
+  // Higgsfield's own words go along too, shown on the setup page.
+  const theySaid = detail ? ` (${status}: ${detail})` : ` (${status})`;
+  if (status === 401) return `Higgsfield says that key isn't right.${theySaid}`;
+  if (status === 403) return `Higgsfield says there isn't enough money on the account.${theySaid}`;
+  if (status === 404) return `Higgsfield doesn't have that picture model.${theySaid}`;
   return (detail || `Higgsfield said ${status}.`).slice(0, 300);
 }
 
@@ -105,7 +107,11 @@ const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // credentials is "KEY_ID:KEY_SECRET", the way Higgsfield's console gives them.
 async function makeHiggsfieldPicture(credentials: string, prompt: string, model: string): Promise<Picture> {
-  const headers = { Authorization: `Key ${credentials}`, "Content-Type": "application/json" };
+  const headers = {
+    Authorization: `Key ${credentials}`,
+    "Content-Type": "application/json",
+    "User-Agent": "PlateWise/1.0 (+https://plate-wise-one.vercel.app)",
+  };
   const ask = (body: object) =>
     fetch(`${HIGGSFIELD_API}/${model}`, {
       method: "POST",

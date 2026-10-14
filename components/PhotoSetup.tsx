@@ -86,7 +86,9 @@ export default function PhotoSetup({ code }: { code: string }) {
     }
   }
 
-  const ready = provider === "google" ? Boolean(apiKey.trim()) : Boolean(keyId.trim() && keySecret.trim());
+  // For Higgsfield, the whole "Key ID:Secret" line can go in the Key ID box alone.
+  const ready =
+    provider === "google" ? Boolean(apiKey.trim()) : Boolean(keyId.trim() && (keySecret.trim() || keyId.includes(":")));
   const replacing = status?.on && status.provider === provider;
 
   return (
@@ -136,13 +138,15 @@ export default function PhotoSetup({ code }: { code: string }) {
             <>
               {!replacing && (
                 <ol className="setup-steps">
-                  <li>Go to higgsfield.ai/higgsfield-api and sign in.</li>
+                  <li>Go to cloud.higgsfield.ai (Higgsfield Cloud) and sign in.</li>
                   <li>
-                    Add some money to your API balance. You pay for each picture, and each model&apos;s price is
+                    Add some money to your balance there. You pay for each picture, and each model&apos;s price is
                     listed there.
                   </li>
-                  <li>Create an API key. Copy the Key ID and the Secret. The Secret is only shown once.</li>
-                  <li>Paste both below.</li>
+                  <li>
+                    Create an API key. Copy the Key ID and the Secret. The Secret is only shown once. If it&apos;s
+                    shown as one line with a colon in it, paste the whole line into the Key ID box.
+                  </li>
                 </ol>
               )}
               <label className="question" htmlFor="higgsfield-id">
@@ -155,7 +159,7 @@ export default function PhotoSetup({ code }: { code: string }) {
                 spellCheck={false}
                 value={keyId}
                 onChange={(event) => setKeyId(event.target.value)}
-                placeholder="Paste the Key ID"
+                placeholder="Paste the Key ID, or the whole key line"
               />
               <label className="question" htmlFor="higgsfield-secret">
                 Secret

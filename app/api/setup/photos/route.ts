@@ -13,8 +13,8 @@ const SaveRequest = z.discriminatedUnion("provider", [
   z.object({ provider: z.literal("google"), apiKey: z.string().trim().min(20).max(200) }),
   z.object({
     provider: z.literal("higgsfield"),
-    keyId: z.string().trim().min(4).max(200),
-    keySecret: z.string().trim().min(4).max(400),
+    keyId: z.string().trim().max(400),
+    keySecret: z.string().trim().max(400).default(""),
     model: z.string().trim().max(120).optional(),
   }),
 ]);
@@ -51,6 +51,28 @@ function higgsfieldAdvice(message: string) {
   return "Higgsfield didn't make the test picture.";
 }
 
+// Higgsfield's key is a Key ID and a Secret, sent as "KEY_ID:KEY_SECRET". Its console can show them
+// as one line with a colon, which can be pasted into either box.
+function higgsfieldCredentials(keyId: string, keySecret: string): string | null {
+  const id = keyId.trim();
+  const secret = keySecret.trim();
+  let parts: [string, string] | null = null;
+  if (id.includes(":")) {
+    const [first, ...rest] = id.split(":");
+    parts = [first, rest.join(":")];
+  } else if (secret.startsWith(`${id}:`)) {
+    parts = [id, secret.slice(id.length + 1)];
+  } else if (!id && secret.includes(":")) {
+    const [first, ...rest] = secret.split(":");
+    parts = [first, rest.join(":")];
+  } else {
+    parts = [id, secret];
+  }
+  const [cleanId, cleanSecret] = parts.map((part) => part.trim());
+  if (cleanId.length < 4 || cleanSecret.length < 4 || /[\s:]/.test(cleanId) || /\s/.test(cleanSecret)) return null;
+  return `${cleanId}:${cleanSecret}`;
+}
+
 // Whether pictures are on, and with whom. The key itself is never sent back.
 export async function GET(request: Request) {
   if (!compareAllowed(request)) return Response.json(NOT_ALLOWED, { status: 403 });
@@ -81,14 +103,18 @@ export async function POST(request: Request) {
     }
     key = { provider: "google", apiKey: body.apiKey };
   } else {
-    if (/[\s:]/.test(body.keyId) || /\s/.test(body.keySecret)) {
-      return Response.json({ error: "That doesn't look like a Higgsfield key. Copy the Key ID and the Secret separately." }, { status: 400 });
+    const credentials = higgsfieldCredentials(body.keyId, body.keySecret);
+    if (!credentials) {
+      return Response.json(
+        { error: "That doesn't look like a Higgsfield key. Paste the Key ID and the Secret, or the whole key line with the colon in it." },
+        { status: 400 },
+      );
     }
     const model = body.model?.replace(/^\/+/, "") || HIGGSFIELD_MODEL;
     if (!/^[\w.\-/]+$/.test(model)) {
       return Response.json({ error: "That model name doesn't look right. Leave the box as it was to use the usual one." }, { status: 400 });
     }
-    key = { provider: "higgsfield", apiKey: `${body.keyId}:${body.keySecret}`, model };
+    key = { provider: "higgsfield", apiKey: credentials, model };
   }
   const name = key.provider === "google" ? "Google" : "Higgsfield";
   try {
