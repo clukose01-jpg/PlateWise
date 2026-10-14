@@ -19,7 +19,6 @@ type Props = {
   people: number;
   budget?: number | null;
   cooked?: StoredPlan["cooked"];
-  showPhoto?: boolean;
 };
 
 function NewPlanNudge({ title, text }: { title: string; text: string }) {
@@ -44,7 +43,6 @@ export default function TodayView({
   people,
   budget,
   cooked,
-  showPhoto,
 }: Props) {
   const [now, setNow] = useState<Date | null>(null);
 
@@ -160,7 +158,6 @@ export default function TodayView({
               .map((other) => ({ day: other.day, name: other.name, nightBefore: other.nightBefore }))}
             runningLate
             startOpen
-            showPhoto={showPhoto}
           />
         ) : (
           <p className="quiet">No dinner is planned for tonight.</p>

@@ -91,10 +91,6 @@ export default function PrivacyPage() {
             <li>
               <strong>Apple, Google or Mozilla</strong> deliver reminders to your phone, if you turn them on.
             </li>
-            <li>
-              <strong>Higgsfield&apos;s or Google&apos;s picture AI</strong>, if dinner pictures are switched on,
-              gets a dinner&apos;s name and ingredients, and nothing about you.
-            </li>
           </ul>
         </section>
 

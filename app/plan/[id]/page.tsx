@@ -10,7 +10,6 @@ import RememberPlan from "@/components/RememberPlan";
 import ShareButton from "@/components/ShareButton";
 import TabBar from "@/components/TabBar";
 import TodayView from "@/components/TodayView";
-import { photosAreOn } from "@/lib/photo-settings";
 import { loadPlan, prepGroups, type StoredPlan } from "@/lib/plans";
 
 export const metadata: Metadata = {
@@ -107,7 +106,6 @@ export default async function PlanPage({ params, searchParams }: Props) {
           people={people}
           budget={family.budget}
           cooked={saved.cooked}
-          showPhoto={await photosAreOn()}
         />
       )}
 

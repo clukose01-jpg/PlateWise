@@ -2,10 +2,10 @@ import { randomBytes } from "node:crypto";
 import { writeJson } from "./store";
 import type { Origin } from "./visitor";
 
-// Things worth counting on the admin page that aren't saved anywhere else: photo scans, swaps,
-// dinner pictures, and plans the safety check wouldn't show. One small file each, written after the
+// Things worth counting on the admin page that aren't saved anywhere else: photo scans, swaps, and
+// plans the safety check wouldn't show. One small file each, written after the
 // reply has gone.
-export type EventType = "scan" | "swap" | "plan-blocked" | "swap-blocked" | "photo";
+export type EventType = "scan" | "swap" | "plan-blocked" | "swap-blocked";
 
 export type AppEvent = {
   type: EventType;

@@ -16,9 +16,8 @@ function key() {
   return secret ? createHash("sha256").update(`platewise-settings:${secret}`).digest() : null;
 }
 
-// Scrambles a setting so the saved file is useless without SESSION_SECRET. Also used for the
-// key that makes dinner pictures.
-export function sealJson(value: unknown): Sealed {
+// Scrambles a setting so the saved file is useless without SESSION_SECRET.
+function sealJson(value: unknown): Sealed {
   const secretKey = key();
   if (!secretKey) throw new Error("SESSION_SECRET isn't set.");
   const iv = randomBytes(12);
@@ -27,7 +26,7 @@ export function sealJson(value: unknown): Sealed {
   return { iv: iv.toString("base64"), tag: cipher.getAuthTag().toString("base64"), data: data.toString("base64") };
 }
 
-export function unsealJson<T>(sealed: Sealed): T | null {
+function unsealJson<T>(sealed: Sealed): T | null {
   const secretKey = key();
   if (!secretKey) return null;
   try {
