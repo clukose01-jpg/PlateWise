@@ -329,6 +329,11 @@ button {
   margin-left: 0;
 }
 
+/* Dinner pictures on the setup page: Higgsfield or Google. */
+.photo-setup .reason-pills {
+  margin: 8px 0 16px;
+}
+
 /* The privacy note. */
 .privacy {
   max-width: 760px;

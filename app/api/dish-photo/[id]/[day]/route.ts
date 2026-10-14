@@ -6,7 +6,8 @@ import { loadPlan } from "@/lib/plans";
 import { readBytes, writeBytes } from "@/lib/store";
 import { requestDeviceId, requestOrigin } from "@/lib/visitor";
 
-export const maxDuration = 60;
+// Higgsfield can take a minute or so to make a picture.
+export const maxDuration = 120;
 
 type Context = { params: Promise<{ id: string; day: string }> };
 
@@ -28,14 +29,14 @@ export async function GET(request: Request, { params }: Context) {
   const key = await photoKey();
   if (!key) return new Response(null, { status: 404 });
   try {
-    const picture = await makePicture(key.apiKey, dishPrompt(dinner.name, dinner.ingredients ?? []), key.model);
+    const picture = await makePicture(key, dishPrompt(dinner.name, dinner.ingredients ?? []));
     await writeBytes(file, picture.bytes, picture.contentType);
-    if (picture.model !== key.model) await rememberPhotoModel(picture.model).catch(() => {});
+    if (key.provider === "google" && picture.model !== key.model) await rememberPhotoModel(picture.model).catch(() => {});
     await logEvent({
       type: "photo",
       origin: requestOrigin(request),
       deviceId: requestDeviceId(request),
-      costUsd: PICTURE_COST_USD,
+      costUsd: PICTURE_COST_USD[key.provider],
     });
     return new Response(new Uint8Array(picture.bytes), { headers: { ...headers, "Content-Type": picture.contentType } });
   } catch (error) {
