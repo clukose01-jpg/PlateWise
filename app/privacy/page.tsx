@@ -54,6 +54,10 @@ export default function PrivacyPage() {
             <li>To log you in, and keep your things the same on all your devices.</li>
             <li>To send the daily reminder, if you turn it on.</li>
             <li>
+              To keep costs down: how many plans, swaps and fridge scans each account or device made in the last 7
+              days, just the times, so each family can make 3 plans, 6 swaps and 10 scans a week.
+            </li>
+            <li>
               To see roughly how PlateWise is being used, as counts: how many plans, swaps and fridge scans, and in
               which cities. The counts don&apos;t include names or emails.
             </li>

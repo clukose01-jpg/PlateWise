@@ -3,6 +3,7 @@ import { after } from "next/server";
 import { apiKeyProblem, KEY_REJECTED, SCAN_EFFORT } from "@/lib/claude";
 import { isPhotoType, KnownItems, scanKitchen, toImageBlocks } from "@/lib/kitchen-scan";
 import { logEvent } from "@/lib/events";
+import { recordUse, weeklyLimitMessage } from "@/lib/usage";
 import { MAX_PHOTOS_PER_SCAN } from "@/lib/photo-limits";
 import { requestDeviceId, requestOrigin } from "@/lib/visitor";
 
@@ -47,6 +48,8 @@ export async function POST(request: Request) {
     return errorResponse("Those photos are too large. Try fewer at a time.", 413);
   }
   const known = parseKnown(form.get("known"));
+  const limit = await weeklyLimitMessage(request, "scan");
+  if (limit) return errorResponse(limit, 429);
 
   try {
     const result = await scanKitchen(await toImageBlocks(photos), known, SCAN_EFFORT);
@@ -61,6 +64,7 @@ export async function POST(request: Request) {
         costUsd: result.test.costUsd,
       }),
     );
+    await recordUse(request, "scan");
     return Response.json(result);
   } catch (error) {
     if (error instanceof Anthropic.AuthenticationError) {

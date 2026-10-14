@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, type KeyboardEvent, useEffect, useState } from "react";
+import { type FormEvent, type KeyboardEvent, useEffect, useRef, useState } from "react";
 import { syncFromAccount } from "@/lib/account-client";
 import { isNoAllergy, loadFamily, loadMadePlans, type SavedFamily, saveFamily, toBudget } from "@/lib/device";
 import { COOK_TIMES } from "@/lib/plan-schema";
@@ -48,6 +48,11 @@ type Props = {
 };
 
 export default function FamilyStep({ error, onBack, onSubmit }: Props) {
+  // If making the plan didn't work, the page is back at the top, so bring the reason into view.
+  const errorBox = useRef<HTMLParagraphElement>(null);
+  useEffect(() => {
+    if (error) errorBox.current?.scrollIntoView({ block: "center" });
+  }, [error]);
   const [allergies, setAllergies] = useState<string[]>([]);
   const [allergyTyping, setAllergyTyping] = useState("");
   const [adults, setAdults] = useState(2);
@@ -144,7 +149,7 @@ export default function FamilyStep({ error, onBack, onSubmit }: Props) {
         <p>Here&apos;s what PlateWise remembers about your family. Check the allergies before you make your plan.</p>
         <FamilySummary family={lastWeek} />
         {error && (
-          <p className="error" role="alert">
+          <p ref={errorBox} className="error" role="alert">
             {error}
           </p>
         )}
@@ -338,7 +343,7 @@ export default function FamilyStep({ error, onBack, onSubmit }: Props) {
       </div>
 
       {error && (
-        <p className="error" role="alert">
+        <p ref={errorBox} className="error" role="alert">
           {error}
         </p>
       )}

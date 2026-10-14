@@ -49,7 +49,15 @@ export function getDeviceId(): string {
 
 export function deviceHeaders(): Record<string, string> {
   const id = getDeviceId();
-  return id ? { "x-platewise-device": id } : {};
+  const headers: Record<string, string> = id ? { "x-platewise-device": id } : {};
+  // The admin's own devices (where the admin page was opened) skip the weekly limits.
+  try {
+    const adminCode = localStorage.getItem("platewise.adminCode");
+    if (adminCode) headers["x-compare-code"] = adminCode;
+  } catch {
+    // No admin passcode here.
+  }
+  return headers;
 }
 
 export function setCurrentPlanId(id: string) {

@@ -6,6 +6,7 @@ import { learnFromPlans } from "@/lib/learned";
 import { FamilySchema, RECENT_PLANS } from "@/lib/plan-schema";
 import { newOwnerKey, savePlan, StorageNotSetUpError } from "@/lib/plans";
 import { logEvent } from "@/lib/events";
+import { recordUse, weeklyLimitMessage } from "@/lib/usage";
 import { makeSafePlan, type PlanFix, PlanSafetyError, SAFETY_CHECK_ON, type SafetyRound } from "@/lib/safe-plan";
 import { sessionAccountId } from "@/lib/session";
 import { priceArea, requestDeviceId, requestOrigin } from "@/lib/visitor";
@@ -38,6 +39,8 @@ export async function POST(request: Request) {
   }
   const { recentPlans, ...answers } = parsed.data;
   const origin = requestOrigin(request);
+  const limit = await weeklyLimitMessage(request, "plan");
+  if (limit) return errorResponse(limit, 429);
 
   try {
     const learned = await learnFromPlans(recentPlans);
@@ -72,6 +75,7 @@ export async function POST(request: Request) {
           ? (result.rounds as SafetyRound[]).filter((round) => round.problems.length).length
           : undefined,
     });
+    await recordUse(request, "plan");
     return Response.json({ id, ownerKey });
   } catch (error) {
     if (error instanceof PlanSafetyError) {

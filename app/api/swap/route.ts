@@ -21,6 +21,7 @@ import {
 } from "@/lib/plan-schema";
 import { loadPlan, type StoredPlan, StorageNotSetUpError, updatePlan } from "@/lib/plans";
 import { logEvent } from "@/lib/events";
+import { recordUse, weeklyLimitMessage } from "@/lib/usage";
 import { describeFix, makeSafePlan, type PlanFix, PlanSafetyError, SAFETY_CHECK_ON } from "@/lib/safe-plan";
 import { priceArea, requestDeviceId, requestOrigin } from "@/lib/visitor";
 
@@ -136,6 +137,9 @@ export async function POST(request: Request) {
     return errorResponse("We couldn't find that dinner. Try reloading the page.", 404);
   }
 
+  const limit = await weeklyLimitMessage(request, "swap");
+  if (limit) return errorResponse(limit, 429);
+
   // Plans made before the pantry and ratings existed don't have them saved.
   const family: Family = {
     ...stored.family,
@@ -170,6 +174,7 @@ export async function POST(request: Request) {
       // The next plan learns from it: a swap means "not this", running late means a busy night.
       swappedAway: [...(stored.swappedAway ?? []), { day, dish, quick, at: new Date().toISOString() }].slice(-20),
     });
+    await recordUse(request, "swap");
     after(() =>
       logEvent({
         type: "swap",
