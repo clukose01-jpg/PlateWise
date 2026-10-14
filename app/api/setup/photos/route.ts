@@ -52,10 +52,12 @@ function higgsfieldAdvice(message: string) {
 }
 
 // Higgsfield's key is a Key ID and a Secret, sent as "KEY_ID:KEY_SECRET". Its console can show them
-// as one line with a colon, which can be pasted into either box.
+// as one line with a colon, which can be pasted into either box, or give a single key, which is sent
+// as it is.
 function higgsfieldCredentials(keyId: string, keySecret: string): string | null {
   const id = keyId.trim();
   const secret = keySecret.trim();
+  if (!secret && !id.includes(":")) return id.length >= 8 && !/\s/.test(id) ? id : null;
   let parts: [string, string] | null = null;
   if (id.includes(":")) {
     const [first, ...rest] = id.split(":");

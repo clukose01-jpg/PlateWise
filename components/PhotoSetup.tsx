@@ -86,9 +86,8 @@ export default function PhotoSetup({ code }: { code: string }) {
     }
   }
 
-  // For Higgsfield, the whole "Key ID:Secret" line can go in the Key ID box alone.
-  const ready =
-    provider === "google" ? Boolean(apiKey.trim()) : Boolean(keyId.trim() && (keySecret.trim() || keyId.includes(":")));
+  // For Higgsfield, a single key, or the whole "Key ID:Secret" line, can go in the Key ID box alone.
+  const ready = provider === "google" ? Boolean(apiKey.trim()) : Boolean(keyId.trim());
   const replacing = status?.on && status.provider === provider;
 
   return (
@@ -144,8 +143,9 @@ export default function PhotoSetup({ code }: { code: string }) {
                     listed there.
                   </li>
                   <li>
-                    Create an API key. Copy the Key ID and the Secret. The Secret is only shown once. If it&apos;s
-                    shown as one line with a colon in it, paste the whole line into the Key ID box.
+                    Create an API key, and copy the long code it shows you (not the name you gave it). It&apos;s
+                    only shown once. If Higgsfield gives you just one code, paste it into the Key ID box and
+                    leave Secret empty.
                   </li>
                 </ol>
               )}
@@ -162,7 +162,7 @@ export default function PhotoSetup({ code }: { code: string }) {
                 placeholder="Paste the Key ID, or the whole key line"
               />
               <label className="question" htmlFor="higgsfield-secret">
-                Secret
+                Secret (if Higgsfield gave you one)
               </label>
               <input
                 id="higgsfield-secret"
