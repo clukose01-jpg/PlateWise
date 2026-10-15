@@ -40,6 +40,10 @@ export default function PrivacyPage() {
               saved, only a scrambled fingerprint of it that can&apos;t be turned back into your password.
             </li>
             <li>Messages you send from the &ldquo;Tell us what you think&rdquo; box, and the email you leave with one.</li>
+            <li>
+              Your answers to the three price questions after your first week. They&apos;re saved without your
+              name, email or device.
+            </li>
           </ul>
           <p className="hint">PlateWise is made for parents, not for children to use themselves.</p>
         </section>
@@ -53,9 +57,10 @@ export default function PrivacyPage() {
             </li>
             <li>To log you in, and keep your things the same on all your devices.</li>
             <li>To send the daily reminder, if you turn it on.</li>
+            <li>To decide what PlateWise should cost, from the price answers.</li>
             <li>
               To keep costs down: how many plans, swaps and fridge scans each account or device made in the last 7
-              days, just the times, so each family can make 3 plans, 6 swaps and 10 scans a week.
+              days, just the times, so each family can make 2 plans, 4 swaps and 5 scans a week.
             </li>
             <li>
               To see roughly how PlateWise is being used, as counts: how many plans, swaps and fridge scans, and in
@@ -133,8 +138,8 @@ export default function PrivacyPage() {
             <li>
               <strong>With an account:</strong> on your Profile, under Your account, tap &ldquo;Delete my
               account&rdquo;. It deletes your account, name and email, your saved answers and ratings, every plan
-              you made (for anyone you shared it with too), and the messages you sent. Only the anonymous counts
-              stay.
+              you made (for anyone you shared it with too), the messages you sent, and your price answers. Only the
+              anonymous counts stay.
             </li>
             <li>
               <strong>Without an account:</strong> tap &ldquo;Delete this plan&rdquo; at the bottom of a plan&apos;s

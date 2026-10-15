@@ -7,7 +7,7 @@ import { requestDeviceId } from "./visitor";
 // Weekly limits, so one person (or a bug) can't run up the AI bill. Counted over the last 7 days:
 // per account when she's logged in, otherwise per device. A request without a device shares one
 // count. The admin's own devices (where the admin page was opened) aren't limited.
-export const WEEKLY_LIMITS = { plan: 3, swap: 6, scan: 10 } as const;
+export const WEEKLY_LIMITS = { plan: 2, swap: 4, scan: 5 } as const;
 export type UsageKind = keyof typeof WEEKLY_LIMITS;
 
 const WEEK_MS = 7 * 86_400_000;

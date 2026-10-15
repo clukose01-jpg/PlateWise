@@ -1,6 +1,8 @@
 import type { Account } from "./accounts";
 import type { AppEvent } from "./events";
 import { allFeedback } from "./feedback";
+import { PLANNED_PRICE, type WouldPay } from "./price";
+import { allPriceAnswers } from "./price-check";
 import type { SavedReminder } from "./reminders";
 import { groceryTotal } from "./plan-schema";
 import { DEFAULT_REMINDER_HOUR, hourLabel, REMINDER_HOURS } from "./reminder-times";
@@ -34,6 +36,17 @@ export type AdminStats = {
   skipReasons: Count[];
   feedback: { at: string; text: string; email: string | null; place: string | null }[];
   feedbackLast7: number;
+  // The price questions after a family's first week.
+  price: {
+    planned: number;
+    yes: number;
+    maybe: number;
+    no: number;
+    // The middle answer, so one joke answer can't skew it.
+    tooExpensive: number | null;
+    greatDeal: number | null;
+    answers: { at: string; price: number; wouldPay: WouldPay; tooExpensive: number | null; greatDeal: number | null }[];
+  };
   totals: {
     plans: number;
     plansLast7: number;
@@ -130,6 +143,14 @@ function topCounts(counts: Map<string, number>, limit = TOP): Count[] {
 
 function bump(map: Map<string, number>, key: string, by = 1) {
   map.set(key, (map.get(key) ?? 0) + by);
+}
+
+// The middle of the prices people gave (the median), or null if nobody gave one.
+function middle(values: (number | undefined)[]): number | null {
+  const sorted = values.filter((value): value is number => typeof value === "number").sort((a, b) => a - b);
+  if (!sorted.length) return null;
+  const half = Math.floor(sorted.length / 2);
+  return sorted.length % 2 ? sorted[half] : (sorted[half - 1] + sorted[half]) / 2;
 }
 
 const isBlocked = (event: AppEvent) => event.type === "plan-blocked" || event.type === "swap-blocked";
@@ -246,6 +267,7 @@ export async function adminStats(): Promise<AdminStats> {
   const madeIn = (plan: StoredPlan) => Object.values(plan.cooked ?? {}).filter((a) => a?.status === "made").length;
   const olderFamilies = [...firstPlan].filter(([, iso]) => !recent(iso, 7)).map(([family]) => family);
   const feedback = await allFeedback().catch(() => []);
+  const priceAnswers = await allPriceAnswers().catch(() => []);
 
   const ratings = accounts.flatMap((account) => Object.values(account.data?.ratings ?? {}));
   const tracked = datedPlans.filter((plan) => plan.deviceId || plan.origin);
@@ -271,6 +293,21 @@ export async function adminStats(): Promise<AdminStats> {
       place: placeName(item.origin),
     })),
     feedbackLast7: feedback.filter((item) => recent(item.at, 7)).length,
+    price: {
+      planned: PLANNED_PRICE,
+      yes: priceAnswers.filter((answer) => answer.wouldPay === "yes").length,
+      maybe: priceAnswers.filter((answer) => answer.wouldPay === "maybe").length,
+      no: priceAnswers.filter((answer) => answer.wouldPay === "no").length,
+      tooExpensive: middle(priceAnswers.map((answer) => answer.tooExpensive)),
+      greatDeal: middle(priceAnswers.map((answer) => answer.greatDeal)),
+      answers: priceAnswers.slice(0, 50).map((answer) => ({
+        at: answer.at,
+        price: answer.price,
+        wouldPay: answer.wouldPay,
+        tooExpensive: answer.tooExpensive ?? null,
+        greatDeal: answer.greatDeal ?? null,
+      })),
+    },
     trackingSince: tracked.length ? tracked[tracked.length - 1].createdAt! : null,
     totals: {
       plans: plans.length,

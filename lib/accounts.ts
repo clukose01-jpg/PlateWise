@@ -6,6 +6,7 @@ import { deletePlan, isOwner, loadPlan } from "./plans";
 import { allReminders, deleteReminder } from "./reminders";
 import { sessionAccountId, sessionIssuedAt, sessionSecret } from "./session";
 import { deleteJson, listNames, readJson, writeJson } from "./store";
+import { forgetPriceAnswer } from "./price-check";
 import { forgetUsage } from "./usage";
 
 // An account is a private file holding what each device would otherwise keep to itself: family
@@ -304,7 +305,7 @@ export async function logInWithPassword(email: string, password: string, device:
 }
 
 // "Delete my account": the account, every plan she made (for anyone she shared it with too) with
-// its reminders, her messages from the feedback box, and any login codes.
+// its reminders, her messages from the feedback box, her price answers, and any login codes.
 // Anonymous counts on the admin page, like "a fridge scan in Newark", stay. The device sends the
 // plans it made too, in case any never reached the account.
 export async function deleteAccount(account: Account, deviceOwnerKeys: Record<string, string>) {
@@ -332,6 +333,7 @@ export async function deleteAccount(account: Account, deviceOwnerKeys: Record<st
   await deleteJson(codeFile(account.email));
   await deleteJson(attemptsFile(account.email));
   await forgetUsage(account.id);
+  await forgetPriceAnswer(account.id);
   await deleteJson(`accounts/${account.id}.json`);
   return { plans: deleted.size };
 }

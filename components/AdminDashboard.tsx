@@ -162,6 +162,59 @@ function DayChart({ times }: { times: string[] }) {
   );
 }
 
+const WOULD_PAY_LABELS = { yes: "Yes", maybe: "Maybe", no: "No" } as const;
+
+const dollars = (usd: number | null) => (usd === null ? "not sure" : `$${usd.toFixed(2)}`);
+
+// Answers to the three price questions families see a week after their first plan.
+function PriceAnswers({ price }: { price: AdminStats["price"] }) {
+  const total = price.yes + price.maybe + price.no;
+  const asked = dollars(price.planned);
+  return (
+    <section className="card admin-card wide">
+      <h2 className="section-title">Would they pay {asked}?</h2>
+      <p className="hint">
+        Asked under Today once a family&apos;s first plan is a week old. Add ?pricecheck to a plan&apos;s address
+        to see the questions.
+      </p>
+      {total === 0 ? (
+        <p className="quiet">No answers yet.</p>
+      ) : (
+        <>
+          <div className="stat-grid">
+            <Tile
+              label={`Would keep using it at ${asked}`}
+              value={`${price.yes} yes`}
+              note={`${price.maybe} maybe, ${price.no} no`}
+            />
+            <Tile
+              label="Too expensive at"
+              value={price.tooExpensive === null ? "–" : dollars(price.tooExpensive)}
+              note="the middle answer"
+            />
+            <Tile
+              label="A great deal at"
+              value={price.greatDeal === null ? "–" : dollars(price.greatDeal)}
+              note="the middle answer"
+            />
+          </div>
+          <ul className="message-list">
+            {price.answers.map((answer) => (
+              <li key={answer.at}>
+                <p className="message-meta">{dateAndTime(answer.at)}</p>
+                <p className="message-text">
+                  {WOULD_PAY_LABELS[answer.wouldPay]} at {dollars(answer.price)}. Too expensive at{" "}
+                  {dollars(answer.tooExpensive)}, a great deal at {dollars(answer.greatDeal)}.
+                </p>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+    </section>
+  );
+}
+
 function BarList({ title, hint, items, empty }: { title: string; hint?: string; items: Count[]; empty: string }) {
   const top = Math.max(1, ...items.map((item) => item.count));
   return (
@@ -496,6 +549,8 @@ export default function AdminDashboard() {
               </ul>
             )}
           </section>
+
+          <PriceAnswers price={stats.price} />
 
           <DayChart times={stats.planTimes} />
 

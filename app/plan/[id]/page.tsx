@@ -5,6 +5,7 @@ import DinnerCard from "@/components/DinnerCard";
 import LoginNudge from "@/components/LoginNudge";
 import MissingPlan from "@/components/MissingPlan";
 import OfflineNote from "@/components/OfflineNote";
+import PriceCheck from "@/components/PriceCheck";
 import { Logo } from "@/components/Illustrations";
 import { GroceryList, PrepList } from "@/components/PlanSections";
 import RememberPlan from "@/components/RememberPlan";
@@ -100,16 +101,19 @@ export default async function PlanPage({ params, searchParams }: Props) {
       <OfflineNote />
 
       {tab === "today" && (
-        <TodayView
-          planId={id}
-          plan={plan}
-          prepGroups={prep}
-          createdAt={createdAt}
-          madeOn={family.madeOn}
-          people={people}
-          budget={family.budget}
-          cooked={saved.cooked}
-        />
+        <>
+          <TodayView
+            planId={id}
+            plan={plan}
+            prepGroups={prep}
+            createdAt={createdAt}
+            madeOn={family.madeOn}
+            people={people}
+            budget={family.budget}
+            cooked={saved.cooked}
+          />
+          <PriceCheck />
+        </>
       )}
 
       {/* On a computer, sharing and "planned around" sit to the right of the dinners. */}

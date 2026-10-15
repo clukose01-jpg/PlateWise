@@ -2678,3 +2678,26 @@ main.admin {
   color: var(--muted);
   white-space: nowrap;
 }
+
+/* The price questions under Today, a week after a family's first plan. */
+.price-check fieldset {
+  margin: 20px 0 0;
+  padding: 0;
+  border: none;
+}
+
+.price-check legend.question {
+  margin-top: 0;
+}
+
+.price-check .question {
+  margin: 20px 0 10px;
+}
+
+.price-check .hint {
+  margin: 8px 0 16px;
+}
+
+.price-check .link {
+  margin-top: 8px;
+}
