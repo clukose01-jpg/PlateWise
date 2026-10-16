@@ -7,7 +7,7 @@ import AccountCard from "@/components/AccountCard";
 import FamilySummary from "@/components/FamilySummary";
 import FeedbackCard from "@/components/FeedbackCard";
 import { FoodList } from "@/components/FridgeStep";
-import { Logo } from "@/components/Illustrations";
+import { Logo, QuestionIcon } from "@/components/Illustrations";
 import InstallHelp from "@/components/InstallHelp";
 import PlanHistory from "@/components/PlanHistory";
 import ReminderSettings from "@/components/ReminderSettings";
@@ -44,6 +44,16 @@ export default function MorePage() {
 
       {/* On a computer, these cards flow into columns. */}
       <div className="more-layout">
+        {/* First, so a question never means scrolling to the bottom of the page. */}
+        <Link href="/faq" className="card help-link">
+          <QuestionIcon />
+          <span className="help-text">
+            <strong>Common questions</strong>
+            <span className="hint">Quick answers about how PlateWise works</span>
+          </span>
+          <span className="chevron right" aria-hidden="true" />
+        </Link>
+
         <section className="card">
           <h2 className="section-title">Favorite dinners</h2>
           {favorites.length === 0 ? (

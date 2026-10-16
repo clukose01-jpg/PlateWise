@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import AccountBadge from "@/components/AccountBadge";
@@ -114,6 +115,11 @@ export default function NewPlan() {
                 <li>Planned around allergies</li>
                 <li>One grocery list for the week, and it learns what you like</li>
               </ul>
+            )}
+            {firstVisit && (
+              <p className="intro-help">
+                Have a question? <Link href="/faq">See common questions</Link>
+              </p>
             )}
           </>
         )}

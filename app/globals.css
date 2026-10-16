@@ -381,6 +381,47 @@ button {
   margin: 14px 0 0;
 }
 
+/* "Common questions", the first row on Profile. */
+.help-link {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.help-link svg {
+  flex-shrink: 0;
+  color: var(--accent);
+}
+
+.help-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.help-text .hint {
+  font-size: 15px;
+}
+
+.chevron.right {
+  transform: rotate(-45deg);
+}
+
+/* Under the first-visit lines on the new-plan page. */
+.intro-help {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.intro-help a {
+  font-weight: 600;
+}
+
 /* Common questions: each answer opens under its question. */
 .faq {
   max-width: 760px;
