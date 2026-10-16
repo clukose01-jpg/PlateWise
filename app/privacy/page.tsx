@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import AccountBadge from "@/components/AccountBadge";
 import { Logo } from "@/components/Illustrations";
 import TabBar from "@/components/TabBar";
@@ -152,8 +153,8 @@ export default function PrivacyPage() {
         <section className="card">
           <h2 className="section-title">Questions</h2>
           <p>
-            Use the &ldquo;Tell us what you think&rdquo; box on your Profile, and leave your email if you&apos;d like
-            an answer.
+            See the <Link href="/faq">common questions</Link>, or use the &ldquo;Tell us what you think&rdquo; box on
+            your Profile and leave your email if you&apos;d like an answer.
           </p>
         </section>
       </article>

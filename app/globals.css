@@ -381,6 +381,56 @@ button {
   margin: 14px 0 0;
 }
 
+/* Common questions: each answer opens under its question. */
+.faq {
+  max-width: 760px;
+}
+
+.faq details + details {
+  border-top: 1px solid var(--border);
+}
+
+.faq summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 0;
+  font-weight: 650;
+  cursor: pointer;
+  list-style: none;
+}
+
+.faq summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq details[open] .chevron {
+  transform: rotate(-135deg);
+}
+
+.faq-answer {
+  padding-bottom: 14px;
+}
+
+.faq-answer p,
+.faq-answer ul {
+  margin: 0;
+}
+
+.faq-answer ul {
+  padding-left: 20px;
+}
+
+.faq-answer li + li {
+  margin-top: 8px;
+}
+
+.faq-answer a {
+  color: var(--accent);
+  font-weight: 600;
+}
+
 /* "Delete my account" and the privacy link, at the bottom of the account card. */
 .delete-account {
   margin-top: 18px;

@@ -116,7 +116,11 @@ export default function MorePage() {
             family likes each week.
           </p>
           <p className="hint">
-            It&apos;s new and still being tested with families, so{" "}
+            It&apos;s new and still being tested with families. Have a question? See the{" "}
+            <Link href="/faq" className="link inline">
+              common questions
+            </Link>
+            , or{" "}
             <a href="#feedback" className="link inline">
               tell us what you think
             </a>
