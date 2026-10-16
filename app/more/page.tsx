@@ -44,16 +44,6 @@ export default function MorePage() {
 
       {/* On a computer, these cards flow into columns. */}
       <div className="more-layout">
-        {/* First, so a question never means scrolling to the bottom of the page. */}
-        <Link href="/faq" className="card help-link">
-          <QuestionIcon />
-          <span className="help-text">
-            <strong>Common questions</strong>
-            <span className="hint">Quick answers about how PlateWise works</span>
-          </span>
-          <span className="chevron right" aria-hidden="true" />
-        </Link>
-
         <section className="card">
           <h2 className="section-title">Favorite dinners</h2>
           {favorites.length === 0 ? (
@@ -110,6 +100,16 @@ export default function MorePage() {
         </section>
 
         <ReminderSettings />
+
+        {/* Just above the feedback box: answers first, then a message if the answer isn't there. */}
+        <Link href="/faq" className="card help-link">
+          <QuestionIcon />
+          <span className="help-text">
+            <strong>Common questions</strong>
+            <span className="hint">Quick answers about how PlateWise works</span>
+          </span>
+          <span className="chevron right" aria-hidden="true" />
+        </Link>
 
         <FeedbackCard />
 
