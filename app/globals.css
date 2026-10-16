@@ -1297,6 +1297,55 @@ legend.question {
   color: var(--accent);
 }
 
+/* Today, Week and Groceries before there's a plan: a button that explains instead of a link. */
+button.tab {
+  background: none;
+  border: none;
+}
+
+/* The note those tabs show, just above the tab bar. */
+.tab-notice {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: calc(76px + env(safe-area-inset-bottom));
+  z-index: 11;
+  max-width: 448px;
+  margin: 0 auto;
+  padding: 14px 18px;
+  border-radius: 16px;
+  background: var(--button);
+  color: var(--accent-text);
+  font-weight: 600;
+  box-shadow: var(--button-shadow);
+  animation: tab-notice-in 0.2s ease-out;
+}
+
+.tab-notice p {
+  margin: 0;
+}
+
+.tab-notice a {
+  display: inline-block;
+  margin-top: 6px;
+  color: var(--accent-text);
+  font-weight: 700;
+  text-underline-offset: 3px;
+}
+
+@keyframes tab-notice-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab-notice {
+    animation: none;
+  }
+}
+
 .tabbar-logo {
   display: none;
 }
@@ -1495,6 +1544,14 @@ button:disabled {
 
   .tab.active {
     background: var(--accent-soft);
+  }
+
+  .tab-notice {
+    left: calc(var(--sidebar) + 32px);
+    right: auto;
+    bottom: 32px;
+    width: 420px;
+    margin: 0;
   }
 
   .today-date {
