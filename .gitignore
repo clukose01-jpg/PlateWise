@@ -5,6 +5,7 @@ out/
 .env*.local
 .env
 next-env.d.ts
+AGENTS.md
 *.tsbuildinfo
 .DS_Store
 .data/
